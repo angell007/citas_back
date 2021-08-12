@@ -60,9 +60,9 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-// Route::get('/test', 'TestController@getWailist');
+Route::get('/test', 'TestController@getWailist');
 
-Route::get('/test', 'TestController@uploadMassive');
+// Route::get('/test', 'TestController@uploadMassive');
 
 
 Route::prefix("auth")->group(

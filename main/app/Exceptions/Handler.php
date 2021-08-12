@@ -52,11 +52,12 @@ class Handler extends ExceptionHandler
     {
         return parent::render($request, $exception);
     }
-    
+
     protected function context()
-{
-    return array_merge(parent::context(), [
-        'User' =>  ':boom:' . (auth()->user()) ? auth()->user()->id : 'Sin usuario',
-    ]);
-}
+    {
+        return array_merge(parent::context(), [
+            'User' =>  ':boom:' . (auth()->user()) ? auth()->user()->id : 'Sin usuario',
+            // 'User' =>  ':boom:',
+        ]);
+    }
 }
