@@ -113,7 +113,7 @@ class CallInController extends Controller
     {
         try {
 
-            $data =  WaitingList::with('appointment', 'appointment.callin')->find(304);
+            $data =  WaitingList::with('appointment', 'appointment.callin', 'appointment.cup:description As text,id', 'appointment.cie10:description As text,id')->find(304);
             $patient = Patient::with('eps', 'company', 'municipality', 'department', 'regional', 'level', 'regimentype', 'typedocument', 'contract')->firstWhere('identifier', $data->appointment->callin->Identificacion_Paciente);
             $isNew = false;
             return $this->success(['paciente' => $patient, 'llamada' => $data->appointment->callin, 'isNew' => $isNew, 'anotherData' =>  $data]);

@@ -10,7 +10,7 @@ class Appointment extends Model
     protected $table = 'appointments';
 
     protected $fillable = [
-        
+
         'call_id',
         'space_id',
         'diagnostico',
@@ -42,27 +42,40 @@ class Appointment extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    function space(){
+    function space()
+    {
         return $this->belongsTo(Space::class);
     }
-    
-    function callIn(){
-        return $this->belongsTo(CallIn::class,'call_id');
+
+    function cup()
+    {
+        return $this->belongsTo(Cup::class, 'procedure');
     }
-    
-    function location(){
-        return $this->belongsTo(Location::class,'call_id');
+
+    function cie10()
+    {
+        return $this->belongsTo(Cie10::class, 'diagnostico');
     }
-    
-    function setCodeAttribute($value){
-        
-          $this->attributes['code'] = $value;
-        
+
+    function callIn()
+    {
+        return $this->belongsTo(CallIn::class, 'call_id');
     }
-    
-    function setLinkAttribute($value){
-            
-          $this->attributes['link'] = 'https://meet.jit.si/' . $this->attributes['code'];
+
+    function location()
+    {
+        return $this->belongsTo(Location::class, 'call_id');
     }
-    
+
+    function setCodeAttribute($value)
+    {
+
+        $this->attributes['code'] = $value;
+    }
+
+    function setLinkAttribute($value)
+    {
+
+        $this->attributes['link'] = 'https://meet.jit.si/' . $this->attributes['code'];
+    }
 }

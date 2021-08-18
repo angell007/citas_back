@@ -56,8 +56,7 @@ class Handler extends ExceptionHandler
     protected function context()
     {
         return array_merge(parent::context(), [
-            'User' =>  ':boom:' . (auth()->user()) ? auth()->user()->id : 'Sin usuario',
-            // 'User' =>  ':boom:',
+            // 'User' =>  ':boom:' . (gettype(auth()->user()) == 'object') ? auth()->user()->id : 'Sin usuario',
         ]);
     }
 }

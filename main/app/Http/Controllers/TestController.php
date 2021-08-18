@@ -26,6 +26,78 @@ use Illuminate\Support\Facades\Http;
 
 class TestController extends Controller
 {
+    public function spacesTomados()
+    {
+        $person = Person::find(11637);
+        // $typeAppointment = TypeAppointment::find($agendamiento->type_agenda_id);
+        $verifyDate =  '10:20:00';
+
+        $result = false;
+        $agendamientos = Agendamiento::with('spaces')->where('person_id', 11637)
+            ->whereBetween('date_start', ['2021-08-18', '2021-08-18'])
+            ->orWhereBetween('date_end',  ['2021-08-18', '2021-08-18'])->get();
+
+        // $agendamientos = DB::table('agendamientos')->with('spaces')->where('person_id', 11637)
+        //     ->whereBetween('date_start', ['2021-08-18', '2021-08-18'])
+        //     ->orWhereBetween('date_end',  ['2021-08-18', '2021-08-18'])->get();
+
+        // dd($agendamientos );
+
+        foreach ($agendamientos as $agendamiento) {
+            foreach ($agendamiento->spaces as $space) {
+                // if (Carbon::parse($verifyDate)->betweenIncluded($space->hour_start, $space->hour_end)) {
+                if (Carbon::parse($verifyDate)->betweenExcluded($space->hour_start, $space->hour_end)) {
+
+                    dd(Carbon::parse($verifyDate), $space->hour_start, $space->hour_end);
+                    $result = true;
+                    break;
+                }
+            }
+        }
+
+        dd($result);
+
+        // 2021-08-19
+        // date_start
+
+        // hour_end: "07:00"
+        // hour_start: "19:00"
+
+        // $inicio = Carbon::parse();
+        // $fin = Carbon::parse();
+
+        dd([
+            Carbon::parse('2021-08-18' . '07:00') <
+                Carbon::parse('2021-08-19' . '19:00')
+        ]);
+
+        return response([
+            Carbon::parse('2021-08-18' . '07:00'),
+            Carbon::parse('2021-08-19' . '19:00'),
+        ]);
+
+        // $data = [];
+        // $data['date_start'] = Carbon::parse("2021-08-30 08:15:00");
+        // $data['date_end'] = Carbon::parse("2021-08-30 08:30:00");
+
+        // // dd(
+        // //     Carbon::parse('2021-08-30 08:20:00')->betweenExcluded($data['date_start'], $data['date_end']),
+        // //     Carbon::parse('2021-08-30 08:30:00')->betweenExcluded($data['date_start'], $data['date_end'])
+        // // );
+
+        // $result = DB::table('spaces')
+        //     ->WhereBetween('hour_start', [$data['date_start'], $data['date_end']])
+        //     ->orWhere(function ($q) use ($data) {
+        //         $q->whereDate('hour_end', '>=', $data['date_start'])
+        //             ->whereDate('hour_end', '<=', $data['date_end']);
+        //     })
+        //     ->first();
+
+        // dd($result);
+
+
+        // DB::table('spaces')->whereBetween('hour_start', [$data['date_end'], $data['date_start']])->orWhereBetween('hour_end', [$data['date_end'], $data['date_start']])->first();
+    }
     public function fillDdays($agendamiento, $date)
     {
         $person = Person::find($agendamiento->person_id);
@@ -241,26 +313,26 @@ class TestController extends Controller
 
         // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
 
-            $appointment = Appointment::with('space', 'callin')->find(23040);
-            // $appointment = Appointment::with('space', 'callin')->find($temp->id);
-            if ($appointment->space && $appointment->callin->patient) {
+        $appointment = Appointment::with('space', 'callin')->find(23040);
+        // $appointment = Appointment::with('space', 'callin')->find($temp->id);
+        if ($appointment->space && $appointment->callin->patient) {
 
-                $cup = Cup::find($appointment->procedure);
-                $location = Location::find($appointment->callin->patient->location_id);
-                $contract = Contract::find($appointment->callin->patient->contract_id);
-                $typeDocument =    TypeDocument::find($appointment->callin->patient->type_document_id);
-                $regimenType =    RegimenType::find($appointment->callin->patient->regimen_id);
-                $level = Level::find($appointment->callin->patient->level_id);
-                $municipality = Municipality::find($appointment->callin->patient->municipality_id);
-                $department = Department::find($appointment->callin->patient->department_id);
-                $company = Company::find($appointment->callin->patient->company_id);
-                
-                 if( $company ){
+            $cup = Cup::find($appointment->procedure);
+            $location = Location::find($appointment->callin->patient->location_id);
+            $contract = Contract::find($appointment->callin->patient->contract_id);
+            $typeDocument =    TypeDocument::find($appointment->callin->patient->type_document_id);
+            $regimenType =    RegimenType::find($appointment->callin->patient->regimen_id);
+            $level = Level::find($appointment->callin->patient->level_id);
+            $municipality = Municipality::find($appointment->callin->patient->municipality_id);
+            $department = Department::find($appointment->callin->patient->department_id);
+            $company = Company::find($appointment->callin->patient->company_id);
+
+            if ($company) {
 
                 $appointment->code = $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT);
                 $appointment->link = 'https://meet.jit.si/' . $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT);
                 $appointment->save();
-                   
+
                 if (gettype($level) == 'object' &&     gettype($regimenType) == 'object' && gettype($location) == 'object' && gettype($contract) == 'object') {
 
                     $body = [
@@ -325,19 +397,16 @@ class TestController extends Controller
                     }
                     echo '<br>';
                 }
-                   
-                }
-                
-                echo 'No company ' . $appointment-> id ;
-                
-
-            } else {
-                
-                echo 'Sin spaces  ' .  $appointment->id ;
             }
-            
-             echo ("=============================<br>");
-             
+
+            echo 'No company ' . $appointment->id;
+        } else {
+
+            echo 'Sin spaces  ' .  $appointment->id;
+        }
+
+        echo ("=============================<br>");
+
         // }
     }
 }

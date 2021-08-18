@@ -22,27 +22,25 @@ use Carbon\Carbon;
 
 class SendAppointmentCreatedNotification
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
+	/**
+	 * Create the event listener.
+	 *
+	 * @return void
+	 */
+	public function __construct()
+	{
+		//
+	}
 
-    // 6539f628b4ae1684293127dbd8b7c218-0ff63c3a-b216-4d9b-a25a-ffd99b3058e3
-    // AteneoSms
-    /**
-     * Handle the event.
-     *
-     * @param  AppointmentModify  $event
-     * @return void
-     */
-    public function handleMail($appointment, $space,  $data, $another)
-    {
-       	$cup = Cup::find($data['procedureId']['value']);
+	/**
+	 * Handle the event.
+	 *
+	 * @param  AppointmentModify  $event
+	 * @return void
+	 */
+	public function handleMail($appointment, $space,  $data, $another)
+	{
+		$cup = Cup::find($data['procedureId']['value']);
 		$location = in_array('sede', $another) ? Location::find($another['sede']) : Location::find($data['patient']['location_id']);
 		$contract = Contract::find($data['patient']['contract_id']);
 		$typeDocument =	TypeDocument::find($data['patient']['type_document_id']);
@@ -50,7 +48,7 @@ class SendAppointmentCreatedNotification
 		$level = Level::find($data['patient']['level_id']);
 		$municipality = Municipality::find($data['patient']['municipality_id']);
 		$department = Department::find($data['patient']['department_id']);
-		$agendamiento = $space->with('agendamiento', 'agendamiento.company', 'agendamiento.typeAppointment' )->find($space->id);
+		$agendamiento = $space->with('agendamiento', 'agendamiento.company', 'agendamiento.typeAppointment')->find($space->id);
 
 		$body = [
 			"id" => $appointment->id,
@@ -95,19 +93,20 @@ class SendAppointmentCreatedNotification
 				'id' => $location->id,
 				'name' => $location->name
 			],
-			
+
 			'company' => $space->agendamiento->company
 		];
-            
-     
-         if(isset($space)){
-            Mail::to($body['patient']['email'])->send(new NotifyMail($body));
-         }
-        
-    }
-    
-    public function handle()
-    {
-       
-    }
+
+		try {
+			if (isset($space)) {
+				Mail::to($body['patient']['email'])->send(new NotifyMail($body));
+			}
+		} catch (\Throwable $th) {
+			Log::warning("Correo no enviado!" . json_encode($th->getMessage()));
+		}
+	}
+
+	public function handle()
+	{
+	}
 }
