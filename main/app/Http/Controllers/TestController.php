@@ -29,7 +29,6 @@ class TestController extends Controller
     public function spacesTomados()
     {
         $person = Person::find(11637);
-        // $typeAppointment = TypeAppointment::find($agendamiento->type_agenda_id);
         $verifyDate =  '10:20:00';
 
         $result = false;
@@ -37,18 +36,9 @@ class TestController extends Controller
             ->whereBetween('date_start', ['2021-08-18', '2021-08-18'])
             ->orWhereBetween('date_end',  ['2021-08-18', '2021-08-18'])->get();
 
-        // $agendamientos = DB::table('agendamientos')->with('spaces')->where('person_id', 11637)
-        //     ->whereBetween('date_start', ['2021-08-18', '2021-08-18'])
-        //     ->orWhereBetween('date_end',  ['2021-08-18', '2021-08-18'])->get();
-
-        // dd($agendamientos );
-
         foreach ($agendamientos as $agendamiento) {
             foreach ($agendamiento->spaces as $space) {
-                // if (Carbon::parse($verifyDate)->betweenIncluded($space->hour_start, $space->hour_end)) {
                 if (Carbon::parse($verifyDate)->betweenExcluded($space->hour_start, $space->hour_end)) {
-
-                    dd(Carbon::parse($verifyDate), $space->hour_start, $space->hour_end);
                     $result = true;
                     break;
                 }

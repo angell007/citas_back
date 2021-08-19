@@ -147,10 +147,17 @@ class AgendamientoController extends Controller
             $this->validating($data);
 
             $agendamiento = Agendamiento::create($request->all());
+
             $holidays = Holiday::pluck('date')->toArray();
 
             $agendamiento->user_id = auth()->user()->id;
+
             $agendamiento->save();
+
+
+            $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
+                ->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
+                ->orWhereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end])->get();
 
             $inicio = Carbon::parse($agendamiento->date_start);
             $fin = Carbon::parse($agendamiento->date_end);
@@ -174,7 +181,19 @@ class AgendamientoController extends Controller
                             $space <   $hour_end;
                             $space->addMinutes($agendamiento->long)
                         ) {
-                            $this->fillDdays($agendamiento, $space->copy());
+                            $result = true;
+                            foreach ($agendamientos as $agendamiento) {
+                                foreach ($agendamiento->spaces as $myspace) {
+                                    if (Carbon::parse($space->copy())->betweenIncluded($myspace->hour_start, Carbon::parse($myspace->hour_end)->subSecond())) {
+                                        $result = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($result) {
+                                $this->fillDdays($agendamiento, $space->copy());
+                            }
                         }
                     }
                 }
@@ -243,41 +262,32 @@ class AgendamientoController extends Controller
 
     public function fillDdays($agendamiento, $date)
     {
-
         $person = Person::find($agendamiento->person_id);
         $typeAppointment = TypeAppointment::find($agendamiento->type_agenda_id);
-        $verifyDate =  $date->copy();
-        $result = false;
-        $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
-            ->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
-            ->whereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end]);
+        // $verifyDate =  $date->copy();
+        // $result = false;
 
-        foreach ($agendamientos as $agendamiento) {
-            foreach ($agendamiento->spaces as $space) {
-                if (Carbon::parse($verifyDate)->betweenExcluded($space->hour_start, $space->hour_end)) {
-                    $result = true;
-                    break;
-                }
-            }
-        }
+        // foreach ($agendamientos as $agendamiento) {
+        //     foreach ($agendamiento->spaces as $space) {
+        //         if (Carbon::parse($verifyDate)->betweenIncluded($space->hour_start, Carbon::parse($space->hour_end)->subSecond())) {
+        //             $result = true;
+        //             break;
+        //         }
+        //     }
+        // }
 
-        // $result = DB::table('spaces')
-        //     ->whereBetween('hour_end', [$verifyDate, $verifyDate->copy()->addMinutes($agendamiento->long)])
-        //     ->whereBetween('hour_start', [$verifyDate, $verifyDate->copy()->addMinutes($agendamiento->long)])
-        //     ->first();
-
-        if (!$result) {
-            Space::create([
-                "agendamiento_id" => $agendamiento->id,
-                "status" => true,
-                "hour_start" => (string) $date,
-                "hour_end" => (string) $date->addMinutes($agendamiento->long),
-                "long" => $agendamiento->long,
-                "person_id" => $agendamiento->person_id,
-                "backgroundColor" => $person->color,
-                "className" => $typeAppointment->icon,
-            ]);
-        }
+        // if (!$result) {
+        Space::create([
+            "agendamiento_id" => $agendamiento->id,
+            "status" => true,
+            "hour_start" => (string) $date,
+            "hour_end" => (string) $date->addMinutes($agendamiento->long),
+            "long" => $agendamiento->long,
+            "person_id" => $agendamiento->person_id,
+            "backgroundColor" => $person->color,
+            "className" => $typeAppointment->icon,
+        ]);
+        // }
     }
 
     /**

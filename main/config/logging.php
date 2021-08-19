@@ -35,19 +35,19 @@ return [
     |
     */
 
-    // 'channels' => [
-    //     'stack' => [
-    //         'driver' => 'stack',
-    //         'channels' => ['single', 'slack'],
-    //         'ignore_exceptions' => false,
-    //     ],
-
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'slack'],
             'ignore_exceptions' => false,
         ],
+
+    // 'channels' => [
+    //     'stack' => [
+    //         'driver' => 'stack',
+    //         'channels' => ['single'],
+    //         'ignore_exceptions' => false,
+    //     ],
 
         'single' => [
             'driver' => 'single',
