@@ -60,7 +60,7 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-Route::get('/test', 'TestController@getWailist');
+Route::get('/test', 'TestController@test');
 
 // Route::get('/test', 'TestController@uploadMassive');
 

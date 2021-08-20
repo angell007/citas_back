@@ -35,7 +35,9 @@ class AppointmentRequest extends FormRequest
             'date_remisor' =>  'required',
             'procedureId.value' =>  'required|exists:cups,id',
             'observation' => 'required',
-            'patient.email' => ['required','email', new emailCustom]
+            'patient.email' => ['required','email', new emailCustom],
+            'patient.identifier' => 'required|exists:patients,identifier'
+            
         ];
     }
 
@@ -46,6 +48,8 @@ class AppointmentRequest extends FormRequest
             'diagnosticoId.value.required' => 'Debe elegir un procedimiento valido',
             'patient.email.email' => 'Debe elegir un email valido',
             'diagnosticoId.required'  => 'Debe elegir un diagnostico valido',
+            'patient.identifier.exists' => 'Debes guardar los datos del paciente antes de generar la cita',
+            'patient.identifier.required' => 'Debes guardar los datos del paciente antes de generar la cita'
         ];
     }
 }

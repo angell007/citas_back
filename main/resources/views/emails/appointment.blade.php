@@ -274,7 +274,7 @@
                                                                                                             <br>
                                                                                                             
                                                                                                             @if($body['type'] != 'TELEMEDICINA')
-                                                                                                            <strong>Lugar:</strong> {{$body['location']['name']}}
+                                                                                                            <strong>Lugar:</strong> {{$body['location_for_appointment']['name']}}    -   {{$body['location_for_appointment']['address']}}
                                                                                                             @endif
                                                                                                             
                                                                                                         </div>

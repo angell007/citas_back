@@ -50,7 +50,7 @@ class SendAppointmentCreatedNotification
 		$level = Level::find($data['patient']['level_id']);
 		$municipality = Municipality::find($data['patient']['municipality_id']);
 		$department = Department::find($data['patient']['department_id']);
-		$agendamiento = $space->with('agendamiento', 'agendamiento.company', 'agendamiento.typeAppointment' )->find($space->id);
+		$agendamiento = $space->with('agendamiento', 'agendamiento.company', 'agendamiento.typeAppointment', 'agendamiento.location' )->find($space->id);
 
 		$body = [
 			"id" => $appointment->id,
@@ -95,14 +95,24 @@ class SendAppointmentCreatedNotification
 				'id' => $location->id,
 				'name' => $location->name
 			],
+			'location_for_appointment' => [
+				'name' =>   ($space->agendamiento->location) ? $space->agendamiento->location->name : '',
+				'address' =>  ($space->agendamiento->location) ? $space->agendamiento->location->address : ''
+			],
 			
 			'company' => $space->agendamiento->company
 		];
             
-     
-         if(isset($space)){
-            Mail::to($body['patient']['email'])->send(new NotifyMail($body));
-         }
+        try {
+                
+			if (isset($space)) {
+				Mail::to($body['patient']['email'])->send(new NotifyMail($body));
+			}
+			
+		} catch (\Throwable $th) {
+			Log::warning(" :boom: Correo no enviado!  " . $body['patient']['email'] );
+		}
+		
         
     }
     

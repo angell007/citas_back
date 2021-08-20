@@ -26,6 +26,12 @@ use Illuminate\Support\Facades\Http;
 
 class TestController extends Controller
 {
+    
+    public function test(){
+        
+         $space =  Space::with('agendamiento', 'agendamiento.company', 'agendamiento.location', 'agendamiento.typeAppointment' )->find(358605);
+         dd($space);
+    }
     public function fillDdays($agendamiento, $date)
     {
         $person = Person::find($agendamiento->person_id);
