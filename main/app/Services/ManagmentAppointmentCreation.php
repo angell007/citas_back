@@ -59,11 +59,7 @@ class ManagmentAppointmentCreation
 
             switch ((bool)isset($this->data['anotherData']['currentAppointment'])) {
                 case true:
-                    // $this->updateCall();
-                    // $this->createAppointment();
-                    // $this->appointment =  Appointment::find($this->data['anotherData']['currentAppointment']);
-                    return response()->json( $this->data['anotherData'] );
-                    // $this->appointment->id = $this->data['anotherData']['currentAppointment'];
+                    $this->appointment =  Appointment::find($this->data['anotherData']['currentAppointment']);
                     $this->getDataAppointment($this->appointment->id);
                     break;
                 case false:

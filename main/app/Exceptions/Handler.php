@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Models\Person;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -56,7 +58,7 @@ class Handler extends ExceptionHandler
     protected function context()
     {
         return array_merge(parent::context(), [
-            'User' =>  ':boom:' . (gettype(auth()->user()) == 'object') ? auth()->user()->id : 'Sin usuario',
+            'User' =>  ':boom:' . (gettype(auth()->user()) == 'object') ? Person::select(DB::raw("Conca_ws(' ', 'first_name', 'first_surname', 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
         ]);
     }
 }

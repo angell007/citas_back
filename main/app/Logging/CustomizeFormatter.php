@@ -2,7 +2,7 @@
 
 namespace App\Logging;
 
-use App\CustomModels\Person;
+use App\Models\Person;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SlackWebhookHandler;
 
@@ -24,15 +24,15 @@ class CustomizeFormatter
 
             if ($handler instanceof SlackWebhookHandler) {
 
-                $output = "[$checkLocal]: %datetime% > %level_name% - %message%` :poop: \n";
-                $formatter = new LineFormatter($output, $dateFormat);
-                $handler->setFormatter($formatter);
+                // $output = "[$checkLocal]: %datetime% > %level_name% - %message%` :poop: \n";
+                // $formatter = new LineFormatter($output, $dateFormat);
+                // $handler->setFormatter($formatter);
 
-                $handler->pushProcessor(function ($record) {
-                    $person =  Person::firstWhere('identifier', auth()->user->usuario);
-                    $record['extra']['Usuario'] = $person->first_name . ' ' .   $person->first_surname  . ' CC : ' . $person->identifier();
-                    return $record;
-                });
+                // $handler->pushProcessor(function ($record) {
+                //     $person =  Person::firstWhere('identifier', auth()->user()->person_id);
+                //     $record['extra']['Usuario'] = $person->first_name . ' ' .   $person->first_surname  . ' CC : ' . $person->identifier;
+                //     return $record;
+                // });
             }
         }
     }
