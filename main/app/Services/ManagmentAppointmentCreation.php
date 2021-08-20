@@ -52,13 +52,22 @@ class ManagmentAppointmentCreation
     {
         try {
 
+
             $this->data = $request;
             $this->another = $this->data['anotherData'];
             $this->company = Company::find($this->data['patient']['company_id']);
 
-            $this->updateCall();
-            $this->createAppointment();
-            $this->getDataAppointment($this->appointment->id);
+            switch ((bool)isset($this->data['anotherData']['currentAppointment'])) {
+                case true:
+                    $this->appointment =  Appointment::find($this->data['anotherData']['currentAppointment']);
+                    $this->getDataAppointment($this->appointment->id);
+                    break;
+                case false:
+                    $this->updateCall();
+                    $this->createAppointment();
+                    $this->getDataAppointment($this->appointment->id);
+                    break;
+            }
 
             if (!isset($this->data['space'])) {
                 $this->CreateWailist($this->appointment->id);
@@ -93,7 +102,7 @@ class ManagmentAppointmentCreation
 
 
                 Log::info([
-                    'appointment_id' => $this->appointment->id . ' :heart: ' ,
+                    'appointment_id' => $this->appointment->id . ' :heart: ',
                     // 'appointment_id' => $this->appointment->id . ' :heart: '     ,
                     'message' => $this->sendMessage($this->appointment, $this->space, $this->data, $this->company),
                     'user' => auth()->user()->usuario,
@@ -121,8 +130,8 @@ class ManagmentAppointmentCreation
 
     public function sendMessage()
     {
-        
-            return 'Sin mensaje';
+
+        return 'Sin mensaje';
 
         // $elibom = new ElibomClient($this->EMAIL_ELIBOM, $this->PASS_ELIBOM);
 

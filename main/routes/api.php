@@ -60,7 +60,8 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-Route::get('/test', 'TestController@test');
+
+Route::get('/test', 'TestController@spacesTomados');
 
 // Route::get('/test', 'TestController@uploadMassive');
 
@@ -99,6 +100,8 @@ Route::group(
 		Route::post("presentianCall", "CallInController@presentialCall");
 		Route::post("patientforwaitinglist", "CallInController@patientforwaitinglist");
 		Route::post("imports", [CupController::class, "import"]);
+
+		Route::post("cancell-agenda", [AgendamientoController::class, "cancellAgenda"]);
 
 		Route::get('reporte',  [ReporteController::class, 'general']);
 		Route::get('get-menu',  [MenuController::class, 'getByPerson']);

@@ -63,10 +63,11 @@ return [
         ],
 
         'slack' => [
+            
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => 'Ateneo',
-            'emoji' => ':bomb:',
+            'emoji' => ':boom:',
             'tap' => [CustomizeFormatter::class],
             'level' => env('LOG_LEVEL'),
         ],

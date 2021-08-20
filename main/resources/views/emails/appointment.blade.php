@@ -365,7 +365,7 @@
                                                                                                             inquietudes
                                                                                                             respecto a
                                                                                                             la
-                                                                                                            información
+                                                                                                            informaci贸n
                                                                                                             contenida en
                                                                                                             este correo
                                                                                                             debe
@@ -439,11 +439,11 @@
                                                                                                             style="font-family:inherit;text-align:center">
                                                                                                             <span
                                                                                                                 style="font-size:11px">Documento
-                                                                                                                Electrónico
+                                                                                                                Electr贸nico
                                                                                                                 generado
                                                                                                                 y
                                                                                                                 enviado
-                                                                                                                a través
+                                                                                                                a trav茅s
                                                                                                                 de los
                                                                                                                 servicios
                                                                                                                 de

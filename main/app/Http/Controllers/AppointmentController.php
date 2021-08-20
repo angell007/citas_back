@@ -37,6 +37,7 @@ use App\Listeners\SendAppointmentCreatedNotification;
 
 // include($_SERVER['DOCUMENT_ROOT'] .  DIRECTORY_SEPARATOR . '../elibom' . DIRECTORY_SEPARATOR . 'src/elibom_client.php');
 include($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'main'  . DIRECTORY_SEPARATOR . 'elibom' . DIRECTORY_SEPARATOR . 'src/elibom_client.php');
+
 use Elibom\APIClient\ElibomClient as ElibomClient;
 
 class AppointmentController extends Controller

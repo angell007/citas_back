@@ -16,7 +16,7 @@ class WaitingListService
     static public function averageTime(){
         return  DB::table('waiting_lists')
                 ->select(DB::raw(' 
-                            ( SUM( ifnull (TIMESTAMPDIFF( SECOND,  created_at , space_date_assign) ,0 ) ) /  count(*) ) time',
+                            ( SUM( ifnull (TIMESTAMPDIFF( SECOND,  created_at , space_date_assign) ,0 ) ) /  count(*) ) time'
                                 ))
                 ->where('state','=','Agendado')
                 ->first();
@@ -30,7 +30,7 @@ class WaitingListService
             ->select(
                 'specialities.name as speciality',
                 DB::raw(
-                    'COUNT(waiting_lists.speciality_id) as total',
+                    'COUNT(waiting_lists.speciality_id) as total'
                 )
             )
             ->groupBy('waiting_lists.speciality_id')
@@ -52,8 +52,8 @@ class WaitingListService
             ->select(
                 'specialities.name as speciality',
                 'waiting_lists.created_at as date',
-                DB::raw('waiting_lists.speciality_id as total','',),
-                DB::raw('CONCAT(patients.firstname, " ", patients.surname) as patient_name'),
+                DB::raw('waiting_lists.speciality_id as total',''),
+                DB::raw('CONCAT(patients.firstname, " ", patients.surname) as patient_name')
 
             )
             ->orderBy('waiting_lists.created_at')
@@ -80,17 +80,21 @@ class WaitingListService
                 $q->whereDate('waiting_lists.created_at', $date);
             })
 
-            ->when(request()->get('patient'), function ($q, $patient) {
-                $q->where('patients.identifier', $patient);
-                $q->orWhereRaw("CONCAT(`firstname`, ' ', `surname`) LIKE ?", ['%' . $patient . '%']);
+            ->when((request()->get('patient') && request()->get('patient') != 'null'), function ($q) {
+                $q->where(function($query) {
+                    $query->where('patients.identifier', request()->get('patient') )
+                          ->orWhereRaw("CONCAT(`firstname`, ' ', `surname`) LIKE ?", ['%' . request()->get('patient')  . '%']);
+                });
             })
-            ->when(request()->get('speciality'), function ($q, $speciality) {
-                $q->whereRaw('specialities.name LIKE ? ',  ['%' . $speciality . '%']);
+            
+            ->when((request()->get('speciality') && request()->get('speciality') != 'null'), function ($q) {
+                $q->where('waiting_lists.speciality_id', request()->get('speciality') );
             })
-
-            ->when(request()->get('institution'), function ($q, $inst) {
+            
+            ->when((request()->get('institution') && request()->get('institution') != 'null' ), function ($q, $inst) {
                 $q->where('appointments.company_id', $inst);
             })
+            
             ->whereNull('appointments.space_id')
             ->where('waiting_lists.state','=','Pendiente')
             ->select(
@@ -100,7 +104,7 @@ class WaitingListService
                 'sub_type_appointments.name as subType',
                 'patients.identifier as patient_identifier',
                 'patients.phone as patient_phone',
-                DB::raw('CONCAT(patients.firstname, " ", patients.surname) as patient_name'),
+                DB::raw('CONCAT(patients.firstname, " ", patients.surname) as patient_name')
             )->paginate($pageSize, '*', 'page', $page);
     }
 }

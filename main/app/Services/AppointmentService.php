@@ -49,6 +49,7 @@ class AppointmentService
 
         return   DB::table('appointments')
             ->join('call_ins', 'call_ins.id', '=', 'appointments.call_id')
+            ->join('patients', 'patients.identifier', '=', 'call_ins.Identificacion_Paciente')
             ->join('spaces', 'spaces.id', '=', 'appointments.space_id')
             ->join('people', 'people.id', '=', 'spaces.person_id')
             ->join('agendamientos', 'agendamientos.id', '=', 'spaces.agendamiento_id')
@@ -57,40 +58,44 @@ class AppointmentService
             ->join('specialities', 'specialities.id', '=', 'agendamientos.speciality_id')
             ->select(
                 'appointments.*',
-                'spaces.hour_start',
-                'people.first_name as profesional_name',
-                'specialities.name as speciality'
-            )
-            ->when(Request()->get('identifier'), function ($query, $ident) {
+                DB::raw('DATE_FORMAT(spaces.hour_start, "%Y-%m-%d %h:%i %p") As hour_start'),
+                DB::raw('Concat_ws(" ", people.first_name, people.first_surname) as profesional_name'),
+                DB::raw('Concat_ws(" ", patients.firstname,  patients.surname,
                 
-                $query->where('call_ins.Identificacion_Paciente', '=', $ident);
+                ' . DB::raw("FORMAT(patients.identifier, 0, '.')") . '
+                
+                ) as patient_name'),
+                'specialities.name as speciality',
+                'patients.phone as phone'
+            )
+            ->when((Request()->get('identifier') && Request()->get('identifier') != 'null'), function ($query) {
+                $query->where('call_ins.Identificacion_Paciente', Request()->get('identifier'));
             })
-            ->when(Request()->get('profesional_id'), function ($query, $id) {
+            ->when(Request()->get('person_id'), function ($query, $id) {
                 $query->where('people.id', '=', $id);
             })
             ->when(Request()->get('state'), function ($query, $state) {
                 $query->where('appointments.state', '=', $state);
             })
             ->when(Request()->get('type_appointment_id'), function ($query, $state) {
-                $query->where('type_appointments.id', '=', $state);
+                $query->where('type_appointments.id', $state);
             })
             ->when(Request()->get('sub_type_appointment_id'), function ($query, $state) {
-                $query->where('sub_type_appointments.id', '=', $state);
+                $query->where('sub_type_appointments.id', $state);
             })
             ->when(Request()->get('speciality_id'), function ($query, $state) {
-                $query->where('agendamientos.speciality_id', '=', $state);
+                $query->where('agendamientos.speciality_id', $state);
             })
-            ->when(Request()->get('company_id'), function ($query, $state) {
-                $query->where('appointments.company_id', '=', $state);
+            ->when((Request()->get('company_id') && Request()->get('company_id') != 'null'), function ($query) {
+                $query->where('agendamientos.ips_id',  Request()->get('company_id'));
             })
-            ->when(Request()->get('location_id'), function ($query, $state) {
-                $query->where('appointments.location_id', '=', $state);
-            })
-            ->when(Request()->get('date'), function ($query, $state) {
-                $query->whereDate('appointments.created_at', $state);
+            ->when((Request()->get('location_id') &&  Request()->get('location_id') != 'null'), function ($query) {
+                $query->where('agendamientos.location_id', Request()->get('location_id'));
             })
             ->when(Request()->get('space_date'), function ($query, $date) {
                 $query->whereDate('spaces.hour_start', $date);
-            })->paginate($pageSize, '*', 'page', $page);;
+            })
+            ->orderBy('spaces.hour_start', 'Asc')
+            ->paginate($pageSize, '*', 'page', $page);
     }
 }

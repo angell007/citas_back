@@ -10,6 +10,7 @@ use App\Services\SpaceService;
 use App\Models\Space;
 use App\HistoryAppointment;
 use App\HistoryAgendamiento;
+use App\Holiday;
 use App\Models\TypeAppointment;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
@@ -34,7 +35,7 @@ class AgendamientoController extends Controller
     {
     }
 
- public function indexPaginate()
+    public function indexPaginate()
     {
         $page = Request()->get("page");
         $page = $page ? $page : 1;
@@ -142,44 +143,84 @@ class AgendamientoController extends Controller
     {
         try {
             $data = $request->all();
-            
+
             $this->validating($data);
 
-            
             $agendamiento = Agendamiento::create($request->all());
+
+            $holidays = Holiday::pluck('date')->toArray();
+
             $agendamiento->user_id = auth()->user()->id;
+
             $agendamiento->save();
-            
+
+
+            $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
+                ->where(function($q) use($agendamiento) {
+                $q->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
+                ->orWhereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end]);
+                })->get();
+                
+                
             $inicio = Carbon::parse($agendamiento->date_start);
             $fin = Carbon::parse($agendamiento->date_end);
+
             for ($i = $inicio; $i <= $fin; $i->addDay(1)) {
                 if (in_array($i->englishDayOfWeek, $agendamiento->days)) {
-                    for (
-                        $space = Carbon::parse($i->format('Y-m-d') . $agendamiento->hour_start);
-                        $space < Carbon::parse($i->format('Y-m-d') . $agendamiento->hour_end);
-                        $space->addMinutes($agendamiento->long)
-                    ) {
-                        $this->fillDdays($agendamiento, $space->copy());
+
+                    if ((in_array($i->format('Y-m-d'), $holidays) && request()->get('holiday')) || !in_array($i->format('Y-m-d'), $holidays)) {
+
+
+                        $hour_start = Carbon::parse($i->format('Y-m-d') . $agendamiento->hour_start);
+                        $hour_end =  Carbon::parse($i->format('Y-m-d') . $agendamiento->hour_end);
+                        $temp_hour = $hour_start->copy()->addMinutes($agendamiento->long);
+
+                        if ($temp_hour->format('Y-m-d') > $i->format('Y-m-d')) {
+                            $hour_end =  Carbon::parse($temp_hour->format('Y-m-d') . $agendamiento->hour_end);
+                        }
+
+                        for (
+                            $space = $hour_start;
+                            $space <   $hour_end;
+                            $space->addMinutes($agendamiento->long)
+                        ) {
+                            $result = true;
+                            foreach ($agendamientos as $agendamiento) {
+                                foreach ($agendamiento->spaces as $myspace) {
+                                    if (Carbon::parse($space->copy())->betweenIncluded($myspace->hour_start, Carbon::parse($myspace->hour_end)->subSecond())) {
+                                        
+                           
+                                        $result = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                           
+                            if ($result) {
+                           
+                                $this->fillDdays($agendamiento, $space->copy());
+                            }
+                        }
                     }
                 }
             }
-            
+
             HistoryAgendamiento::create([
-                'agendamiento_id' =>  $agendamiento->id, 
-                'user_id' => auth()->user()->id, 
+                'agendamiento_id' =>  $agendamiento->id,
+                'user_id' => auth()->user()->id,
                 'description' => 'Agendamiento creado',
                 'icon' => 'ri-calendar-2-fill'
-                ]);
-            
-            Log::info([ 
-               'user' => auth()->user()->usuario,
-               'agendamiento_id' =>  $agendamiento->id, 
             ]);
-            
+
+            Log::info([
+                'user' => auth()->user()->usuario,
+                'agendamiento_id' =>  $agendamiento->id,
+            ]);
+
             return $this->success(['message' => 'Agendado correcto :)']);
-            
         } catch (\Throwable $th) {
-                        return $this->error(['message' => $th->getMessage(), $th->getLine(), $th->getFile()], 400);
+            return $this->error(['message' => $th->getMessage(), $th->getLine(), $th->getFile()], 400);
         }
     }
 
@@ -230,7 +271,19 @@ class AgendamientoController extends Controller
     {
         $person = Person::find($agendamiento->person_id);
         $typeAppointment = TypeAppointment::find($agendamiento->type_agenda_id);
+        // $verifyDate =  $date->copy();
+        // $result = false;
 
+        // foreach ($agendamientos as $agendamiento) {
+        //     foreach ($agendamiento->spaces as $space) {
+        //         if (Carbon::parse($verifyDate)->betweenIncluded($space->hour_start, Carbon::parse($space->hour_end)->subSecond())) {
+        //             $result = true;
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // if (!$result) {
         Space::create([
             "agendamiento_id" => $agendamiento->id,
             "status" => true,
@@ -240,8 +293,8 @@ class AgendamientoController extends Controller
             "person_id" => $agendamiento->person_id,
             "backgroundColor" => $person->color,
             "className" => $typeAppointment->icon,
-
         ]);
+        // }
     }
 
     /**
@@ -282,6 +335,7 @@ class AgendamientoController extends Controller
     public  function cancel(Request $req)
     {
         try {
+
             $agendamiento = Agendamiento::find($req->id);
 
             $spaces = DB::table('spaces')
@@ -312,10 +366,10 @@ class AgendamientoController extends Controller
             return $this->error($th->getMessage(), 400);
         }
     }
-    
+
     public function showDetail($id)
     {
-         $data = Agendamiento::query();
+        $data = Agendamiento::query();
         $data->with([
             "person" => function ($q) {
                 $q->select(
@@ -384,7 +438,7 @@ class AgendamientoController extends Controller
 
                 );
             },
-            
+
             "history" => function ($q) {
                 $q->select(
                     "id",
@@ -427,16 +481,16 @@ class AgendamientoController extends Controller
                     "La hora de inicio no puede ser menor a la hora actual"
                 );
             }
-            if ($hourNow > $hourEnd) {
+            if ($hourNow > $hourEnd && $dateStart == $dateEnd) {
                 throw new Exception(
                     "La hora de fin no puede ser menor a la hora actual"
                 );
             }
         }
 
-        if ($hourStart > $hourEnd) {
+        if ($hourStart > $hourEnd && $dateStart == $dateEnd) {
             throw new Exception(
-                "La hora de inicio no puede ser menor a la hora de finalizaci車n"
+                "La hora de inicio no puede ser menor a la hora de finalizaciónn"
             );
         }
 
@@ -456,6 +510,40 @@ class AgendamientoController extends Controller
             throw new Exception(
                 "La fecha inicial no puede ser menor  a la final"
             );
+        }
+    }
+
+    public function cancellAgenda()
+    {
+
+        try {
+            $params = request()->get('params');
+
+            if (!isset($params['fecha_inicio']) || !isset($params['fecha_fin']) ||  !isset($params['id'])) {
+                throw new Exception("Debe completar los campos correctamente");
+            }
+
+            $dateStart = Carbon::parse($params['fecha_inicio']);
+            $dateEnd = Carbon::parse($params['fecha_fin']);
+            $agendamiento = $params['id'];
+
+            DB::table('spaces')
+                ->where('agendamiento_id', $agendamiento)
+                ->where("status",  1)
+                ->whereDate('hour_end', '>=', [$dateStart, $dateEnd])
+                ->whereDate('hour_start', '<=', [$dateStart, $dateEnd])
+                ->update(['state' => 'Cancelado']);
+
+            HistoryAgendamiento::create([
+                'agendamiento_id' =>  $agendamiento,
+                'user_id' => auth()->user()->id,
+                'description' => 'Agenda cancelada desde ' . $dateStart . ' Hasta ' .  $dateEnd,
+                'icon' => 'ri-close-circle-line'
+            ]);
+
+            return $this->success('Se ha cancelado la agenda satisfactoriamente');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 400);
         }
     }
 }
