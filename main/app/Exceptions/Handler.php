@@ -58,7 +58,7 @@ class Handler extends ExceptionHandler
     protected function context()
     {
         return array_merge(parent::context(), [
-            // 'User' =>  ':boom:' . (gettype(auth()->user()) == 'object' && auth()->user()) ? Person::select(DB::raw("Concat_ws(' ', 'first_name', 'first_surname', 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
+            'User' =>  ':boom:' . (gettype(auth()->user()) == 'object' && auth()->user()) ? Person::select(DB::raw("Concat_ws(' ', 'first_name', 'first_surname', 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
         ]);
     }
 }

@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 
 use GeoIp2\Database\Reader;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class TestController extends Controller
 {
@@ -36,13 +37,13 @@ class TestController extends Controller
         $agendamientos = Agendamiento::with('spaces')->where('person_id', 11632)
             ->whereBetween('date_start', ['2021-08-26', '2021-08-26'])
             ->orWhereBetween('date_end',  ['2021-08-26', '2021-08-26'])->get();
-            
-            
-            
-            
-            
-            dd($agendamientos);
-            
+
+
+
+
+
+        dd($agendamientos);
+
 
         foreach ($agendamientos as $agendamiento) {
             foreach ($agendamiento->spaces as $space) {
@@ -411,7 +412,8 @@ class TestController extends Controller
 
     public function test()
     {
-        $data =  Space::with('person', 'person.company')->findOrfail(41);
-        dd([$data->person->company->tin, $data->person->company->name]);
+        Log::info('message');
+        // $data =  Space::with('person', 'person.company')->findOrfail(41);
+        // dd([$data->person->company->tin, $data->person->company->name]);
     }
 }

@@ -60,12 +60,6 @@ use Illuminate\Support\Facades\DB;
 |
 */
 
-
-Route::get('/test', 'TestController@spacesTomados');
-
-// Route::get('/test', 'TestController@uploadMassive');
-
-
 Route::prefix("auth")->group(
 	function () {
 		Route::post("login", "AuthController@login");
