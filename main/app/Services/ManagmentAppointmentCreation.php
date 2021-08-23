@@ -90,7 +90,7 @@ class ManagmentAppointmentCreation
                 $this->space = Space::with('person', 'person.company')->findOrfail($this->data['space']);
 
                 if ($this->space->status == 0 || $this->space->state == 'Cancelado') {
-                    throw new Exception("Este espacio ya no se encuentra disponible");
+                    throw new Exception("Este espacio ya no se encuentra disponible" . $this->space->hour_start);
                 }
 
                 $this->space->status = 0;
@@ -122,7 +122,8 @@ class ManagmentAppointmentCreation
                 Log::info([
                     'appointment_id' => $this->appointment->id . ' :heart: ',
                     'message' => $this->sendMessage($this->appointment, $this->space, $this->data, $this->company),
-                    'User' => (gettype(auth()->user()) == 'object' && auth()->user()) ? Person::select(DB::raw("Concat_ws(' ', 'first_name', 'first_surname', ' : ' 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
+                    // 'User' => (gettype(auth()->user()) == 'object' && auth()->user()) ? Person::select(DB::raw("Concat_ws(' ', 'first_name', 'first_surname', ' : ' 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
+                    'User' => (auth()->user()) ? auth()->user()->usuario : 'Sin usuario',
                     'body' => json_encode($this->globho->body),
                     'Globo' =>  $response->json()
                 ]);

@@ -62,8 +62,8 @@ class Globho
 				'id' =>  $space->person->identifier,
 				'name' => $space->person->full_name,
 				'company' => [
-					'id' =>  $space->person->company->tin,
-					'name' => $space->person->company->name
+					'id' =>  ($space->person->company) ? $space->person->company->tin : '',
+					'name' =>  ($space->person->company) ? $space->person->company->name : ''
 				],
 			],
 			'agreement' => [

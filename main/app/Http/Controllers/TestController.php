@@ -29,13 +29,20 @@ class TestController extends Controller
 
     public function spacesTomados()
     {
-        $person = Person::find(11637);
+        $person = Person::find(11632);
         $verifyDate =  '10:20:00';
 
         $result = false;
-        $agendamientos = Agendamiento::with('spaces')->where('person_id', 11637)
-            ->whereBetween('date_start', ['2021-08-18', '2021-08-18'])
-            ->orWhereBetween('date_end',  ['2021-08-18', '2021-08-18'])->get();
+        $agendamientos = Agendamiento::with('spaces')->where('person_id', 11632)
+            ->whereBetween('date_start', ['2021-08-26', '2021-08-26'])
+            ->orWhereBetween('date_end',  ['2021-08-26', '2021-08-26'])->get();
+            
+            
+            
+            
+            
+            dd($agendamientos);
+            
 
         foreach ($agendamientos as $agendamiento) {
             foreach ($agendamiento->spaces as $space) {
@@ -304,7 +311,7 @@ class TestController extends Controller
 
         // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
 
-        $appointment = Appointment::with('space', 'callin')->find(23040);
+        $appointment = Appointment::with('space', 'callin')->find(44547);
         // $appointment = Appointment::with('space', 'callin')->find($temp->id);
         if ($appointment->space && $appointment->callin->patient) {
 

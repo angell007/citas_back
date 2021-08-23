@@ -61,7 +61,7 @@ use Illuminate\Support\Facades\DB;
 */
 
 
-Route::get('/test', 'TestController@test');
+Route::get('/test', 'TestController@spacesTomados');
 
 // Route::get('/test', 'TestController@uploadMassive');
 
