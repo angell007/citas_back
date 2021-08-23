@@ -436,7 +436,7 @@ class AgendamientoController extends Controller
                     AS title
                     ')
 
-                );
+                )->orderBy('id', 'Asc');
             },
 
             "history" => function ($q) {

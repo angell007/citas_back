@@ -88,7 +88,6 @@ class TestController extends Controller
 
 
         // DB::table('spaces')->whereBetween('hour_start', [$data['date_end'], $data['date_start']])->orWhereBetween('hour_end', [$data['date_end'], $data['date_start']])->first();
->>>>>>> abe9216a4742e08368bb5652ccf3ac0956d5025d
     }
     public function fillDdays($agendamiento, $date)
     {
@@ -134,7 +133,7 @@ class TestController extends Controller
     public function conection()
     {
         try {
-            dd(DB::connection()->getPdo());
+            // dd(DB::connection()->getPdo());
         } catch (\Exception $e) {
             die("Could not connect to the database.  Please check your configuration. error:" . $e);
         }
@@ -400,5 +399,12 @@ class TestController extends Controller
         echo ("=============================<br>");
 
         // }
+    }
+
+
+    public function test()
+    {
+        $data =  Space::with('person', 'person.company')->findOrfail(41);
+        dd([$data->person->company->tin, $data->person->company->name]);
     }
 }

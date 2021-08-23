@@ -11,6 +11,7 @@ use App\Models\Company;
 use App\Models\Cup;
 use App\Models\Globho;
 use App\Models\Level;
+use App\Models\Person;
 use App\Models\Space;
 use App\Models\WaitingList;
 use App\Traits\ApiResponser;
@@ -60,8 +61,20 @@ class ManagmentAppointmentCreation
             switch ((bool)isset($this->data['anotherData']['currentAppointment'])) {
                 case true:
                     $this->appointment =  Appointment::find($this->data['anotherData']['currentAppointment']);
+
+                    if (isset($this->data['space'])) {
+                        $this->space = Space::with('person')->findOrfail($this->data['space']);
+                        $this->appointment->space_id =   $this->space->id;
+                        $this->appointment->save();
+                    }
+
+                    $this->getDataAppointment($this->appointment->id);
+                    $waitingList =  WaitingList::firstWhere('appointment_id', $this->appointment->id);
+                    $waitingList->state = 'Agendado';
+                    $waitingList->save();
                     $this->getDataAppointment($this->appointment->id);
                     break;
+
                 case false:
                     $this->updateCall();
                     $this->createAppointment();
@@ -74,7 +87,12 @@ class ManagmentAppointmentCreation
             }
 
             if (isset($this->data['space'])) {
-                $this->space = Space::with('person')->findOrfail($this->data['space']);
+                $this->space = Space::with('person', 'person.company')->findOrfail($this->data['space']);
+
+                if ($this->space->status == 0 || $this->space->state == 'Cancelado') {
+                    throw new Exception("Este espacio ya no se encuentra disponible");
+                }
+
                 $this->space->status = 0;
                 $this->space->saveOrFail();
                 $this->appointment->code = $this->company->simbol . date("ymd", strtotime($this->space->hour_start)) . str_pad($this->appointment->id, 7, "0", STR_PAD_LEFT);
@@ -103,12 +121,9 @@ class ManagmentAppointmentCreation
 
                 Log::info([
                     'appointment_id' => $this->appointment->id . ' :heart: ',
-                    // 'appointment_id' => $this->appointment->id . ' :heart: '     ,
                     'message' => $this->sendMessage($this->appointment, $this->space, $this->data, $this->company),
-                    'user' => auth()->user()->usuario,
+                    'User' => (gettype(auth()->user()) == 'object' && auth()->user()) ? Person::select(DB::raw("Concat_ws(' ', 'first_name', 'first_surname', ' : ' 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
                     'body' => json_encode($this->globho->body),
-                    // 'key' =>     $this->company->code,
-                    // 'link' =>     $this->BASE_URI_GLOBO . "?api_key=" . $this->company->code,
                     'Globo' =>  $response->json()
                 ]);
 

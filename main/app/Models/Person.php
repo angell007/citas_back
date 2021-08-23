@@ -9,7 +9,7 @@ class Person extends Model
     // protected $table = 'peoploetest';
     // protected $primaryKey = 'identifier';
     // public $timestamps = false;
-    
+
     protected $fillable = [
         'identifier',
         'first_name',
@@ -63,5 +63,10 @@ class Person extends Model
     public function peopleType()
     {
         return $this->belongsTo(PeopleType::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }
