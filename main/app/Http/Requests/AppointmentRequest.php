@@ -26,18 +26,16 @@ class AppointmentRequest extends FormRequest
     {
         return [
             'call' => 'required',
-            // 'patient.email' => 'required|email',
-            // 'diagnosticoId' => 'required',
-            // 'diagnosticoId.value' => 'required|exists:cie10s,code',
+            'diagnosticoId.value' => 'required|exists:cie10s,id',
             'person_remisor' => 'required',
             'ips_remisor' =>  'required',
             'especiality' =>  'required',
             'date_remisor' =>  'required',
             'procedureId.value' =>  'required|exists:cups,id',
             'observation' => 'required',
-            'patient.email' => ['required','email', new emailCustom],
+            'patient.email' => ['required', 'email', new emailCustom],
             'patient.identifier' => 'required|exists:patients,identifier'
-            
+
         ];
     }
 
@@ -45,7 +43,7 @@ class AppointmentRequest extends FormRequest
     {
         return [
             'procedureId.value.required' => 'Debe elegir un procedimiento valido',
-            'diagnosticoId.value.required' => 'Debe elegir un procedimiento valido',
+            'diagnosticoId.value.required' => 'Debe elegir un diagnostico valido',
             'patient.email.email' => 'Debe elegir un email valido',
             'diagnosticoId.required'  => 'Debe elegir un diagnostico valido',
             'patient.identifier.exists' => 'Debes guardar los datos del paciente antes de generar la cita',

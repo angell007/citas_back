@@ -187,7 +187,7 @@ class AgendamientoController extends Controller
                             $result = true;
                             foreach ($agendamientos as $agendamiento) {
                                 foreach ($agendamiento->spaces as $myspace) {
-                                    if (Carbon::parse($space->copy())->betweenIncluded($myspace->hour_start, Carbon::parse($myspace->hour_end)->subSecond())) {
+                                    if (Carbon::parse($space->copy())->betweenIncluded($myspace->hour_start, Carbon::parse($myspace->hour_end)->subSecond()) && $myspace->state == 'Activo') {
                                         
                            
                                         $result = false;
@@ -436,7 +436,7 @@ class AgendamientoController extends Controller
                     AS title
                     ')
 
-                );
+                )->orderBy('id', 'Asc');
             },
 
             "history" => function ($q) {
