@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CaracterizacionController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CupController;
+use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
 use App\Http\Controllers\DurationController;
 use App\Http\Controllers\FormularioController;
 
@@ -123,6 +124,8 @@ Route::group(
 		Route::get("get-patient", "PatientController@getPatientInCall");
 		Route::get("clean-info/{id?}", [AppointmentController::class, "cleanInfo"]);
 		Route::get("clean-info", [AppointmentController::class, "getDataCita"]);
+
+		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
 
 
 		Route::resource("agendamientos", "AgendamientoController");

@@ -14,8 +14,6 @@ trait filterRegimenType
      */
     public function filterRegimenType($data)
     {
-        dd($this->regimentypes);
-        
         $filtered =  $this->regimentypes->first(function ($value, $key) use ($data) {
             return  $value->name == $data;
         });

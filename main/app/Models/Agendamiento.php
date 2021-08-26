@@ -39,43 +39,58 @@ class Agendamiento extends Model
     {
         return $this->belongsTo(Person::class);
     }
-    
+
     public function usuario()
     {
-        return $this->belongsTo(Usuario::class,'user_id');
+        return $this->belongsTo(Usuario::class, 'user_id');
     }
-    
+
     public function subTypeAppointment()
     {
         return $this->belongsTo(SubTypeAppointment::class, 'type_appointment_id');
     }
-    
-    public function typeAppointment(){ 
-        return $this->belongsTo(TypeAppointment::class,'type_agenda_id','id');
+
+    public function typeAppointment()
+    {
+        return $this->belongsTo(TypeAppointment::class, 'type_agenda_id', 'id');
     }
-    public function company(){ 
-        return $this->belongsTo(Company::class,'ips_id');
+    public function company()
+    {
+        return $this->belongsTo(Company::class, 'ips_id');
     }
-    public function eps(){ 
+    public function eps()
+    {
         return $this->belongsTo(Eps::class);
     }
-    public function location(){ 
+    public function location()
+    {
         return $this->belongsTo(Location::class);
     }
-    public function spaces(){ 
+    public function spaces()
+    {
         return $this->hasMany(Space::class);
     }
-    public function canceledSpaces(){ 
-        return $this->hasMany(Space::class)->where("state",'=','Cancelado');
+    public function canceledSpaces()
+    {
+        return $this->hasMany(Space::class)->where("state", '=', 'Cancelado');
     }
-    public function assignedSpaces(){ 
-        return $this->hasMany(Space::class)->where("status",'=','0')->where('state','=','Activo' );
+    public function assignedSpaces()
+    {
+        return $this->hasMany(Space::class)->where("status", '=', '0')->where('state', '=', 'Activo');
     }
-    public function availableSpaces(){ 
-        return $this->hasMany(Space::class)->where("status",'=','1')->where('state','=','Activo' );
+    public function availableSpaces()
+    {
+        return $this->hasMany(Space::class)->where("status", '=', '1')->where('state', '=', 'Activo');
     }
-    public function history(){
+    public function history()
+    {
         return $this->hasMany(HistoryAgendamiento::class);
+    }
 
+    protected $touches = ['cups'];
+
+    public function cups()
+    {
+        return $this->belongsToMany(Cup::class);
     }
 }

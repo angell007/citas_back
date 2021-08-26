@@ -14,6 +14,14 @@ trait filterDocumentType
      */
     public function filterDocumentType($data)
     {
+        if ($data != 'Cedula de Ciudadanía') {
+            $data = utf8_decode($data);
+        }
+        
+        if ($data == 'Cedula de Ciudadanía') {
+            $data = 'Cedula de Ciudadania';
+        }
+
         $filtered =  $this->documentypes->first(function ($value, $key) use ($data) {
             return  $value->name == $data;
         });
@@ -21,6 +29,6 @@ trait filterDocumentType
         if ($filtered) {
             return $filtered->id;
         }
-        dd('Tipo de documento no existe');
+        dd('Tipo de documento no existe - '.$data);
     }
 }

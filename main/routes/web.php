@@ -70,8 +70,10 @@ Auth::routes();
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('detalle-paciente/{identificacion}',  [PacienteController::class, 'DetallePacienteOld'])->middleware(EnsureTokenIsValid::class);
-Route::get('detalle-paciente/{identificacion}/{tipo_documento}',  [PersonController::class, 'customUpdateOld'])->middleware(EnsureTokenIsValid::class);
+Route::get('detalle-paciente/{identificacion}',  [PacienteController::class, 'DetallePacienteOld']);
+// ->middleware(EnsureTokenIsValid::class);
+Route::get('detalle-paciente/{identificacion}/{tipo_documento}',  [PersonController::class, 'customUpdateOld']);
+// ->middleware(EnsureTokenIsValid::class);
 Route::post('save-call', [PacienteController::class, 'store'])->middleware(EnsureTokenIsValid::class);
 Route::get('/get-tipos-agendamiento', [TypeAppointmentController::class, 'get']);
 Route::get('/create-tipos-agendamiento', [TypeAppointmentController::class, 'store']);

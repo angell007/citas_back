@@ -58,7 +58,7 @@ trait getNombrePartitions
                 $this->firstname = $names[0];
                 break;
             case 2:
-                $this->firstname   = explode(' ', $names[0]);
+                $this->firstname   = explode(' ', $names[0])[0];
                 $this->surname  = $names[1];
                 break;
             case 3:

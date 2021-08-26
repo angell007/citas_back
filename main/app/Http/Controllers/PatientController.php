@@ -50,17 +50,9 @@ class PatientController extends Controller
             $patient =   Patient::firstWhere('identifier', request('identifier'));
 
             if ($patient) {
-                
-               
                 $patient->update($request->all());
-          
-                
             } else {
-           
-                
-                 $patient  = Patient::create(request()->all());
-               
-                
+                 $patient  = Patient::create(request()->all());     
             }
             return $this->success(['message' => 'Actualizacion existosa', 'patient' => $patient]);
         } catch (\Throwable $th) {
@@ -127,7 +119,6 @@ class PatientController extends Controller
                 ->where('Identificacion_Agente', auth()->user()->usuario)
                 ->first();
 
-            // $patient = Patient::with(['eps'])->firstWhere('Identificacion', $call->Identificacion_Paciente);
             $patient = Patient::with(
                 'eps',
                 'company',
@@ -149,7 +140,6 @@ class PatientController extends Controller
     public function getPatientResend($id)
     {
         try {
-            // $patient = Patient::with(['eps'])->firstWhere('Identificacion', $call->Identificacion_Paciente);
             $patient = Patient::with(
                 'eps',
                 'company',

@@ -96,13 +96,13 @@ class EcoopsosService
     public function fillInDataEcoopsos($data)
     {
         switch ($data['Columna']) {
-            case 'Tipo Identificación':
+            case 'Tipo Identificaci贸n':
                 self::$dataformat['type_document_id'] = $this->filterDocumentType($data['Valor']);
                 break;
-            case 'Numero de Identificación':
+            case 'Numero de Identificaci贸n':
                 self::$dataformat['identifier'] = $data['Valor'];
                 break;
-            case 'Tipo de Régimen':
+            case 'Tipo de R茅gimen':
                 self::$dataformat['regimen_id'] = $this->filterRegimenType($data['Valor']);
             case 'Tipo de Afiliado':
                 self::$dataformat['affiliate_type'] = $data['Valor'];

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 trait manipulateDataFromExternalService
 {
@@ -20,7 +21,7 @@ trait manipulateDataFromExternalService
                 return  Carbon::now()->subYears($porciones[0])->subMonths($porciones[2])->format('Y-m-d');
                 break;
             default:
-                throw new Exception('No se puede conocer la edad');
+                return "0000-00-00";
                 break;
         }
         Carbon::now()->subYears($porciones[0])->subMonths($porciones[2])->subDays($porciones[4])->format('Y-m-d');
@@ -43,7 +44,7 @@ trait manipulateDataFromExternalService
 
     public function appendRegional($dptoId)
     {
-        return DB::table('departamento_regionals')->where('departamento_id', $dptoId)
-            ->join('regionals', 'regionals.id', '=', 'departamento_regionals.regional_id')->value('regionals.id');
+        return DB::table('department_regional')->where('departamento_id', $dptoId)
+            ->join('regionals', 'regionals.id', '=', 'department_regional.regional_id')->value('regionals.id');
     }
 }

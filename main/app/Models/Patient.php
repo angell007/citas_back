@@ -84,7 +84,6 @@ class Patient extends Model
         'sede_id',
         'address',
         'phone',
-        'optional_phone',
         'email',
         'ips',
         'regional_id',
@@ -160,10 +159,5 @@ class Patient extends Model
     public function callins()
     {
         return $this->hasMany(CallIn::class);
-    }
-
-    public function getFullNameAttribute()
-    {
-        return $this->attributes['firstname'] . ' ' . $this->attributes['surname'];
     }
 }

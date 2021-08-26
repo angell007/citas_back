@@ -15,7 +15,7 @@ use Carbon\Carbon;
 use App\Traits\manipulateDataFromExternalService;
 use Illuminate\Support\Facades\Log;
 
-class MedimasService
+class MedimasServiceSubsidiado
 {
     use ConsumeService, getNombrePartitions, filterDocumentType, filterRegimenType, manipulateDataFromExternalService;
 
@@ -50,7 +50,7 @@ class MedimasService
         $this->documentNumber = $documentNumber;
 
         $this->client = new Client();
-        $this->url = 'https://www.heon.com.co/Medimas/Contributivo/WebPPrestadores4747/PaginasVD/wfVerificaDerechosS.aspx?IdPrestador=g2qg9bUrk1kneDVR%2bGp88g==&iEpsPar=C11SVS2t5x4U6hmiE96hAQ==&sUsuarioLog=ZXDEmxmkK9u6NE4okOnmmw==';
+        $this->url = 'https://www.heon.com.co/Medimas/Contributivo/WebPPrestadores4747/PaginasVD/wfVerificaDerechosS.aspx?IdPrestador=O9NQBNXJwZoKoXFVNUFDAg==&iEpsPar=8Endvpatc3gylpBOCSt6ng==&sUsuarioLog=iRxTbo3cA3keST8B/tO5cA==';
 
         $this->verifyCredentials();;
         $this->documentypes = TypeDocument::all();
@@ -82,6 +82,7 @@ class MedimasService
         ];
 
         $crawler =   $this->client->request('POST', $this->url, $this->body);
+
 
         $crawler->filter('#ctl00_ContentPlaceHolder2_ddlTipoDocumento > option')->each(function ($node, $i) {
             if ($node->attr('selected') == 'selected') {

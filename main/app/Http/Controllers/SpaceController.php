@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\HistoryAgendamiento;
 use App\Models\Person;
 use App\Services\SpaceService;
@@ -22,7 +23,7 @@ class SpaceController extends Controller
      */
     public function indexCustom($idSpeciality, $person = 0)
     {
-        
+
         $spaces = collect([]);
         $persons = Person::query();
         $persons->when($person && $person != 0 && $person != 'undefined',  function ($q) use ($person) {
@@ -39,20 +40,8 @@ class SpaceController extends Controller
     }
     public function index()
     {
-
-       
         $params = Request()->all();
         $spaces = collect([]);
-        /*       $persons = Person::query();
-        $persons->when($params['person_id'] && $params['person_id'] != 0 && $params['person_id'] != 'undefined',  function ($q , $id) {
-            $q->where('id', $id);
-        });
-
-        $persons->whereHas('specialties',  function ($q)  use ($params) {
-            $q->where('id', $params['speciality_id']);
-        })->with('specialties');
-
-        $data = $persons->pluck('id'); */
 
         $spaces = DB::table('spaces as s')
             ->join('agendamientos as a', 'a.id', '=', 's.agendamiento_id')
@@ -62,7 +51,7 @@ class SpaceController extends Controller
             ->where('a.speciality_id', $params['speciality_id'])
             ->where('s.hour_start', '>', DB::raw('now()'))
             ->where('s.status', [true])
-            ->where('s.state', 'Activo' )
+            ->where('s.state', 'Activo')
             ->when(array_key_exists('company_id', $params), function ($q) use ($params) {
                 $q->where('a.ips_id', '=', $params['company_id']);
             })
@@ -149,16 +138,16 @@ class SpaceController extends Controller
     public function cancel(Request $req)
     {
         try {
-            
+
             $space = Space::findOrFail($req->id);
             $space->state = 'Cancelado';
             $space->save();
-            
-           
+
+
             HistoryAgendamiento::create([
                 'agendamiento_id' =>  $space->agendamiento_id,
                 'user_id' => auth()->user()->id,
-                'description' => 'Espacio cancelado: '.$space->hour_start,
+                'description' => 'Espacio cancelado: ' . $space->hour_start,
                 'icon' => 'ri-close-circle-line'
             ]);
             return $this->success('Actualización exitosa');

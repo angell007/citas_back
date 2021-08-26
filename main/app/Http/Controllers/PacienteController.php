@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\CallIn;
 use App\Http\Requests\SavePatientRequest;
+use App\Models\CallIn;
 use App\Models\Paciente;
 use App\Traits\ApiResponser;
 use Illuminate\Support\Facades\Validator;

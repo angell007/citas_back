@@ -142,26 +142,26 @@ class AgendamientoController extends Controller
     public function store(Request $request)
     {
         try {
+
             $data = $request->all();
 
             $this->validating($data);
 
             $agendamiento = Agendamiento::create($request->all());
+            $agendamiento->cups()->sync($data['procedureId']);
 
             $holidays = Holiday::pluck('date')->toArray();
-
             $agendamiento->user_id = auth()->user()->id;
-
             $agendamiento->save();
 
 
             $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
-                ->where(function($q) use($agendamiento) {
-                $q->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
-                ->orWhereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end]);
+                ->where(function ($q) use ($agendamiento) {
+                    $q->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
+                        ->orWhereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end]);
                 })->get();
-                
-                
+
+
             $inicio = Carbon::parse($agendamiento->date_start);
             $fin = Carbon::parse($agendamiento->date_end);
 
@@ -188,17 +188,17 @@ class AgendamientoController extends Controller
                             foreach ($agendamientos as $agendamiento) {
                                 foreach ($agendamiento->spaces as $myspace) {
                                     if (Carbon::parse($space->copy())->betweenIncluded($myspace->hour_start, Carbon::parse($myspace->hour_end)->subSecond()) && $myspace->state == 'Activo') {
-                                        
-                           
+
+
                                         $result = false;
                                         break;
                                     }
                                 }
                             }
 
-                           
+
                             if ($result) {
-                           
+
                                 $this->fillDdays($agendamiento, $space->copy());
                             }
                         }

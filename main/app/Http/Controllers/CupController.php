@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 
 use App\Imports\CupsImport;
 use App\Http\Controllers\Controller;
+use App\Models\Agendamiento;
+use App\Models\Space;
 use App\Services\CupService;
 use App\Models\Speciality;
 use App\Traits\ApiResponser;
@@ -33,17 +35,29 @@ class CupController extends Controller
     public function index()
     {
         $cups = Cup::query();
-        $cups->where(function ($q) {
-            $q->where('description', 'Like', '%' . request()->get('search') . '%')
-                ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
+
+        $cups->when(request()->get('search'), function ($q) {
+            $q->where(function ($q) {
+                $q->where('description', 'Like', '%' . request()->get('search') . '%')
+                    ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
+            });
         });
+
         $cups->when(request()->get('speciality'), function ($q) {
             $q->where('speciality', request()->get('speciality'))->get();
         });
-        
-        
 
-         return $this->success($cups->get(['id as value',  DB::raw("CONCAT( code, ' - ' ,description) as text")])->take(10));
+        $cups->when(request()->get('space'), function ($q, $spaceId) {
+            $space = Space::with('agendamiento.cups:id')->find($spaceId);
+            $q->where(function ($q) {
+                $q->where('description', 'Like', '%' . request()->get('search') . '%')
+                    ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
+            })->whereIn('id', $space->agendamiento->cups->pluck('id'));
+        });
+
+
+
+        return $this->success($cups->get(['id as value',  DB::raw("CONCAT( code, ' - ' ,description) as text")])->take(10));
     }
 
     /**
