@@ -14,8 +14,13 @@ class CreateHistoryAgendamientosTable extends Migration
     public function up()
     {
         Schema::create('history_agendamientos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->integer('id', true);
+            $table->integer('user_id');
+            $table->bigInteger('agendamiento_id');
+            $table->string('description');
+            $table->string('icon', 120)->nullable();
+            $table->timestamp('created_at');
+            $table->timestamp('updated_at');
         });
     }
 

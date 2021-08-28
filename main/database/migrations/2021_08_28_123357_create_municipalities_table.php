@@ -17,7 +17,7 @@ class CreateMunicipalitiesTable extends Migration
             $table->integer('id', true);
             $table->integer('department_id')->nullable();
             $table->string('name', 200)->nullable();
-            $table->string('code', 10)->nullable();
+            $table->string('code', 10)->nullable()->index('code');
             $table->integer('codigo_dane')->nullable();
             $table->integer('municipalities_id');
         });

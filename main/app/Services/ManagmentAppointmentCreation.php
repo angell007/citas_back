@@ -269,8 +269,8 @@ class ManagmentAppointmentCreation
                     'name' => $this->space->person->full_name
                 ],
                 'agreement' => [
-                    'id' => $appointmentData->callIn->patient->contract->contract_number,
-                    'name' => $appointmentData->callIn->patient->contract->contract_name
+                    'id' => $appointmentData->callIn->patient->contract->number,
+                    'name' => $appointmentData->callIn->patient->contract->name
                 ],
                 'location' => [
                     'id' =>  findingKey($this->space->agendamiento->location) ? $this->space->agendamiento->location->id : null,

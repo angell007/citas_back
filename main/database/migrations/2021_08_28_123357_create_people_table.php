@@ -16,12 +16,12 @@ class CreatePeopleTable extends Migration
         Schema::create('people', function (Blueprint $table) {
             $table->increments('id');
             $table->string('identifier', 20)->nullable()->unique('funcionario_identidad_unique');
-            $table->integer('type_document_id')->nullable();
+            $table->integer('type_document_id')->nullable()->index('type_document_id');
             $table->string('first_name', 191);
-            $table->string('full_name')->nullable();
             $table->string('second_name', 191)->nullable();
             $table->string('first_surname', 191)->nullable();
             $table->string('second_surname', 191)->nullable();
+            $table->string('full_name')->nullable();
             $table->date('birth_date')->nullable();
             $table->text('birth_place')->nullable();
             $table->enum('blood_type', ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'])->nullable();
@@ -53,6 +53,7 @@ class CreatePeopleTable extends Migration
             $table->string('external_id')->nullable();
             $table->string('date_last_session', 20)->nullable();
             $table->timestamps();
+            $table->tinyInteger('to_globo')->nullable()->default(0);
         });
     }
 

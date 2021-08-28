@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Agreement extends Model
 {
     protected $fillable = [
-        "contract_name",
-        "contract_number",
+        "name",
+        "number",
         "department_id",
         "company_id",
         "regimen",

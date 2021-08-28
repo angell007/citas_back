@@ -19,17 +19,20 @@ class CreateAgendamientosTable extends Migration
             $table->integer('type_appointment_id')->nullable();
             $table->integer('ips_id')->nullable();
             $table->integer('eps_id')->nullable();
+            $table->integer('location_id')->nullable();
             $table->integer('speciality_id')->nullable();
             $table->integer('person_id')->nullable();
-            $table->string('date_start', 20)->nullable();
-            $table->string('date_end', 20)->nullable();
+            $table->integer('user_id')->nullable();
+            $table->date('date_start')->nullable();
+            $table->date('date_end')->nullable();
             $table->string('long', 5)->nullable();
-            $table->string('hour_start', 20)->nullable();
-            $table->string('hour_end', 20)->nullable();
+            $table->time('hour_start')->nullable();
+            $table->time('hour_end')->nullable();
             $table->json('days')->nullable();
             $table->tinyInteger('pending')->nullable()->default(0);
-            $table->enum('state', ['Agendado', 'Cancelado'])->default('Agendado');
-            $table->timestamps();
+            $table->enum('state', ['Aperturada', 'Cancelada'])->default('Aperturada');
+            $table->timestamp('created_at')->nullable()->useCurrent();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 

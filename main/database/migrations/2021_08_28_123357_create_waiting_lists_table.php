@@ -23,6 +23,7 @@ class CreateWaitingListsTable extends Migration
             $table->enum('state', ['Pendiente', 'Cancelado', 'Agendado'])->nullable();
             $table->integer('appointment_id')->nullable();
             $table->timestamp('space_date_assign')->nullable();
+            $table->string(' message_cancell', 55)->nullable();
             $table->timestamps();
         });
     }

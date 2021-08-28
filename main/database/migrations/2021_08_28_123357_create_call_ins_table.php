@@ -15,15 +15,16 @@ class CreateCallInsTable extends Migration
     {
         Schema::create('call_ins', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('Id_Llamada', 100);
-            $table->unsignedBigInteger('Identificacion_Paciente');
-            $table->unsignedBigInteger('Identificacion_Agente');
-            $table->unsignedBigInteger('Tipo_Tramite')->nullable();
-            $table->unsignedBigInteger('Tipo_Servicio')->nullable();
-            $table->unsignedBigInteger('Ambito')->nullable();
+            $table->string('Id_Llamada', 100)->index('Id_Llamada');
+            $table->unsignedBigInteger('Identificacion_Paciente')->index('Identificacion_Paciente');
+            $table->unsignedBigInteger('Identificacion_Agente')->index('Identificacion_Agente');
+            $table->unsignedBigInteger('Tipo_Tramite')->nullable()->index('Tipo_Tramite');
+            $table->unsignedBigInteger('Tipo_Servicio')->nullable()->index('Tipo_Servicio');
+            $table->unsignedBigInteger('Ambito')->nullable()->index('Ambito');
             $table->timestamps();
             $table->enum('status', ['Pendiente', 'Atendida'])->nullable()->default('Pendiente');
             $table->enum('type', ['Presencial', 'CallCenter'])->nullable()->default('CallCenter');
+            $table->string('Observation', 500)->nullable();
         });
     }
 

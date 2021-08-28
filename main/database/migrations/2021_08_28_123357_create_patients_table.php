@@ -14,17 +14,18 @@ class CreatePatientsTable extends Migration
     public function up()
     {
         Schema::create('patients', function (Blueprint $table) {
-            $table->bigInteger('id', true);
+            $table->integer('id', true);
             $table->string('type_document_id', 11)->nullable();
-            $table->string('identifier', 50)->nullable();
+            $table->integer('identifier')->nullable()->index('identifier');
             $table->integer('regimen_id')->nullable();
             $table->string('affiliate_type', 50)->nullable();
+            $table->string('optional_phone', 50)->nullable();
             $table->string('category_affiliate', 50)->nullable();
             $table->string('secondsurname', 50)->nullable();
             $table->string('surname', 50)->nullable();
             $table->string('firstname', 50)->nullable();
             $table->string('middlename', 50)->nullable();
-            $table->string('date_of_birth', 50)->nullable();
+            $table->date('date_of_birth')->nullable();
             $table->string('state', 50)->nullable();
             $table->string('gener', 20)->nullable();
             $table->string('population_group', 50)->nullable();
@@ -49,8 +50,10 @@ class CreatePatientsTable extends Migration
             $table->string('phone_manager', 50)->nullable();
             $table->string('ethnic_group', 50)->nullable();
             $table->string('token', 11)->nullable();
+            $table->string('ep')->nullable();
             $table->string('database', 50)->nullable();
             $table->timestamps();
+            $table->integer('municipio');
         });
     }
 

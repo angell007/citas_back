@@ -67,8 +67,8 @@ class Globho
 				],
 			],
 			'agreement' => [
-				'id' => $contract->contract_number,
-				'name' => $contract->contract_name
+				'id' => $contract->number,
+				'name' => $contract->name
 			],
 			'location' => [
 				'id' => $location->globo_id,

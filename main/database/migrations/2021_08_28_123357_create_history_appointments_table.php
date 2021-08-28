@@ -14,8 +14,13 @@ class CreateHistoryAppointmentsTable extends Migration
     public function up()
     {
         Schema::create('history_appointments', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->integer('user_id');
+            $table->integer('appointment_id');
+            $table->json('description')->nullable();
+            $table->timestamp('created_at');
+            $table->timestamp('updated_at');
+            $table->integer('id', true);
+            $table->string('icon', 120)->nullable();
         });
     }
 

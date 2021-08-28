@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Agreement;
-use App\Traits\ApiResponser;
+use App\Reason;
 use Illuminate\Http\Request;
 
-class AgreementController extends Controller
+class ReasonController extends Controller
 {
-
-    use ApiResponser;
-
     /**
      * Display a listing of the resource.
      *
@@ -18,11 +14,7 @@ class AgreementController extends Controller
      */
     public function index()
     {
-        try {
-            return $this->success(Agreement::get(['name As text', 'id As value']));
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 400);
-        }
+        //
     }
 
     /**
@@ -49,10 +41,10 @@ class AgreementController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Agreement  $agreement
+     * @param  \App\Reason  $reason
      * @return \Illuminate\Http\Response
      */
-    public function show(Agreement $agreement)
+    public function show(Reason $reason)
     {
         //
     }
@@ -60,10 +52,10 @@ class AgreementController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Agreement  $agreement
+     * @param  \App\Reason  $reason
      * @return \Illuminate\Http\Response
      */
-    public function edit(Agreement $agreement)
+    public function edit(Reason $reason)
     {
         //
     }
@@ -72,10 +64,10 @@ class AgreementController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Agreement  $agreement
+     * @param  \App\Reason  $reason
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Agreement $agreement)
+    public function update(Request $request, Reason $reason)
     {
         //
     }
@@ -83,10 +75,10 @@ class AgreementController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Agreement  $agreement
+     * @param  \App\Reason  $reason
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Agreement $agreement)
+    public function destroy(Reason $reason)
     {
         //
     }

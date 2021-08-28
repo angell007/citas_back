@@ -40,7 +40,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\TypeAppointment;
 use App\Models\Space;
 use App\Models\Company;
-
+use App\Models\WaitingList;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -97,6 +97,9 @@ Route::group(
 		Route::post("imports", [CupController::class, "import"]);
 
 		Route::post("cancell-agenda", [AgendamientoController::class, "cancellAgenda"]);
+		Route::post("cancell-waiting-appointment", [WaitingListController::class, "cancellWaitingAppointment"]);
+
+		Route::post("confirm-appointment", [AppointmentController::class, "confirmAppointment"]);
 
 		Route::get('reporte',  [ReporteController::class, 'general']);
 		Route::get('get-menu',  [MenuController::class, 'getByPerson']);
@@ -106,9 +109,12 @@ Route::group(
 		Route::get("get-type_appointments/{query?}", [TypeAppointmentController::class, "index"]);
 
 		Route::get("get-durations", [DurationController::class, "index"]);
+		Route::get("appointments-pending", [AppointmentController::class, "getPending"]);
+		Route::get("get-statistics-by-collection", [AppointmentController::class, "getstatisticsByCollection"]);
 
 		Route::get("get-type_subappointments/{query?}", [SubTypeAppointmentController::class, "index"]);
 		Route::get("get-companys/{query?}", [CompanyController::class, "index"]);
+		Route::get("get-companys-based-on-city/{company?}", [CompanyController::class, "getCompanyBaseOnCity"]);
 		Route::get("get-sedes/{ips?}/{procedure?}", [LocationController::class, "index"]);
 		Route::get("get-specialties/{sede?}/{procedure?}", [SpecialityController::class, "index",]);
 		Route::get("get-professionals/{ips?}/{speciality?}", [PersonController::class, "index"]);

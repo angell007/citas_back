@@ -203,8 +203,8 @@ class TestController extends Controller
                     'name' => $space->person->full_name
                 ],
                 'agreement' => [
-                    'id' => $appointmentData->callIn->patient->contract->contract_number,
-                    'name' => $appointmentData->callIn->patient->contract->contract_name
+                    'id' => $appointmentData->callIn->patient->contract->number,
+                    'name' => $appointmentData->callIn->patient->contract->name
                 ],
                 'location' => [
                     'id' =>  findingKey($space->agendamiento->location) ? $space->agendamiento->location->id : null,
@@ -371,8 +371,8 @@ class TestController extends Controller
                             'name' => $appointment->space->person->full_name
                         ],
                         'agreement' => [
-                            'id' => $contract->contract_number,
-                            'name' => $contract->contract_name
+                            'id' => $contract->number,
+                            'name' => $contract->name
                         ],
                         'location' => [
                             'id' => $location->globo_id,

@@ -88,8 +88,8 @@ class SendAppointmentCreatedNotification
 				'name' => $space->person->full_name
 			],
 			'agreement' => [
-				'id' => $contract->contract_number,
-				'name' => $contract->contract_name
+				'id' => $contract->number,
+				'name' => $contract->name
 			],
 			'location' => [
 				'id' => $location->id,

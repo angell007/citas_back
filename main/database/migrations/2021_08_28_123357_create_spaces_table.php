@@ -16,14 +16,15 @@ class CreateSpacesTable extends Migration
         Schema::create('spaces', function (Blueprint $table) {
             $table->integer('id', true);
             $table->bigInteger('agendamiento_id')->nullable()->index('agendamiento_id');
-            $table->string('hour_start', 20)->nullable();
-            $table->bigInteger('person_id')->nullable();
+            $table->dateTime('hour_start')->nullable();
+            $table->bigInteger('person_id')->nullable()->index('person_id');
             $table->string('className', 50)->nullable();
-            $table->string('hour_end', 20)->nullable();
+            $table->dateTime('hour_end')->nullable();
             $table->string('long', 20)->nullable();
             $table->tinyInteger('status')->nullable();
             $table->timestamps();
             $table->string('backgroundColor', 50)->nullable();
+            $table->enum('state', ['Activo', 'Cancelado'])->default('Activo');
         });
     }
 

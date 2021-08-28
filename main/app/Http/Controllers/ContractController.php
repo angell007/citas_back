@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contract;
 use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class ContractController extends Controller
@@ -16,12 +17,28 @@ class ContractController extends Controller
      */
     public function index()
     {
-        //
-        $data = Contract::when(Request()->get('location_id'), function ($q, $id) {
-            //$q->where('location_id', '=', $id);
-        })->get(['contract_name As text', 'id As value']);
+        
+        $contract = Contract::query();
 
-        return $this->success($data);
+        $contract->when(request()->get('department_id'), function (Builder $q) {
+            $q->where('department_id', request()->get('department_id'));
+        });
+
+        $contract->when(request()->get('eps_id'), function (Builder $q) {
+            $q->where(function (Builder $q) {
+                $q->where('administrator_id', request()->get('eps_id'))
+                    ->orWhere('regimen_id', request()->get('regimen_id'));
+            });
+        });
+
+        $contract->when(request()->get('company_id'), function (Builder $q) {
+            $q->where('company_id', request()->get('company_id'));
+        });
+
+
+        $result = $contract->get(['name As text', 'id As value']);
+
+        return $this->success($result);
     }
 
     /**

@@ -22,6 +22,7 @@ class CreateCupsTable extends Migration
             $table->string('speciality', 50)->nullable();
             $table->string('nickname')->nullable();
             $table->timestamps();
+            $table->integer('is_procedure')->nullable();
         });
     }
 

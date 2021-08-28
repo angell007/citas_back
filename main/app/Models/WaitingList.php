@@ -17,6 +17,7 @@ class WaitingList extends Model
         'appointment_id', 
         'sub_type_appointment_id', 
         'type_appointment_id', 
+        'message_cancell'
     ];
 
     public function appointment(){

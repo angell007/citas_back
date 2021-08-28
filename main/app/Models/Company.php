@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
-    // use HasFactory;
+
+    public function scopeWithWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)
+            ->with([$relation => $constraint]);
+    }
 
     protected  $fillable =
     [
@@ -15,4 +20,9 @@ class Company extends Model
         "encoding_characters", "id", "logo", "name", "pbx", "send_email", "settings", "slogan", "state", "telephone",
         "tin", "type"
     ];
+
+    public function locations()
+    {
+        return   $this->hasMany(Location::class);
+    }
 }

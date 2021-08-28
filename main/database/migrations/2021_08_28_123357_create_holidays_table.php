@@ -14,10 +14,11 @@ class CreateHolidaysTable extends Migration
     public function up()
     {
         Schema::create('holidays', function (Blueprint $table) {
-            $table->id();
-            $table->string('day', 20);
+            $table->string('day', 20)->nullable();
             $table->date('date')->nullable();
-            $table->string('description')->nullable();
+            $table->string('description', 50)->nullable();
+            $table->string('Columna 4', 50)->nullable();
+            $table->integer('id', true);
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCompaniesTable extends Migration
+class CreateLocationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,22 +13,23 @@ class CreateCompaniesTable extends Migration
      */
     public function up()
     {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('locations', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->bigInteger('company_id')->default(0);
+            $table->string('name')->index('name');
+            $table->string('code');
             $table->string('address');
             $table->string('agreements')->nullable();
             $table->string('category');
             $table->string('city');
-            $table->string('code');
+            $table->integer('globo_id');
             $table->string('country_code');
             $table->string('creation_date');
             $table->boolean('disabled');
             $table->string('email');
             $table->string('encoding_characters');
-            $table->unsignedBigInteger('id')->primary();
             $table->bigInteger('interface_id')->default(0);
             $table->text('logo')->nullable();
-            $table->string('name')->index('name');
-            $table->bigInteger('parent_id')->default(0);
             $table->string('pbx')->nullable();
             $table->bigInteger('regional_id')->default(0);
             $table->boolean('send_email');
@@ -37,10 +38,9 @@ class CreateCompaniesTable extends Migration
             $table->string('state')->nullable();
             $table->string('telephone');
             $table->string('tin');
+            $table->tinyInteger('allow_procedure')->default(0);
             $table->unsignedBigInteger('type');
-            $table->string('api_key', 100)->nullable();
             $table->timestamps();
-            $table->string('simbol', 10)->nullable();
         });
     }
 
@@ -51,6 +51,6 @@ class CreateCompaniesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('locations');
     }
 }

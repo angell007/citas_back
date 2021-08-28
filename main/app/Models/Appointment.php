@@ -30,6 +30,7 @@ class Appointment extends Model
         'profesional',
         'link',
         'globo_id',
+        'message_confirm'
 
     ];
 

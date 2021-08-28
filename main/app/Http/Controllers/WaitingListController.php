@@ -22,7 +22,7 @@ class WaitingListController extends Controller
     {
         //
         $data = WaitingListService::index();
-        
+
         return Response()->json($data);
     }
 
@@ -92,7 +92,7 @@ class WaitingListController extends Controller
         //
     }
 
-      /**
+    /**
      * Display statistics of waiting lists.
      *
      * @return \Illuminate\Http\Response
@@ -104,9 +104,20 @@ class WaitingListController extends Controller
         $stats['topAwait'] = WaitingListService::getTopAwaitBySpeciality();
         $stats['lastAppointment'] = WaitingListService::getLastAppointment();
         $stats['averageTime'] = WaitingListService::averageTime();
-        $stats['averageTime'] =   $stats['averageTime']->time ? CarbonInterval::seconds(  $stats['averageTime']->time  )->cascade()->forHumans() : 0;
-
+        $stats['averageTime'] =   $stats['averageTime']->time ? CarbonInterval::seconds($stats['averageTime']->time)->cascade()->forHumans() : 0;
         return $this->success($stats);
     }
-    
+
+
+    public function cancellWaitingAppointment()
+    {
+        return $this->success(
+            WaitingList::whereId(request()->get('id'))->update(
+                [
+                    'state' => 'Cancelado',
+                    'message_cancell' => request()->get('message')
+                ]
+            )
+        );
+    }
 }
