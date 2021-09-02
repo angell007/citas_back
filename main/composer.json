@@ -52,7 +52,8 @@
             "app/helpers/customSnakeCase.php",
             "app/helpers/handlerTableCreate.php",
             "app/helpers/normalize.php",
-            "app/helpers/globals.php"
+            "app/helpers/globals.php",
+            "app/helpers/transformDates.php"
         ],
         "classmap": [
             "database/seeds",

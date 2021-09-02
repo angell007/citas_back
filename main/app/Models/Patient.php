@@ -100,7 +100,7 @@ class Patient extends Model
 
     public function eps()
     {
-        return $this->belongsTo(Eps::class)->withDefault([
+        return $this->belongsTo(Administrator::class)->withDefault([
             'name' => 'Sin Eps'
         ]);
     }

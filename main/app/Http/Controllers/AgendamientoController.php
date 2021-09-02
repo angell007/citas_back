@@ -530,8 +530,9 @@ class AgendamientoController extends Controller
             DB::table('spaces')
                 ->where('agendamiento_id', $agendamiento)
                 ->where("status",  1)
-                ->whereDate('hour_end', '>=', [$dateStart, $dateEnd])
-                ->whereDate('hour_start', '<=', [$dateStart, $dateEnd])
+                ->whereDate('hour_start', '>=', $dateStart)
+                ->whereDate('hour_end', '<=', $dateEnd)
+                // ->get();
                 ->update(['state' => 'Cancelado']);
 
             HistoryAgendamiento::create([

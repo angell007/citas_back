@@ -156,6 +156,7 @@ Route::group(
 		Route::resource("ambit", "AmbitController");
 		Route::resource("type-locations", "TypeLocationController");
 		Route::resource("menus", "MenuController");
+		Route::resource("fees", "FeeController");
 	}
 );
 

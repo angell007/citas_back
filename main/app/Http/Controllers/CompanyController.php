@@ -27,9 +27,12 @@ class CompanyController extends Controller
     public function index($typeLocation = 0)
     {
         $brandShowCompany = 0;
+
         if ($typeLocation &&  $typeLocation != 3) {
+
             $typeLocation = TypeLocation::findOrfail($typeLocation);
             $brandShowCompany = $typeLocation->show_company_owners;
+            
         }
 
         if (gettype($typeLocation) != 'object' && $typeLocation == 3) {

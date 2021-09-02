@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Administrator;
 use App\Models\Eps;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class EpsController extends Controller
      */
     public function index()
     {
-        return $this->success(Eps::get(['name As text', 'id As value']));
+        return $this->success(Administrator::get(['name As text', 'id As value']));
     }
 
     /**

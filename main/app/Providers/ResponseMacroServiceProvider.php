@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use Illuminate\Http\Response as Status;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Http\Response as Status;
 
-class AppServiceProvider extends ServiceProvider
+class ResponseMacroServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -15,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**
