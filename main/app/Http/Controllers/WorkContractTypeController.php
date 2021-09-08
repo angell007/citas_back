@@ -2,25 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Reason;
+use App\Models\WorkContractType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Http\ResponseTrait;
 
-class ReasonController extends Controller
+class WorkContractTypeController extends Controller
 {
     use ApiResponser;
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            Reason::orderBy('observation', 'DESC')
-                ->get(['observation As name', 'id As value'])
-        );
+           WorkContractType::all(['id as value','name as text','conclude'])
+         );
     }
 
     /**
@@ -47,10 +46,10 @@ class ReasonController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Reason $reason)
+    public function show($id)
     {
         //
     }
@@ -58,10 +57,10 @@ class ReasonController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Reason $reason)
+    public function edit($id)
     {
         //
     }
@@ -70,10 +69,10 @@ class ReasonController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Reason $reason)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -81,10 +80,10 @@ class ReasonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Reason $reason)
+    public function destroy($id)
     {
         //
     }

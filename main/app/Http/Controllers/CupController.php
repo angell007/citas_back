@@ -36,29 +36,31 @@ class CupController extends Controller
     {
         $cups = Cup::query();
 
-        $cups->when(request()->get('search'), function ($q) {
-            $q->where(function ($q) {
-                $q->where('description', 'Like', '%' . request()->get('search') . '%')
-                    ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
-            });
-        });
+        // $cups->when(request()->get('search'), function ($q) {
+        //     $q->where(function ($q) {
+        //         $q->where('description', 'Like', '%' . request()->get('search') . '%')
+        //             ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
+        //     });
+        // });
 
-        $cups->when(request()->get('speciality'), function ($q) {
-            $q->where('speciality', request()->get('speciality'))->get();
-        });
+        // $cups->when(request()->get('speciality'), function ($q) {
+        //     $q->where('speciality', request()->get('speciality'))->get();
+        // });
 
-        $cups->when(request()->get('space'), function ($q, $spaceId) {
-            $space = Space::with('agendamiento.cups:id')->find($spaceId);
-            $q->where(function ($q) {
-                $q->where('description', 'Like', '%' . request()->get('search') . '%')
-                    ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
-            })->whereIn('id', $space->agendamiento->cups->pluck('id'));
-        });
+        // $cups->when(request()->get('space'), function ($q, $spaceId) {
+        //     $space = Space::with('agendamiento.cups:id')->find($spaceId);
+        //     $q->where(function ($q) {
+        //         $q->where('description', 'Like', '%' . request()->get('search') . '%')
+        //             ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
+        //     })->whereIn('id', $space->agendamiento->cups->pluck('id'));
+        // });
 
 
 
         return $this->success($cups->get(['id as value',  DB::raw("CONCAT( code, ' - ' ,description) as text")])->take(10));
     }
+
+    
 
     /**
      * Show the form for creating a new resource.

@@ -49,6 +49,7 @@ class AppointmentController extends Controller
     private $EMAIL_ELIBOM;
     private $PASS_ELIBOM;
     private $message = '';
+    private $array = [];
     private $sendAppointmentModifiedNotification;
     private $sendAppointmentCreatedNotification;
     private $managmentAppointmentCreation;
@@ -281,13 +282,15 @@ class AppointmentController extends Controller
                 ->join('people', 'people.id', 'spaces.person_id')
                 ->join('administrators as eps', 'eps.id', 'patients.eps_id')
                 ->select(
+                    'appointments.id',
                     'eps.name as eps',
                     DB::raw('DATE_FORMAT(spaces.hour_start, "%Y-%m-%d %h:%i %p") As date'),
                     DB::raw('Concat_ws(" ", people.first_name, people.first_surname) As professional'),
                     DB::raw('Concat_ws(" ", patients.firstname,  patients.surname, ' . DB::raw("FORMAT(patients.identifier, 0, '.')") . ' ) As patient'),
                     'appointments.price As copago',
                     'appointments.observation As description',
-                    'appointments.state'
+                    'appointments.state',
+                    'appointments.payed'
                 )
                 ->when((Request()->get('patient') && Request()->get('patient') != 'null'), function (Builder $query) {
                     $query->where('call_ins.Identificacion_Paciente', Request()->get('patient'));
@@ -329,5 +332,59 @@ class AppointmentController extends Controller
                 ]
             )
         );
+    }
+
+    public  $agendamientos;
+
+    public function appointmentRecursive()
+    {
+        try {
+
+            $data = request()->all();
+
+            $days =  ["Saturday",  'Sunday', 'Monday'];
+
+            $dateStart = Carbon::now()->subDay(2);
+            $dateEnd = Carbon::now()->addDays(5);
+
+            $space = Space::findOrfail(request()->get('space'));
+
+            $agendamiento = Agendamiento::findOrfail($space->agendamiento_id);
+
+            $this->agendamientos = Agendamiento::join('spaces', 'spaces.agendamiento_id',  'agendamientos.id')
+                ->whereRaw("DATE_FORMAT(spaces.hour_start, '%H:%i:%s')" . ' = "' .  Carbon::parse($space->hour_start)->format('H:i:s') . '"')
+                ->where('agendamientos.person_id', $agendamiento->person_id)
+                ->where('spaces.state', 'Activo')
+                ->where('spaces.status', true)
+                ->orderBy('spaces.hour_start', 'Asc')
+                ->get(['spaces.id', 'spaces.hour_start']);
+
+
+            for ($day = $dateStart; $day <= $dateEnd; $day->addDay(1)) {
+
+                if (in_array($day->englishDayOfWeek,  $days)) {
+                    $this->verifySpace($day, $space, $data);
+                }
+            }
+
+            return $this->success([
+                'message' => 'citas creadas correctamente',
+                'citas no creadas' => $this->array
+            ]);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 400);
+        }
+    }
+
+
+    public function verifySpace($i, $space, $data)
+    {
+        $res = $this->agendamientos->firstWhere('hour_start',  Carbon::parse($i->format('Y-m-d')  .  ' ' . Carbon::parse($space->hour_start)->format('H:i:s'))->format('Y-m-d H:i:s'));
+        if ($res) {
+            $data['space'] = $res->id;
+            $this->managmentAppointmentCreation->managment($data);
+        } else {
+            array_push($this->array, 'Cita no creada para el dia ' . Carbon::parse($i->format('Y-m-d')  .  ' ' . Carbon::parse($space->hour_start)->format('H:i:s')));
+        }
     }
 }

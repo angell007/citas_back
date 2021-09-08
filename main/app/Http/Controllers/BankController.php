@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Administrator;
-use App\Models\Eps;
+use App\Bank;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class EpsController extends Controller
+class BankController extends Controller
 {
+
     use ApiResponser;
+
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +18,10 @@ class EpsController extends Controller
      */
     public function index()
     {
-        return $this->success(Administrator::get(['name As text', 'id As value']));
+        return $this->success(
+            Bank::orderBy('name', 'DESC')
+                ->get(['name As name', 'id As value'])
+        );
     }
 
     /**
@@ -44,10 +48,10 @@ class EpsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Eps  $eps
+     * @param  \App\Bank  $bank
      * @return \Illuminate\Http\Response
      */
-    public function show(Eps $eps)
+    public function show(Bank $bank)
     {
         //
     }
@@ -55,10 +59,10 @@ class EpsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Eps  $eps
+     * @param  \App\Bank  $bank
      * @return \Illuminate\Http\Response
      */
-    public function edit(Eps $eps)
+    public function edit(Bank $bank)
     {
         //
     }
@@ -67,10 +71,10 @@ class EpsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Eps  $eps
+     * @param  \App\Bank  $bank
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Eps $eps)
+    public function update(Request $request, Bank $bank)
     {
         //
     }
@@ -78,10 +82,10 @@ class EpsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Eps  $eps
+     * @param  \App\Bank  $bank
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Eps $eps)
+    public function destroy(Bank $bank)
     {
         //
     }

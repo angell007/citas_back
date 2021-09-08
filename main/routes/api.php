@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdministratorController;
 use App\Http\Controllers\AgendamientoController;
 use App\Http\Controllers\AppointmentController;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CupController;
 use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
 use App\Http\Controllers\DurationController;
+use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FormularioController;
 
 use App\Http\Controllers\OtherController;
@@ -100,6 +102,8 @@ Route::group(
 		Route::post("cancell-waiting-appointment", [WaitingListController::class, "cancellWaitingAppointment"]);
 
 		Route::post("confirm-appointment", [AppointmentController::class, "confirmAppointment"]);
+		Route::post("appointment-recursive", [AppointmentController::class, "appointmentRecursive"]);
+
 
 		Route::get('reporte',  [ReporteController::class, 'general']);
 		Route::get('get-menu',  [MenuController::class, 'getByPerson']);
@@ -130,9 +134,9 @@ Route::group(
 		Route::get("get-patient", "PatientController@getPatientInCall");
 		Route::get("clean-info/{id?}", [AppointmentController::class, "cleanInfo"]);
 		Route::get("clean-info", [AppointmentController::class, "getDataCita"]);
-
 		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
-
+		
+		Route::resource('dependencies', DependencyController::class);
 
 		Route::resource("agendamientos", "AgendamientoController");
 		Route::resource("appointments", "AppointmentController");
@@ -148,7 +152,10 @@ Route::group(
 		Route::resource("cities", "MunicipalityController");
 		Route::resource("agreements", "AgreementController");
 		Route::resource("type-documents", "TypeDocumentController");
-		Route::resource("eps", "EpsController");
+		// Eps
+		Route::resource("eps", "AdministratorController");
+		Route::get("paginate-eps", [AdministratorController::class, "paginate"]);
+		
 		Route::resource("type-regimens", "RegimenTypeController");
 		Route::resource("levels", "LevelController");
 		Route::resource("waiting-appointment", "WaitingListController");
@@ -157,6 +164,9 @@ Route::group(
 		Route::resource("type-locations", "TypeLocationController");
 		Route::resource("menus", "MenuController");
 		Route::resource("fees", "FeeController");
+		Route::resource("reasons", "ReasonController");
+		Route::resource("method-pays", "MethodPayController");
+		Route::resource("banks", "BankController");
 	}
 );
 

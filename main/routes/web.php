@@ -52,7 +52,7 @@ use App\Models\TypeAppointment;
 Route::get('/test', 'TestController@test');
 
 
-Route::get('/clear-cache', function () {
+Route::get('/', function () {
 
   $exitCode = Artisan::call('config:clear');
 

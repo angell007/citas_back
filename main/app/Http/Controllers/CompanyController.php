@@ -32,7 +32,6 @@ class CompanyController extends Controller
 
             $typeLocation = TypeLocation::findOrfail($typeLocation);
             $brandShowCompany = $typeLocation->show_company_owners;
-            
         }
 
         if (gettype($typeLocation) != 'object' && $typeLocation == 3) {
@@ -112,7 +111,8 @@ class CompanyController extends Controller
         $data = Company::withWhereHas('locations', function ($q) use ($municipalityId) {
             $q->select('id As value', 'name As text', 'company_id')
                 ->where('city', $municipalityId);
-        })->get(['id As value', 'name As text', 'id']);
+        })
+            ->get(['id As value', 'name As text', 'id']);
 
         // $data = DB::table('companies')
         //     ->selectRaw('Group_Concat(locations.id) As locationsId')

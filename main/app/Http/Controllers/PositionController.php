@@ -2,35 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Reason;
+use App\Models\Position;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
-class ReasonController extends Controller
+class PositionController extends Controller
 {
     use ApiResponser;
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         return $this->success(
-            Reason::orderBy('observation', 'DESC')
-                ->get(['observation As name', 'id As value'])
+            Position::when($request->get('dependency_id'), function ($q, $p) {
+                $q->where('dependency_id', $p);
+            })->get(['id as value', 'name as text'])
         );
     }
+
+
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         //
+      
     }
 
     /**
@@ -42,15 +45,21 @@ class ReasonController extends Controller
     public function store(Request $request)
     {
         //
+        try {
+            Position::updateOrCreate( ['id' => $request->get('id')],$request->all());
+            return $this->success('creado con exito');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Reason $reason)
+    public function show($id)
     {
         //
     }
@@ -58,10 +67,10 @@ class ReasonController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Reason $reason)
+    public function edit($id)
     {
         //
     }
@@ -70,10 +79,10 @@ class ReasonController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Reason $reason)
+    public function update(Request $request, $id)
     {
         //
     }
@@ -81,10 +90,10 @@ class ReasonController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Reason  $reason
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Reason $reason)
+    public function destroy($id)
     {
         //
     }

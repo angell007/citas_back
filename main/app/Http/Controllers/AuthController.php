@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+// use App\CustomModels\Patient;
+
+use App\Models\Patient;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Usuario;
@@ -116,7 +119,9 @@ class AuthController extends Controller
 
     public function me()
     {
-        return response()->json(auth()->user());
+        return response()->json(
+            Patient::firstWhere('identifier',  auth()->user()->usuario )
+        );
     }
 
     public function refresh()

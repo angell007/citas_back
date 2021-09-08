@@ -148,7 +148,12 @@ class AgendamientoController extends Controller
             $this->validating($data);
 
             $agendamiento = Agendamiento::create($request->all());
-            $agendamiento->cups()->sync($data['procedureId']);
+           
+           
+            if (isset($data['procedureId'])) {
+                $agendamiento->cups()->sync($data['procedureId']);
+            }
+            
 
             $holidays = Holiday::pluck('date')->toArray();
             $agendamiento->user_id = auth()->user()->id;
@@ -490,7 +495,7 @@ class AgendamientoController extends Controller
 
         if ($hourStart > $hourEnd && $dateStart == $dateEnd) {
             throw new Exception(
-                "La hora de inicio no puede ser menor a la hora de finalizaciónn"
+                "La hora de inicio no puede ser menor a la hora de finalizaci贸nn"
             );
         }
 
