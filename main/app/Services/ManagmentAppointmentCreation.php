@@ -40,6 +40,7 @@ class ManagmentAppointmentCreation
     private   $company;
     private   $appointment;
     private   $dataByMessages =  null;
+    private $reducer = 1;
 
     public function __construct(
         globhoService $globhoService,
@@ -99,7 +100,13 @@ class ManagmentAppointmentCreation
                     throw new Exception("Este espacio ya no se encuentra disponible" . $this->space->hour_start);
                 }
 
-                $this->space->status = 0;
+
+                $this->space->share = $this->space->share - $this->reducer;
+                if ($this->space->share == 0) {
+                    $this->space->status = 0;
+                }
+
+
                 $this->space->saveOrFail();
                 $this->appointment->code = $this->company->simbol . date("ymd", strtotime($this->space->hour_start)) . str_pad($this->appointment->id, 7, "0", STR_PAD_LEFT);
                 $this->appointment->link = 'https://meet.jit.si/' . $this->company->simbol . date("ymd", strtotime($this->appointment->space->hour_start)) . str_pad($this->appointment->id, 7, "0", STR_PAD_LEFT);
@@ -151,15 +158,16 @@ class ManagmentAppointmentCreation
                 $this->sendAppointmentCreatedNotification->handleMail($this->appointment, $this->space,  $this->data, $this->another);
             }
 
-            return $this->success([
-                'patient' => $this->data['patient'], 'anotheData' => $this->data['anotherData'],
+            return [
                 'space' => $this->space, 'waitingList' =>  $this->waitingList,
+                'patient' => $this->data['patient'], 'anotheData' => $this->data['anotherData'],
+                'waitingList' =>  $this->waitingList,
                 'appointment' => $this->appointment,
                 'info' => ($this->dataByMessages) ? $this->dataByMessages : ''
-            ]);
+            ];
         } catch (\Throwable $th) {
             Log::error(json_encode([' message  ' => ':boom:' . $th->getMessage(), '  file  ' =>  $th->getFile(), '  line  ' => $th->getLine(), 'Usuario' => auth()->user()->id]));
-            return $this->error([$th->getMessage(),  $th->getFile(), $th->getLine(), 'Usuario' => auth()->user()->id], 400);
+            return [$th->getMessage(),  $th->getFile(), $th->getLine(), 'Usuario' => auth()->user()->id];
         }
     }
 

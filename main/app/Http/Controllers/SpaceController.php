@@ -45,6 +45,7 @@ class SpaceController extends Controller
 
         $spaces = DB::table('spaces as s')
             ->join('agendamientos as a', 'a.id', '=', 's.agendamiento_id')
+            ->leftJoin('locations', 'locations.id', 'a.location_id')
             ->join('people as p', 'p.id', '=', 's.person_id')
             ->where('a.type_agenda_id', $params['type_agenda_id'])
             ->where('a.type_appointment_id', $params['type_appointment_id'])
@@ -64,7 +65,8 @@ class SpaceController extends Controller
             ->get([
                 's.id', 's.hour_start As start', 's.hour_end As end', 'a.id as aid', 's.status', 'p.color as backgroundColor',
                 's.className',
-                'p.first_name as title'
+                'p.first_name as title',
+                'locations.address'
 
             ]);
         return  $this->success($spaces);

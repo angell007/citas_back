@@ -17,9 +17,13 @@ class WorkContractTypeController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->success(
-           WorkContractType::all(['id as value','name as text','conclude'])
-         );
+        try {
+            return $this->success(
+                WorkContractType::all(['id as value', 'name as text', 'conclude'])
+            );
+        } catch (\Throwable $th) {
+            return $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**

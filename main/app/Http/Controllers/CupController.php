@@ -13,6 +13,7 @@ use App\Models\Space;
 use App\Services\CupService;
 use App\Models\Speciality;
 use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -43,9 +44,9 @@ class CupController extends Controller
         //     });
         // });
 
-        // $cups->when(request()->get('speciality'), function ($q) {
-        //     $q->where('speciality', request()->get('speciality'))->get();
-        // });
+        $cups->when(request()->get('speciality'), function ($q) {
+            $q->where('speciality', request()->get('speciality'))->get();
+        });
 
         // $cups->when(request()->get('space'), function ($q, $spaceId) {
         //     $space = Space::with('agendamiento.cups:id')->find($spaceId);
@@ -60,7 +61,24 @@ class CupController extends Controller
         return $this->success($cups->get(['id as value',  DB::raw("CONCAT( code, ' - ' ,description) as text")])->take(10));
     }
 
-    
+
+    public function paginate()
+    {
+        try {
+            return $this->success(
+                Cup::orderBy('description')
+                    ->when(request()->get('description'), function (Builder $q) {
+                        $q->where('description', 'like', '%' . request()->get('description') . '%');
+                    })
+                    ->when(request()->get('code'), function (Builder $q) {
+                        $q->where('code', 'like', '%' . request()->get('code') . '%');
+                    })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            );
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -69,7 +87,6 @@ class CupController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -78,9 +95,14 @@ class CupController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store()
     {
-        //
+        try {
+            $Cup = Cup::updateOrCreate(['id' => request()->get('id')], request()->all());
+            return ($Cup->wasRecentlyCreated === true) ? $this->success('creado con exito') : $this->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**

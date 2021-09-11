@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\SpecialityResource;
 use App\Models\Speciality;
+use App\Traits\ApiResponser;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class SpecialityController extends Controller
 {
+
+    use ApiResponser;
+
     /**
      * Display a listing of the resource.
      *
@@ -18,6 +23,21 @@ class SpecialityController extends Controller
         return SpecialityResource::collection(Speciality::orderBy('name', 'ASC')->get(['id', 'name']));
         // return SpecialityResource::collection(Speciality::where('sede_id', $sede)->get(['id', 'name']));
     }
+
+
+    public function paginate()
+    {
+        try {
+            return $this->success(
+                Speciality::orderBy('name')->when(request()->get('name'), function (Builder $q) {
+                    $q->where('name', 'like', '%' . request()->get('name') . '%');
+                })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+            );
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
+    }
+
 
     /**
      * Show the form for creating a new resource.

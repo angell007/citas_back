@@ -37,6 +37,24 @@ class Person extends Model
         'title',
     ];
 
+    public function specialties()
+    {
+        return $this->belongsToMany(Speciality::class);
+    }
+    public function locations()
+    {
+        return $this->belongsToMany(Location::class);
+    }
+
+  
+
+    public function peopleType()
+    {
+        return $this->belongsTo(PeopleType::class);
+    }
+
+
+
     public function getFullNameAttribute()
     {
         return $this->attributes['first_name'] . ' ' . $this->attributes['first_surname'];
@@ -105,5 +123,10 @@ class Person extends Model
     public function horariosTurnoRotativo()
     {
         return $this->hasMany(HorarioTurnoRotativo::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }

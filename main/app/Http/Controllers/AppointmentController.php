@@ -50,6 +50,8 @@ class AppointmentController extends Controller
     private $PASS_ELIBOM;
     private $message = '';
     private $array = [];
+    private $appointmentCreated = [];
+    private $appointmentNotCreated = [];
     private $sendAppointmentModifiedNotification;
     private $sendAppointmentCreatedNotification;
     private $managmentAppointmentCreation;
@@ -93,7 +95,7 @@ class AppointmentController extends Controller
      */
     public function store(AppointmentRequest $request)
     {
-        return $this->managmentAppointmentCreation->managment(request()->all());
+        return $this->success(['appointmentCreated'  => [$this->managmentAppointmentCreation->managment(request()->all())], 'appointmentNotCreated' => [$this->appointmentNotCreated]]);
     }
 
     /**
@@ -335,17 +337,16 @@ class AppointmentController extends Controller
     }
 
     public  $agendamientos;
+    public  $info = [];
 
     public function appointmentRecursive()
     {
         try {
 
             $data = request()->all();
-
-            $days =  ["Saturday",  'Sunday', 'Monday'];
-
-            $dateStart = Carbon::now()->subDay(2);
-            $dateEnd = Carbon::now()->addDays(5);
+            $days =  request()->get('daysRecurrente');
+            $dateStart = Carbon::parse(request()->get('date_startRecurrente'));
+            $dateEnd = Carbon::parse(request()->get('date_endRecurrente'));
 
             $space = Space::findOrfail(request()->get('space'));
 
@@ -367,12 +368,9 @@ class AppointmentController extends Controller
                 }
             }
 
-            return $this->success([
-                'message' => 'citas creadas correctamente',
-                'citas no creadas' => $this->array
-            ]);
+            return $this->success(['appointmentCreated'  => $this->appointmentCreated,   'appointmentNotCreated' => $this->appointmentNotCreated]);
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 400);
+            return $this->error([$th->getMessage(), $th->getLine()], 400);
         }
     }
 
@@ -382,9 +380,16 @@ class AppointmentController extends Controller
         $res = $this->agendamientos->firstWhere('hour_start',  Carbon::parse($i->format('Y-m-d')  .  ' ' . Carbon::parse($space->hour_start)->format('H:i:s'))->format('Y-m-d H:i:s'));
         if ($res) {
             $data['space'] = $res->id;
-            $this->managmentAppointmentCreation->managment($data);
+
+            $info = $this->managmentAppointmentCreation->managment($data);
+
+            if ($info) {
+                array_push($this->appointmentCreated, $info);
+            } else {
+                array_push($this->appointmentNotCreated, 'Cita no creada para el dia ' . Carbon::parse($i->format('Y-m-d')  .  ' ' . Carbon::parse($space->hour_start)->format('H:i:s')));
+            }
         } else {
-            array_push($this->array, 'Cita no creada para el dia ' . Carbon::parse($i->format('Y-m-d')  .  ' ' . Carbon::parse($space->hour_start)->format('H:i:s')));
+            array_push($this->info, 'Cita no creada para el dia ' . Carbon::parse($i->format('Y-m-d')  .  ' ' . Carbon::parse($space->hour_start)->format('H:i:s')));
         }
     }
 }

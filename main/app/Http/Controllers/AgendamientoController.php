@@ -148,12 +148,12 @@ class AgendamientoController extends Controller
             $this->validating($data);
 
             $agendamiento = Agendamiento::create($request->all());
-           
-           
+
+
             if (isset($data['procedureId'])) {
                 $agendamiento->cups()->sync($data['procedureId']);
             }
-            
+
 
             $holidays = Holiday::pluck('date')->toArray();
             $agendamiento->user_id = auth()->user()->id;
@@ -298,6 +298,7 @@ class AgendamientoController extends Controller
             "person_id" => $agendamiento->person_id,
             "backgroundColor" => $person->color,
             "className" => $typeAppointment->icon,
+            "share" => $agendamiento->share,
         ]);
         // }
     }

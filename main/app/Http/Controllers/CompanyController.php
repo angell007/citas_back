@@ -38,7 +38,7 @@ class CompanyController extends Controller
             return CompanyResource::collection(Company::get());
         }
 
-        return CompanyResource::collection(Company::where('type', $brandShowCompany)->get());
+        return $this->success(CompanyResource::collection(Company::where('type', $brandShowCompany)->get()));
     }
 
     /**

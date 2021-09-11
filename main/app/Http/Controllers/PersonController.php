@@ -7,6 +7,7 @@ use App\Models\Eps;
 use App\Models\FixedTurn;
 use App\Models\Person;
 use App\Models\User;
+use App\Models\Usuario;
 use App\Models\WorkContract;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -23,9 +24,14 @@ class PersonController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($company = 0, $speciality = 0)
     {
-        return $this->success(Person::all(['id as value', DB::raw('CONCAT_WS(" ",first_name,first_surname) as text ')]));
+       return $this->success(
+        Person::orderBy('first_name')
+            ->whereHas('specialties', function ($q) use ($speciality) {
+                $q->where('id', $speciality);
+            })->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')])
+        );
     }
 
     /**
@@ -35,11 +41,11 @@ class PersonController extends Controller
      */
     public function indexPaginate()
     {
-
-        $data = request()->all();
+        $data = json_decode(Request()->get('data'), true);
         $page = $data['page'] ? $data['page'] : 1;
         $pageSize = $data['pageSize'] ? $data['pageSize'] : 10;
-        dd(json_decode(request()->get('status'), true));
+
+
         return $this->success(
             DB::table('people as p')
                 ->select(
@@ -67,12 +73,12 @@ class PersonController extends Controller
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
-                ->when(request()->get('dependencies'), function ($q) {
-                    $q->whereIn('d.id', json_decode(request()->get('dependencies'), true));
+                ->when($data['dependencies'], function ($q, $fill) {
+                    $q->whereIn('d.id', $fill);
                 })
 
-                ->when(request()->get('status'), function ($q) {
-                    $q->whereIn('p.status', json_decode(request()->get('status'), true));
+                ->when($data['status'], function ($q, $fill) {
+                    $q->whereIn('p.status', $fill);
                 })
 
                 ->paginate($pageSize, ['*'], 'page', $page)
@@ -326,7 +332,7 @@ class PersonController extends Controller
             $contractData['person_id'] = $person->id;
             WorkContract::create($contractData);
 
-            User::create([
+            Usuario::create([
                 'person_id' => $person->id,
                 'usuario' => $person->identifier,
                 'password' => Hash::make($person->identifier),

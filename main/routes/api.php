@@ -9,13 +9,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CaracterizacionController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CupController;
-use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
+// use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
 use App\Http\Controllers\DurationController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FormularioController;
 
 use App\Http\Controllers\OtherController;
-use App\Http\Controllers\PersonController;
+// use App\Http\Controllers\PersonController as FunctionaryController;
+// use App\Http\Controllers\PersonController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PeopleTypeController;
@@ -88,7 +89,11 @@ Route::group(
 
 	function ($router) {
 		Route::post('create-menu',  [MenuController::class, 'store']);
-		Route::post('/save-menu',  [MenuController::class, 'storePermissions']);
+
+		// Route::post('/save-menu',  [MenuController::class, 'storePermissions']);
+
+		Route::post('/save-menu',  [MenuController::class, 'store']);
+
 		Route::post("formulario/save-responses", [FormularioController::class, "saveResponse"]);
 		Route::post("agendamientos-cancel", [AgendamientoController::class, "cancel"]);
 		Route::post("space-cancel", [SpaceController::class, "cancel"]);
@@ -120,13 +125,15 @@ Route::group(
 		Route::get("get-companys/{query?}", [CompanyController::class, "index"]);
 		Route::get("get-companys-based-on-city/{company?}", [CompanyController::class, "getCompanyBaseOnCity"]);
 		Route::get("get-sedes/{ips?}/{procedure?}", [LocationController::class, "index"]);
-		Route::get("get-specialties/{sede?}/{procedure?}", [SpecialityController::class, "index",]);
-		Route::get("get-professionals/{ips?}/{speciality?}", [PersonController::class, "index"]);
+
 		Route::get("get-formulario/{formulario?}", [FormularioController::class, "getFormulario"]);
 		Route::get("agendamientos/paginate", [AgendamientoController::class, "indexPaginate"]);
 		Route::get("agendamientos/detail/{id}", [AgendamientoController::class, "showDetail"]);
+
 		Route::get("people-type-custom", [PeopleTypeController::class, "indexCustom"]);
-		Route::get("people-paginate", [PersonController::class, "indexPaginate"]);
+		Route::get("people-paginate", 'PersonController@indexPaginate');
+		Route::resource('people', PersonController::class);
+
 		Route::get("get-patient-fill/{id}", "PatientController@getPatientResend");
 		Route::get("type-service/formality/{id}", "TypeServiceController@allByFormality");
 		Route::get("opened-spaces", "SpaceController@index");
@@ -135,15 +142,19 @@ Route::group(
 		Route::get("clean-info/{id?}", [AppointmentController::class, "cleanInfo"]);
 		Route::get("clean-info", [AppointmentController::class, "getDataCita"]);
 		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
-		
+
 		Route::resource('dependencies', DependencyController::class);
+		Route::resource('work-contract-type', WorkContractTypeController::class);
+		Route::resource('rotating-turns', RotatingTurnController::class);
+		Route::resource('group', GroupController::class);
+		Route::resource('positions', PositionController::class);
+
 
 		Route::resource("agendamientos", "AgendamientoController");
 		Route::resource("appointments", "AppointmentController");
 		Route::resource("patients", "PatientController");
 		Route::resource("calls", "CallController");
 		Route::resource("cie10s", "Cie10Controller");
-		Route::resource("cups", "CupController");
 		Route::resource("person", "PersonController");
 		Route::resource("company", "CompanyController");
 		Route::resource("people-type", "PeopleTypeController");
@@ -155,7 +166,23 @@ Route::group(
 		// Eps
 		Route::resource("eps", "AdministratorController");
 		Route::get("paginate-eps", [AdministratorController::class, "paginate"]);
-		
+		Route::resource("epss", "EpsController");
+		// Cups
+		Route::resource("cups", "CupController");
+		Route::get("paginate-cup", [CupController::class, "paginate"]);
+
+		// Specialities
+		Route::get("get-specialties/{sede?}/{procedure?}", [SpecialityController::class, "index",]);
+		Route::get("get-professionals/{ips?}/{speciality?}", 'PersonController@index');
+		Route::resource("specialities", "SpecialityController");
+		Route::get("paginate-especialities", [SpecialityController::class, "paginate"]);
+
+
+		Route::resource('compensation-funds', CompensationFundController::class);
+		Route::resource('pension-funds', PensionFundController::class);
+		Route::resource('severance-funds', SeveranceFundController::class);
+
+
 		Route::resource("type-regimens", "RegimenTypeController");
 		Route::resource("levels", "LevelController");
 		Route::resource("waiting-appointment", "WaitingListController");
