@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInvitesTable extends Migration
+class CreateSpecialitiesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,10 @@ class CreateInvitesTable extends Migration
      */
     public function up()
     {
-        Schema::create('invites', function (Blueprint $table) {
+        Schema::create('specialities', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('code')->unique();
-            $table->integer('max_usages')->nullable();
-            $table->string('to')->nullable();
-            $table->integer('uses')->default(0);
-            $table->timestamp('expires_at')->nullable();
-            $table->softDeletes();
+            $table->integer('code')->nullable();
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -32,6 +28,6 @@ class CreateInvitesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('invites');
+        Schema::dropIfExists('specialities');
     }
 }

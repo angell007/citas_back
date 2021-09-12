@@ -52,17 +52,17 @@ use App\Models\TypeAppointment;
 Route::get('/test', 'TestController@test');
 
 
-Route::get('/', function () {
+// Route::get('/', function () {
 
-  $exitCode = Artisan::call('config:clear');
+//   $exitCode = Artisan::call('config:clear');
 
-  $exitCode = Artisan::call('cache:clear');
+//   $exitCode = Artisan::call('cache:clear');
 
-  $exitCode = Artisan::call('config:cache');
+//   $exitCode = Artisan::call('config:cache');
 
-  return 'DONE'; //Return anything
+//   return 'DONE'; //Return anything
 
-});
+// });
 
 Auth::routes();
 
@@ -94,6 +94,5 @@ Route::get('/create-cups', 'CupController@storeFromMedical');
 // agreements
 Route::get('/create-cups', 'CupController@storeFromMedical');
 Route::get('/create-agreements',  [AgreementController::class, 'store']);
-Route::get('{any}', function () {
-  return view('home');
-})->where('any', '.*');
+
+Route::view('{any}', 'home')->where('any', '.*');

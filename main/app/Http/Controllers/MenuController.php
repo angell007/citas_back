@@ -57,7 +57,7 @@ class MenuController extends Controller
 
             return $this->success('Actualización exitosa');
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 400);
+            return $this->error([$th->getMessage(), $th->getLine()], 400);
         }
 
 
