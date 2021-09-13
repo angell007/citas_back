@@ -185,6 +185,7 @@ class AppointmentController extends Controller
 
             $space = $app->space;
             $space->status = 1;
+            $this->space->share = $this->space->share + 1;
             $space->save();
 
             $body = [

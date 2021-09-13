@@ -18,7 +18,7 @@ use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\log;
+use Illuminate\Support\Facades\Log;
 
 class AgendamientoController extends Controller
 {

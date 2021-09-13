@@ -119,13 +119,12 @@ class ReporteController extends Controller
                 'cie10s.description As diagnostico',
                 'appointments.ips As ips_remisora',
                 'appointments.profesional As professional_remisor',
-                'appointments.speciality As speciality_remisor',
-            )->get()->chunk(500);
+                'appointments.speciality As speciality_remisor'
+            )->get();
     }
 
     public function AttentionReport($request)
     {
-        // return DB::table('attentions')
 
         return DB::table('agendamientos')
 
@@ -197,7 +196,7 @@ class ReporteController extends Controller
                 'cie10s.description As diagnostico',
                 'appointments.ips As ips_remisora',
                 'appointments.profesional As professional_remisor',
-                'appointments.speciality As speciality_remisor',
+                'appointments.speciality As speciality_remisor'
             )->get();
     }
 
@@ -266,7 +265,7 @@ class ReporteController extends Controller
                 'administrators.name As eps',
                 'regimen_types.name As regimen',
                 'appointments.observation As observaciones',
-                'appointments.created_at As fecha',
+                'appointments.created_at As fecha'
             )->get();
     }
 
@@ -322,7 +321,7 @@ class ReporteController extends Controller
                 'agendamientos.date_start As fecha_inicio',
                 'agendamientos.date_end As fecha_finalizacion',
                 'agendamientos.created_at As hora_creacion',
-                'specialities.name As especialidad',
+                'specialities.name As especialidad'
             )
             ->groupBy('agendamientos.id')
             ->get();

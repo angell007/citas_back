@@ -109,8 +109,8 @@ class CompanyController extends Controller
     public function getCompanyBaseOnCity($municipalityId)
     {
         $data = Company::withWhereHas('locations', function ($q) use ($municipalityId) {
-            $q->select('id As value', 'name As text', 'company_id')
-                ->where('city', $municipalityId);
+            $q->select('id As value', 'name As text', 'company_id');
+                // ->where('city', $municipalityId);
         })
             ->get(['id As value', 'name As text', 'id']);
 

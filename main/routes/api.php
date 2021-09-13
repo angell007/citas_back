@@ -9,7 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CaracterizacionController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CupController;
-// use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
+use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
 use App\Http\Controllers\DurationController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FormularioController;
@@ -63,6 +63,7 @@ use Illuminate\Support\Facades\DB;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 
 Route::prefix("auth")->group(
 	function () {

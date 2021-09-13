@@ -114,23 +114,30 @@ class PatientController extends Controller
     {
         try {
             
+            $patient = null;
+            
             $call = CallIn::Where('status', 'Pendiente')
                 ->where('type', 'CallCenter')
                 ->where('Identificacion_Agente', auth()->user()->usuario)
                 ->first();
 
-            $patient = Patient::with(
-                'eps',
-                'company',
-                'municipality',
-                'department',
-                'regional',
-                'level',
-                'regimentype',
-                'typedocument',
-                'contract',
-                'location'
-            )->firstWhere('identifier', $call->Identificacion_Paciente);
+            if($call){
+                
+                $patient = Patient::with(
+                    'eps',
+                    'company',
+                    'municipality',
+                    'department',
+                    'regional',
+                    'level',
+                    'regimentype',
+                    'typedocument',
+                    'contract',
+                    'location'
+                )->firstWhere('identifier', $call->Identificacion_Paciente);
+                
+            }
+            
             return $this->success(['paciente' => $patient, 'llamada' => $call]);
         } catch (\Throwable $th) {
             return $this->success($th->getMessage(), 201);

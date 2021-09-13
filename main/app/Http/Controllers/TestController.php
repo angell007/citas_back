@@ -309,10 +309,11 @@ class TestController extends Controller
 
     public function uploadMassive()
     {
+        dd('cxvx');
 
         // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
 
-        $appointment = Appointment::with('space', 'callin')->find(44547);
+        $appointment = Appointment::with('space', 'callin')->find(74815);
         // $appointment = Appointment::with('space', 'callin')->find($temp->id);
         if ($appointment->space && $appointment->callin->patient) {
 
@@ -367,8 +368,12 @@ class TestController extends Controller
                             'recomendations' => $cup->recomendation
                         ],
                         'doctor' => [
-                            'id' =>  $appointment->space->person->identifier,
-                            'name' => $appointment->space->person->full_name
+                        'id' =>  $this->space->person->id,
+                        'name' => $this->space->person->full_name,
+                        'company' => [
+                        'id' => ($this->space->person->company) ? $this->space->person->company->tin : '',
+                        'name' => ($this->space->person->company) ? $this->space->person->company->name : ''
+                        ],
                         ],
                         'agreement' => [
                             'id' => $contract->number,
@@ -378,7 +383,8 @@ class TestController extends Controller
                             'id' => $location->globo_id,
                             'name' => $location->name
                         ],
-
+                        
+                        dd(all())
                     ];
 
                     $response = Http::post(
@@ -412,8 +418,104 @@ class TestController extends Controller
 
     public function test()
     {
-        Log::info('message');
-        // $data =  Space::with('person', 'person.company')->findOrfail(41);
-        // dd([$data->person->company->tin, $data->person->company->name]);
+       
+        // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
+
+        $appointment = Appointment::with('space', 'callin')->find(75254);
+        // $appointment = Appointment::with('space', 'callin')->find($temp->id);
+        if ($appointment->space && $appointment->callin->patient) {
+
+            $cup = Cup::find($appointment->procedure);
+            $location = Location::find($appointment->callin->patient->location_id);
+            $contract = Contract::find($appointment->callin->patient->contract_id);
+            $typeDocument =    TypeDocument::find($appointment->callin->patient->type_document_id);
+            $regimenType =    RegimenType::find($appointment->callin->patient->regimen_id);
+            $level = Level::find($appointment->callin->patient->level_id);
+            $municipality = Municipality::find($appointment->callin->patient->municipality_id);
+            $department = Department::find($appointment->callin->patient->department_id);
+            $company = Company::find($appointment->callin->patient->company_id);
+
+            if ($company) {
+
+                $appointment->code = $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT);
+                $appointment->link = 'https://meet.jit.si/' . $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT);
+                $appointment->save();
+
+                if (gettype($level) == 'object' &&     gettype($regimenType) == 'object' && gettype($location) == 'object' && gettype($contract) == 'object') {
+
+                    $body = [
+                        "id" => 0,
+                        "startDate" => Carbon::parse($appointment->space->hour_start)->format('Y-m-d H:i'),
+                        "endDate" => Carbon::parse($appointment->space->hour_end)->format('Y-m-d H:i'),
+                        "state" => $appointment->state,
+                        "type" => ($appointment->space->agendamiento->typeAppointment->description == 'TELEMEDICINA') ? 4 : 1,
+                        "text" => $appointment->observation,
+                        "TelehealdthUrl" => 'https://meet.jit.si/' . $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT),
+                        "ConfirmationUrl" => "",
+                        "appointmentId" => $appointment->code,
+                        "patient" => [
+                            "id" => $appointment->callin->patient->identifier,
+                            "identificationType" => $typeDocument->code,
+                            "firstName" => $appointment->callin->patient->firstname,
+                            "secondName" =>  $appointment->callin->patient->middlename,
+                            "firstlastName" => $appointment->callin->patient->surname,
+                            "secondlastName" => $appointment->callin->patient->secondsurname,
+                            "email" => $appointment->callin->patient->email,
+                            "phone" => $appointment->callin->patient->phone,
+                            "birthDate" => $appointment->callin->patient->date_of_birth,
+                            "gender" =>  $appointment->callin->patient->gener,
+                            "codeRegime" => $regimenType->code,
+                            "categoryRegime" => $level->code,
+                            "codeCity" => substr($municipality->code, 2, 5),
+                            "codeState" => $department->code,
+                        ],
+
+                        'service' => [
+                            'id' => $cup->code,
+                            'name' => $cup->description,
+                            'recomendations' => $cup->recomendation
+                        ],
+                        'doctor' => [
+                        'id' =>  $appointment->space->person->identifier,
+                        'name' => $appointment->space->person->full_name,
+                        'company' => [
+                        'id' => ($appointment->space->person->company) ? $appointment->space->person->company->tin : '',
+                        'name' => ($appointment->space->person->company) ? $appointment->space->person->company->name : ''
+                        ],
+                        ],
+                        'agreement' => [
+                            'id' => $contract->number,
+                            'name' => $contract->name
+                        ],
+                        'location' => [
+                            'id' => $location->globo_id,
+                            'name' => $location->name
+                        ],
+                                            ];
+
+                    $response = Http::post(
+                        'https://mogarsalud.globho.com/api/integration/appointment' . "?api_key=$company->code",
+                        $body
+                    );
+
+                    if ($response->ok()) {
+                        $appointment->on_globo = 1;
+                        $appointment->globo_id =  $response->json()['id'];
+                        $appointment->save();
+                        echo json_encode($response->json());
+                    } else {
+                        echo json_encode($response->json());
+                    }
+                    echo '<br>';
+                }
+            }
+
+        } else {
+
+            echo 'Sin spaces  ' .  $appointment->id;
+        }
+
+        echo ("=============================<br>");
+
     }
 }
