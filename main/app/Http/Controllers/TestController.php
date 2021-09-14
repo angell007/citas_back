@@ -383,9 +383,7 @@ class TestController extends Controller
                             'id' => $location->globo_id,
                             'name' => $location->name
                         ],
-                        
-                        dd(all())
-                    ];
+                                            ];
 
                     $response = Http::post(
                         'https://mogarsalud.globho.com/api/integration/appointment' . "?api_key=$company->code",
@@ -421,7 +419,7 @@ class TestController extends Controller
        
         // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
 
-        $appointment = Appointment::with('space', 'callin')->find(75254);
+        $appointment = Appointment::with('space', 'callin')->find(76082);
         // $appointment = Appointment::with('space', 'callin')->find($temp->id);
         if ($appointment->space && $appointment->callin->patient) {
 
@@ -517,5 +515,59 @@ class TestController extends Controller
 
         echo ("=============================<br>");
 
+    }
+    
+    function getAppointmentByPatient() {
+        
+        dd('sgfsdfs');
+
+        $identifier = request()->get('identifier');
+
+        $data = [];
+
+        $data = DB::select("SELECT spaces.hour_start as 'Hora inicio',  Concat_ws(' ', people.first_name, people.first_surname, ' ', people.id ) As Doctor,
+
+                        Concat_ws(' ', patients.firstname, patients.surname , ' ', patients.identifier ) As Paciente,
+                        
+                        specialities.name as 'Especialidad',
+                        
+                        appointments.created_at as 'Creada en',
+                        
+                        spaces.id as 'SpaceID',
+                        
+                        appointments.id as 'AppoinmentID',
+                        
+                        appointments.state as 'Estado',
+                        
+                        companies.name as 'Company del doctor',
+                        
+                        cp.name as 'Company del Paciente',
+                        
+                        agendamientos.id as 'Agendamiento'
+                        
+                        FROM `appointments`
+                        
+                        INNER JOIN spaces on spaces.id = appointments.space_id
+                        
+                        INNER JOIN agendamientos on agendamientos.id = spaces.agendamiento_id
+                        
+                        INNER JOIN specialities on specialities.id = agendamientos.speciality_id
+                        
+                        INNER JOIN people on people.id = agendamientos.person_id
+                        
+                        INNER JOIN companies  on companies.id = people.company_id
+                        
+                        INNER JOIN call_ins on call_ins.id = appointments.call_id
+                        
+                        INNER JOIN patients on patients.identifier = call_ins.Identificacion_Paciente
+                        
+                        INNER JOIN companies as cp on cp.id = patients.company_id
+                        
+                        WHERE patients.identifier IN ($identifier)
+                        
+                        ORDER BY `appointments`.`observation` ASC");
+                        
+                        return response()->json($data);
+        
     }
 }
