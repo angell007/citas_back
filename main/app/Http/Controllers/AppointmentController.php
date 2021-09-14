@@ -185,7 +185,7 @@ class AppointmentController extends Controller
 
             $space = $app->space;
             $space->status = 1;
-            $this->space->share = $this->space->share + 1;
+            $space->share = $space->share + 1;
             $space->save();
 
             $body = [
@@ -206,6 +206,7 @@ class AppointmentController extends Controller
 
             return $this->success('La cita se ha cancelado con èxito');
         } catch (\Throwable $th) {
+            Log::info([$th->getMessage(), $th->Line()]);
             return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
         }
     }

@@ -11,6 +11,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CupController;
 use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
 use App\Http\Controllers\DurationController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FormularioController;
 
@@ -82,6 +83,7 @@ Route::prefix("auth")->group(
 	}
 );
 
+Route::get('get-info', [TestController::class, 'getAppointmentByPatient'] );
 
 Route::group(
 	[
