@@ -113,7 +113,7 @@ class AgendamientoController extends Controller
                     "full_name",
                     "first_surname",
                     "first_name",
-                    "image"
+                    "image_blob As image"
                 );
             },
         ]);

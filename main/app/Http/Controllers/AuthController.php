@@ -24,6 +24,15 @@ class AuthController extends Controller
     {
     }
 
+    public function index()
+    {
+        // implement users on line 
+    }
+
+    public function paginate()
+    {
+    }
+
     public function login(Request $request)
     {
         // return response()->json(request()->all());
@@ -120,7 +129,7 @@ class AuthController extends Controller
     public function me()
     {
         return response()->json(
-            Patient::firstWhere('identifier',  auth()->user()->usuario )
+            Patient::firstWhere('identifier',  auth()->user()->usuario)
         );
     }
 

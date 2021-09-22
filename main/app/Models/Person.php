@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Person extends Model
 {
     protected $guarded = [''];
+    protected $hidden = ['pivot'];
 
     protected $fillable = [
         'blood_type',
@@ -35,18 +36,50 @@ class Person extends Model
         'severance_fund_id',
         'shirt_size',
         'title',
+        'image_blob',
+        'signature_blob',
+
+
+
+        "type_document_id",
+        "identifier",
+        "first_name",
+        "second_name",
+        "second_surname",
+        "first_surname",
+        "birth_date",
+        "marital_status",
+        "company_id",
+        "department_id",
+        "municipality_id",
+        "medical_record"
+
+
+        // Ips: '';
+        // contract: '';
+        // companies: [];
+        // medical_register: '';
+        // person_type_id: '';
+        // specialities: [];
     ];
+
+    public function specialities()
+    {
+        return $this->belongsToMany(Speciality::class)->select(['id']);
+        // ->withPivot('id');
+    }
 
     public function specialties()
     {
         return $this->belongsToMany(Speciality::class);
     }
+    
     public function locations()
     {
         return $this->belongsToMany(Location::class);
     }
 
-  
+
 
     public function peopleType()
     {
@@ -128,5 +161,10 @@ class Person extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function companies()
+    {
+        return $this->belongsToMany(Company::class);
     }
 }

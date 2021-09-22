@@ -237,7 +237,7 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Image' => Intervention\Image\Facades\Image::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-
+        'toUpperh' => App\helpers\UppercaseHelper::class,
     ],
 
 ];

@@ -26,11 +26,11 @@ class PersonController extends Controller
      */
     public function index($company = 0, $speciality = 0)
     {
-       return $this->success(
-        Person::orderBy('first_name')
-            ->whereHas('specialties', function ($q) use ($speciality) {
-                $q->where('id', $speciality);
-            })->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')])
+        return $this->success(
+            Person::orderBy('first_name')
+                ->whereHas('specialties', function ($q) use ($speciality) {
+                    $q->where('id', $speciality);
+                })->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')])
         );
     }
 
@@ -41,25 +41,22 @@ class PersonController extends Controller
      */
     public function indexPaginate()
     {
-        $data = json_decode(Request()->get('data'), true);
-        $page = $data['page'] ? $data['page'] : 1;
-        $pageSize = $data['pageSize'] ? $data['pageSize'] : 10;
-
-
         return $this->success(
             DB::table('people as p')
                 ->select(
                     'p.id',
                     'p.identifier',
-                    'p.image',
+                    'p.image_blob',
                     'p.status',
-                    'p.full_name',
+                    DB::raw('Concat_ws(" ", p.first_name, p.first_surname ) as full_name'),
                     'p.first_surname',
                     'p.first_name',
                     'pos.name as position',
                     'd.name as dependency',
                     'c.name as company',
-                    DB::raw('w.id AS work_contract_id')
+                    DB::raw(
+                        'w.id AS work_contract_id'
+                    )
                 )
                 ->join('work_contracts as w', function ($join) {
                     $join->on('p.id', '=', 'w.person_id')
@@ -69,19 +66,16 @@ class PersonController extends Controller
                 ->join('companies as c', 'c.id', '=', 'w.company_id')
                 ->join('positions as pos', 'pos.id', '=', 'w.position_id')
                 ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
-                ->when($data['name'], function ($q, $fill) {
+                ->when(request()->get('name'), function ($q, $fill) {
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
-                ->when($data['dependencies'], function ($q, $fill) {
+                ->when(request()->get('dependencies'), function ($q, $fill) {
                     $q->whereIn('d.id', $fill);
                 })
-
-                ->when($data['status'], function ($q, $fill) {
+                ->when(request()->get('status'), function ($q, $fill) {
                     $q->whereIn('p.status', $fill);
-                })
-
-                ->paginate($pageSize, ['*'], 'page', $page)
+                })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );
     }
 

@@ -16,10 +16,9 @@ class CreatePatientsTable extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->integer('id', true);
             $table->string('type_document_id', 11)->nullable();
-            $table->integer('identifier')->nullable()->index('identifier');
+            $table->bigInteger('identifier')->nullable()->index('identifier');
             $table->integer('regimen_id')->nullable();
             $table->string('affiliate_type', 50)->nullable();
-            $table->string('optional_phone', 50)->nullable();
             $table->string('category_affiliate', 50)->nullable();
             $table->string('secondsurname', 50)->nullable();
             $table->string('surname', 50)->nullable();
@@ -54,6 +53,7 @@ class CreatePatientsTable extends Migration
             $table->string('database', 50)->nullable();
             $table->timestamps();
             $table->integer('municipio');
+            $table->string('optional_phone', 20)->nullable();
         });
     }
 

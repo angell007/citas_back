@@ -3,7 +3,7 @@
     "type": "project",
     "description": "The Laravel Framework.",
     "keywords": [
-        "framework", 
+        "framework",
         "laravel"
     ],
     "license": "MIT",
@@ -53,7 +53,8 @@
             "app/helpers/handlerTableCreate.php",
             "app/helpers/normalize.php",
             "app/helpers/globals.php",
-            "app/helpers/transformDates.php"
+            "app/helpers/transformDates.php",
+            "app/helpers/UppercaseHelper.php"
         ],
         "classmap": [
             "database/seeds",

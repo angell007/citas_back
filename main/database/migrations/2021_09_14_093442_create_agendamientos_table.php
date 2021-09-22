@@ -31,6 +31,7 @@ class CreateAgendamientosTable extends Migration
             $table->json('days')->nullable();
             $table->tinyInteger('pending')->nullable()->default(0);
             $table->enum('state', ['Aperturada', 'Cancelada'])->default('Aperturada');
+            $table->integer('share')->nullable()->default(1);
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

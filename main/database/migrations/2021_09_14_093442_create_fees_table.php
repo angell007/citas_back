@@ -14,7 +14,7 @@ class CreateFeesTable extends Migration
     public function up()
     {
         Schema::create('fees', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->unsignedInteger('payment_method_id');
             $table->unsignedInteger('bank_id');
             $table->enum('agenda', ['Sala Espera', 'Confirmado']);

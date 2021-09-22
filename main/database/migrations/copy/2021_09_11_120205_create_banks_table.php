@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAgendasAbiertasTable extends Migration
+class CreateBanksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateAgendasAbiertasTable extends Migration
      */
     public function up()
     {
-        Schema::create('agendas-abiertas', function (Blueprint $table) {
+        Schema::create('banks', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->integer('regexp_replace')->nullable();
-            $table->text('date')->nullable();
-            $table->text('action')->nullable();
-            $table->json('schedule')->nullable();
+            $table->string('name', 50)->nullable();
+            $table->string('description', 50)->nullable();
+            $table->timestamps();
         });
     }
 
@@ -29,6 +28,6 @@ class CreateAgendasAbiertasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('agendas-abiertas');
+        Schema::dropIfExists('banks');
     }
 }

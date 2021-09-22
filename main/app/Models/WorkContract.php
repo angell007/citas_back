@@ -9,7 +9,7 @@ class WorkContract extends Model
 {
 
     // use HasFactory;
-    
+
     protected $fillable = [
         'position_id',
         'date_end',
@@ -19,14 +19,17 @@ class WorkContract extends Model
         'work_contract_type_id',
         'rotating_turn_id',
         'company_id',
-        'person_id'
+        'person_id',
+        'liquidated'
     ];
+
     public function position()
     {
         return $this->belongsTo(Position::class);
     }
 
-    public function people(){
+    public function people()
+    {
         return $this->belongsTo(People::class);
     }
 

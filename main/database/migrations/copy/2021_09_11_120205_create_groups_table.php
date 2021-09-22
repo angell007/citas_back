@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReasonsTable extends Migration
+class CreateGroupsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateReasonsTable extends Migration
      */
     public function up()
     {
-        Schema::create('reasons', function (Blueprint $table) {
-            $table->integer('id')->primary();
-            $table->string('observation', 100)->nullable();
-            $table->enum('pay_condition', ['No paga', 'Pagado'])->nullable();
-            $table->tinyInteger('status')->nullable()->index('status');
+        Schema::create('groups', function (Blueprint $table) {
+            $table->integer('id', true);
+            $table->string('name', 150)->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateReasonsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('reasons');
+        Schema::dropIfExists('groups');
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CupController;
 use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
 use App\Http\Controllers\DurationController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FormularioController;
 
@@ -21,6 +22,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PeopleTypeController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\ServiceGlobhoController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\SpecialityController;
 use App\Http\Controllers\SubTypeAppointmentController;
@@ -82,6 +84,7 @@ Route::prefix("auth")->group(
 	}
 );
 
+Route::get('get-info', [TestController::class, 'getAppointmentByPatient']);
 
 Route::group(
 	[
@@ -90,8 +93,6 @@ Route::group(
 
 	function ($router) {
 		Route::post('create-menu',  [MenuController::class, 'store']);
-
-		// Route::post('/save-menu',  [MenuController::class, 'storePermissions']);
 
 		Route::post('/save-menu',  [MenuController::class, 'store']);
 
@@ -109,6 +110,8 @@ Route::group(
 
 		Route::post("confirm-appointment", [AppointmentController::class, "confirmAppointment"]);
 		Route::post("appointment-recursive", [AppointmentController::class, "appointmentRecursive"]);
+		Route::post("migrate-appointment", [AppointmentController::class, "appointmentMigrate"]);
+		Route::get("appointments/tomigrate", [AppointmentController::class, "toMigrate"]);
 
 
 		Route::get('reporte',  [ReporteController::class, 'general']);
@@ -157,6 +160,9 @@ Route::group(
 		Route::resource("calls", "CallController");
 		Route::resource("cie10s", "Cie10Controller");
 		Route::resource("person", "PersonController");
+
+		Route::resource("professionals", "ProfessionalController");
+
 		Route::resource("company", "CompanyController");
 		Route::resource("people-type", "PeopleTypeController");
 		Route::resource("departments", "DepartmentController");
@@ -216,6 +222,7 @@ Route::group(["middleware" => ["jwt.verify"]], function () {
 Route::group(["middleware" => ["globho.verify"]], function () {
 	Route::post('create-professional', [PersonController::class, 'storeFromGlobho']);
 	Route::put('professional', [PersonController::class, 'updateFromGlobho']);
-	Route::put('appointment/{code?}/{state?}', [AppointmentController::class, 'updateFromGlobho']);
+	Route::post('update-appointment-by-globho', [ServiceGlobhoController::class, 'updateStateByGlobhoId']);
+	Route::get("get-appointments-by-globho-id", [ServiceGlobhoController::class, "getInfoByGlobhoId"]);
 	Route::post('create-appoinment', [AppointmentController::class, 'createFromGlobho']);
 });

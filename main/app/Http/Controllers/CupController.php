@@ -13,6 +13,7 @@ use App\Models\Space;
 use App\Services\CupService;
 use App\Models\Speciality;
 use App\Traits\ApiResponser;
+use Dotenv\Result\Success;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
@@ -50,7 +51,7 @@ class CupController extends Controller
 
         $cups->when(request()->get('space'), function ($q, $spaceId) {
             $space = Space::with('agendamiento.cups:id')->find($spaceId);
-            $cupIds = DB::table('cup_speciality')->select('cup_id')->where('speciality_id', $space->agendamiento->speciality_id );
+            $cupIds = DB::table('cup_speciality')->select('cup_id')->where('speciality_id', $space->agendamiento->speciality_id);
             $q->where(function ($q) {
                 $q->where('description', 'Like', '%' . request()->get('search') . '%')
                     ->orWhere('code', 'Like', '%' . request()->get('search') . '%');
@@ -65,7 +66,7 @@ class CupController extends Controller
 
         return $this->success($cups->get(['id as value',  DB::raw("CONCAT( code, ' - ' ,description) as text")])->take(30));
     }
-    
+
     public function paginate()
     {
         try {
@@ -103,7 +104,8 @@ class CupController extends Controller
     {
         try {
             $Cup = Cup::updateOrCreate(['id' => request()->get('id')], request()->all());
-            return ($Cup->wasRecentlyCreated === true) ? $this->success('creado con exito') : $this->success('Actualizado con exito');
+            $Cup->specialities()->sync(request()->get('specialities'));
+            return ($Cup->wasRecentlyCreated === true) ? response()->success('creado con exito') : response()->success('Actualizado con exito');
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
         }
@@ -115,9 +117,9 @@ class CupController extends Controller
      * @param  \App\Cup  $cup
      * @return \Illuminate\Http\Response
      */
-    public function show(Cup $cup)
+    public function show($cup)
     {
-        //
+        return response()->success(Cup::with('specialities:id')->find($cup));
     }
 
     /**

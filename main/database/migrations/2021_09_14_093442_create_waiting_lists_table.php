@@ -16,6 +16,7 @@ class CreateWaitingListsTable extends Migration
         Schema::create('waiting_lists', function (Blueprint $table) {
             $table->bigInteger('id', true);
             $table->string('origin', 20);
+            $table->string('message_cancell')->nullable();
             $table->integer('type_appointment_id')->nullable();
             $table->integer('sub_type_appointment_id')->nullable();
             $table->integer('profesional_id')->nullable();
@@ -23,7 +24,6 @@ class CreateWaitingListsTable extends Migration
             $table->enum('state', ['Pendiente', 'Cancelado', 'Agendado'])->nullable();
             $table->integer('appointment_id')->nullable();
             $table->timestamp('space_date_assign')->nullable();
-            $table->string(' message_cancell', 55)->nullable();
             $table->timestamps();
         });
     }

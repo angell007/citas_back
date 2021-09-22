@@ -17,7 +17,7 @@ class CreateSpacesTable extends Migration
             $table->integer('id', true);
             $table->bigInteger('agendamiento_id')->nullable()->index('agendamiento_id');
             $table->dateTime('hour_start')->nullable();
-            $table->bigInteger('person_id')->nullable()->index('person_id');
+            $table->bigInteger('person_id')->nullable();
             $table->string('className', 50)->nullable();
             $table->dateTime('hour_end')->nullable();
             $table->string('long', 20)->nullable();
@@ -25,6 +25,7 @@ class CreateSpacesTable extends Migration
             $table->timestamps();
             $table->string('backgroundColor', 50)->nullable();
             $table->enum('state', ['Activo', 'Cancelado'])->default('Activo');
+            $table->integer('share')->nullable()->default(1);
         });
     }
 

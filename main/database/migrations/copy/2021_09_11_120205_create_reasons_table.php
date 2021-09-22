@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAdministratorsTable extends Migration
+class CreateReasonsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateAdministratorsTable extends Migration
      */
     public function up()
     {
-        Schema::create('administrators', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('number');
-            $table->enum('type', ['EPS', 'ARL', 'CCF']);
+        Schema::create('reasons', function (Blueprint $table) {
+            $table->integer('id', true);
+            $table->string('observation', 100)->nullable();
+            $table->enum('pay_condition', ['No paga', 'Pagado'])->nullable();
+            $table->tinyInteger('status')->nullable()->index('status');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ class CreateAdministratorsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('administrators');
+        Schema::dropIfExists('reasons');
     }
 }

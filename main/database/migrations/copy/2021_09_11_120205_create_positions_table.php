@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCupSpecialityTable extends Migration
+class CreatePositionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateCupSpecialityTable extends Migration
      */
     public function up()
     {
-        Schema::create('cup_speciality', function (Blueprint $table) {
-            $table->string('cup_code', 9)->nullable();
-            $table->string('speciality_id', 13)->nullable();
-            $table->string('speciality_name', 32)->nullable();
+        Schema::create('positions', function (Blueprint $table) {
             $table->integer('id', true);
+            $table->integer('dependency_id')->nullable();
+            $table->string('name', 100)->nullable();
+            $table->timestamps();
         });
     }
 
@@ -28,6 +28,6 @@ class CreateCupSpecialityTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cup_speciality');
+        Schema::dropIfExists('positions');
     }
 }

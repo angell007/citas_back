@@ -519,11 +519,7 @@ class TestController extends Controller
     
     function getAppointmentByPatient() {
         
-        dd('sgfsdfs');
-
         $identifier = request()->get('identifier');
-
-        $data = [];
 
         $data = DB::select("SELECT spaces.hour_start as 'Hora inicio',  Concat_ws(' ', people.first_name, people.first_surname, ' ', people.id ) As Doctor,
 
@@ -532,6 +528,8 @@ class TestController extends Controller
                         specialities.name as 'Especialidad',
                         
                         appointments.created_at as 'Creada en',
+
+                        cups.description as 'Servicio-Cup',
                         
                         spaces.id as 'SpaceID',
                         
@@ -548,6 +546,8 @@ class TestController extends Controller
                         FROM `appointments`
                         
                         INNER JOIN spaces on spaces.id = appointments.space_id
+
+                        INNER JOIN cups on cups.id = appointments.procedure
                         
                         INNER JOIN agendamientos on agendamientos.id = spaces.agendamiento_id
                         

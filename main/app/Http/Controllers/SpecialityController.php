@@ -20,8 +20,7 @@ class SpecialityController extends Controller
      */
     public function index($sede = 0)
     {
-        return SpecialityResource::collection(Speciality::orderBy('name', 'ASC')->get(['id', 'name']));
-        // return SpecialityResource::collection(Speciality::where('sede_id', $sede)->get(['id', 'name']));
+        return SpecialityResource::collection(Speciality::sortedByName()->get(['id', 'name']));
     }
 
 
@@ -29,9 +28,14 @@ class SpecialityController extends Controller
     {
         try {
             return $this->success(
-                Speciality::orderBy('name')->when(request()->get('name'), function (Builder $q) {
-                    $q->where('name', 'like', '%' . request()->get('name') . '%');
-                })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
+                Speciality::sortedByName()
+                    ->when(request()->get('name'), function (Builder $q) {
+                        $q->where('name', 'like', '%' . request()->get('name') . '%');
+                    })
+                    ->when(request()->get('code'), function (Builder $q) {
+                        $q->where('id', 'like', '%' . request()->get('code') . '%');
+                    })
+                    ->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
             );
         } catch (\Throwable $th) {
             return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
@@ -57,7 +61,12 @@ class SpecialityController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $Speciality = Speciality::updateOrCreate(['id' => request()->get('id')],  toUpper(request()->all()));
+            return ($Speciality->wasRecentlyCreated === true) ? response()->success('creado con exito') : response()->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**
@@ -68,7 +77,7 @@ class SpecialityController extends Controller
      */
     public function show(Speciality $speciality)
     {
-        //
+        return response()->success($speciality);
     }
 
     /**
@@ -91,7 +100,13 @@ class SpecialityController extends Controller
      */
     public function update(Request $request, Speciality $speciality)
     {
-        //
+        try {
+            $speciality->status =  request()->get('status');
+            $speciality->save();
+            return  response()->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return  $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
+        }
     }
 
     /**

@@ -26,6 +26,7 @@ class CreatePeopleTable extends Migration
             $table->text('birth_place')->nullable();
             $table->enum('blood_type', ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'])->nullable();
             $table->string('phone', 191)->nullable();
+            $table->string('optional_phone', 15)->nullable();
             $table->string('cellphone', 191)->nullable();
             $table->string('email', 191);
             $table->text('address')->nullable();
@@ -37,12 +38,19 @@ class CreatePeopleTable extends Migration
             $table->string('talla_botas', 191)->nullable();
             $table->string('talla_camisa', 191)->nullable();
             $table->string('image', 191)->nullable();
-            $table->integer('cant_sons')->default(0);
+            $table->integer('eps_id')->nullable();
+            $table->integer('compensation_fund_id')->nullable();
+            $table->string('degree', 191)->nullable();
+            $table->integer('number_of_children')->default(0);
             $table->integer('people_type_id')->nullable();
+            $table->integer('severance_fund_id')->nullable();
+            $table->integer('shirt_size')->nullable();
+            $table->integer('pension_fund_id')->nullable();
             $table->string('personId', 191)->nullable();
             $table->string('persistedFaceId', 191)->nullable();
             $table->enum('sex', ['Femenino', 'Masculino'])->nullable();
             $table->enum('status', ['Activo', 'Inactivo', 'Liquidado'])->default('Activo');
+            $table->integer('pants_size')->default(0);
             $table->string('signature')->nullable();
             $table->string('color', 20)->nullable();
             $table->string('medical_record', 20)->nullable();
@@ -54,6 +62,7 @@ class CreatePeopleTable extends Migration
             $table->string('date_last_session', 20)->nullable();
             $table->timestamps();
             $table->tinyInteger('to_globo')->nullable()->default(0);
+            $table->string('cell_phone', 12)->nullable();
         });
     }
 
