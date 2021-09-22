@@ -313,7 +313,7 @@ class TestController extends Controller
 
         // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
 
-        $appointment = Appointment::with('space', 'callin')->find(74815);
+        $appointment = Appointment::with('space', 'callin')->find(69279);
         // $appointment = Appointment::with('space', 'callin')->find($temp->id);
         if ($appointment->space && $appointment->callin->patient) {
 
@@ -403,6 +403,7 @@ class TestController extends Controller
                     echo '<br>';
                 }
             }
+              
 
             echo 'No company ' . $appointment->id;
         } else {
@@ -415,17 +416,32 @@ class TestController extends Controller
         // }
     }
 
-
+      
     public function test()
     {
+       try {
        
-        // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
+         repeat:
+             
+             
+            // $ids = ['76143','76248','76261','77183','77221','79232','79559','79987','81498'];
+        
+        foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
+        
+        //foreach ($ids as $temp) {
 
-        $appointment = Appointment::with('space', 'callin')->find(76082);
-        // $appointment = Appointment::with('space', 'callin')->find($temp->id);
+        // $appointment = Appointment::with('space', 'callin')->find(77045);
+        
+        $appointment = Appointment::with('space', 'callin')->find($temp->id);
+        
         if ($appointment->space && $appointment->callin->patient) {
 
             $cup = Cup::find($appointment->procedure);
+            
+            if(!$cup){
+                dd($appointment);
+            }
+            
             $location = Location::find($appointment->callin->patient->location_id);
             $contract = Contract::find($appointment->callin->patient->contract_id);
             $typeDocument =    TypeDocument::find($appointment->callin->patient->type_document_id);
@@ -492,9 +508,12 @@ class TestController extends Controller
                             'name' => $location->name
                         ],
                                             ];
+                                              //dd($body);
+                                             //dd($appointment->globo_id );
 
                     $response = Http::post(
-                        'https://mogarsalud.globho.com/api/integration/appointment' . "?api_key=$company->code",
+                        'https://mogarsalud.globho.com/api/integration/appointment/'. "?api_key=$company->code",
+                        // 'https://mogarsalud.globho.com/api/integration/appointment' . "?api_key=$company->code",
                         $body
                     );
 
@@ -502,21 +521,34 @@ class TestController extends Controller
                         $appointment->on_globo = 1;
                         $appointment->globo_id =  $response->json()['id'];
                         $appointment->save();
-                        echo json_encode($response->json());
+                        echo  "Migrado..." . json_encode($response->json());
                     } else {
-                        echo json_encode($response->json());
+                        echo  "No Migrado..." . json_encode($response->json());
                     }
-                    echo '<br>';
+                    
+                    echo '<br>' .'doctor'. $appointment->space->person->full_name . 'paciente' . $appointment->callin->patient->identifier ;
                 }
+            }
+            else{
+                echo 'Sin company  ' .  $appointment->id .'doctor'. $appointment->space->person->full_name . 'paciente' . $appointment->callin->patient->identifier ;
             }
 
         } else {
 
-            echo 'Sin spaces  ' .  $appointment->id;
+            echo 'Sin spaces  ' .  $appointment->id ;
         }
 
         echo ("=============================<br>");
-
+      
+        }
+     
+      }
+       
+       catch(Exception $e){
+           echo ("=============================<br>");
+           echo $e->getMessage();
+           goto repeat;
+       }
     }
     
     function getAppointmentByPatient() {
@@ -529,7 +561,12 @@ class TestController extends Controller
                         
                         specialities.name as 'Especialidad',
                         
+                        
                         appointments.created_at as 'Creada en',
+                        
+                        
+                        appointments.globo_id as 'Globho id',
+                        
                         
                         spaces.id as 'SpaceID',
                         

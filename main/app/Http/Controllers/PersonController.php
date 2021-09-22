@@ -55,20 +55,20 @@ class PersonController extends Controller
                     'p.status',
                     'p.full_name',
                     'p.first_surname',
-                    'p.first_name',
-                    'pos.name as position',
-                    'd.name as dependency',
-                    'c.name as company',
-                    DB::raw('w.id AS work_contract_id')
+                    'p.first_name'
+                    // 'pos.name as position',
+                    // 'd.name as dependency',
+                    // 'c.name as company',
+                    // DB::raw('w.id AS work_contract_id')
                 )
-                ->join('work_contracts as w', function ($join) {
-                    $join->on('p.id', '=', 'w.person_id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
-                                join people as u2 on u2.id = a2.person_id group by u2.id)');
-                })
-                ->join('companies as c', 'c.id', '=', 'w.company_id')
-                ->join('positions as pos', 'pos.id', '=', 'w.position_id')
-                ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
+                // ->join('work_contracts as w', function ($join) {
+                //     $join->on('p.id', '=', 'w.person_id')
+                //         ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                //                 join people as u2 on u2.id = a2.person_id group by u2.id)');
+                // })
+                // ->join('companies as c', 'c.id', '=', 'w.company_id')
+                // ->join('positions as pos', 'pos.id', '=', 'w.position_id')
+                // ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
                 ->when($data['name'], function ($q, $fill) {
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');

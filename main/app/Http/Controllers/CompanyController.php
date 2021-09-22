@@ -29,7 +29,6 @@ class CompanyController extends Controller
         $brandShowCompany = 0;
 
         if ($typeLocation &&  $typeLocation != 3) {
-
             $typeLocation = TypeLocation::findOrfail($typeLocation);
             $brandShowCompany = $typeLocation->show_company_owners;
         }
@@ -38,7 +37,8 @@ class CompanyController extends Controller
             return CompanyResource::collection(Company::get());
         }
 
-        return $this->success(CompanyResource::collection(Company::where('type', $brandShowCompany)->get()));
+        return $this->success(CompanyResource::collection(Company::get()));
+        // return $this->success(CompanyResource::collection(Company::where('type', $brandShowCompany)->get()));
     }
 
     /**

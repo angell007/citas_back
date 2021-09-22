@@ -206,7 +206,7 @@ class AppointmentController extends Controller
 
             return $this->success('La cita se ha cancelado con èxito');
         } catch (\Throwable $th) {
-            Log::info([$th->getMessage(), $th->Line()]);
+            Log::info([$th->getMessage(), $th->getLine()]);
             return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
         }
     }
