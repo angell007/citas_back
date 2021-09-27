@@ -89,7 +89,7 @@ class GlobhoService
                     "state" => $appointment->state,
                     "type" => ($appointment->space->agendamiento->typeAppointment->description == 'TELEMEDICINA') ? 4 : 1,
                     "text" => $appointment->observation,
-                    "TelehealdthUrl" => 'https://meet.jit.si/' . $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT),
+                    "telehealthUrl" => 'https://meet.jit.si/' . $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT),
                     "ConfirmationUrl" => "",
                     "appointmentId" => $appointment->code,
                     "patient" => [
@@ -132,7 +132,10 @@ class GlobhoService
                     ],
                 ];
 
-                $response = Http::post(
+                $response = Http::withOptions([
+                                                'verify' => false,
+                                            ])
+                        ->post(
                     'https://mogarsalud.globho.com/api/integration/appointment/' . "?api_key=$company->code",
                     $body
                 );
@@ -159,7 +162,7 @@ class GlobhoService
 
     public function updateStatus($globoid, $code, $body)
     {
-        $response = Http::delete(
+        $response = Http::withOptions(['verify' => false])->delete(
             $this->BASE_URI_GLOBO . "/$globoid?api_key=$code",
             $body
         );

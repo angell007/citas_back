@@ -111,8 +111,8 @@ class AppointmentService
             ->join('call_ins', 'call_ins.id', '=', 'appointments.call_id')
             ->join('patients', 'patients.identifier', '=', 'call_ins.Identificacion_Paciente')
             ->join('spaces', 'spaces.id', '=', 'appointments.space_id')
-            ->join('people', 'people.id', '=', 'spaces.person_id')
             ->join('agendamientos', 'agendamientos.id', '=', 'spaces.agendamiento_id')
+            ->join('people', 'people.id', '=', 'agendamientos.person_id')
             ->join('type_appointments', 'type_appointments.id', '=', 'agendamientos.type_agenda_id')
             ->join('sub_type_appointments', 'sub_type_appointments.id', '=', 'agendamientos.type_appointment_id')
             ->join('specialities', 'specialities.id', '=', 'agendamientos.speciality_id')
@@ -122,7 +122,7 @@ class AppointmentService
                 DB::raw('Concat_ws(" ", people.first_name, people.first_surname) as profesional_name'),
                 DB::raw('Concat_ws(" ", patients.firstname,  patients.surname,
                 
-                ' . DB::raw("FORMAT(patients.identifier, 0, '.')") . '
+                ' . DB::raw(" patients.identifier ") . '
                 
                 ) as patient_name'),
                 'specialities.name as speciality',
@@ -138,12 +138,10 @@ class AppointmentService
                 $query->where('call_ins.Identificacion_Paciente', Request()->get('identifier'));
             })
 
-            ->when(Request()->get('person_id'), function ($query, $id) {
-                $query->where('people.id', '=', $id);
+            ->when((Request()->get('person_id') && Request()->get('person_id') != 'null') , function ($query) {
+                $query->where('people.id', '=', Request()->get('person_id'));
             })
-            // ->when(Request()->get('state'), function ($query, $state) {
-            //     $query->where('appointments.state', '=', $state);
-            // })
+            
             ->when(Request()->get('type_appointment_id'), function ($query, $state) {
                 $query->where('type_appointments.id', $state);
             })

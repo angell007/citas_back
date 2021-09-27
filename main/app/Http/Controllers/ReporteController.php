@@ -133,11 +133,11 @@ class ReporteController extends Controller
             ->join('call_ins', 'call_ins.id', 'appointments.call_id')
             ->join('patients', 'patients.identifier', 'call_ins.Identificacion_Paciente')
             ->join('type_documents', 'type_documents.id', 'patients.type_document_id')
-            ->join('municipalities', 'municipalities.id', 'patients.municipality_id')
-            ->join('departments', 'departments.id', 'patients.department_id')
+            ->leftJoin('municipalities', 'municipalities.id', 'patients.municipality_id')
+            ->leftJoin('departments', 'departments.id', 'patients.department_id')
             ->join('administrators', 'administrators.id', 'patients.eps_id')
             ->join('regimen_types', 'regimen_types.id', 'patients.regimen_id')
-            ->join('locations', 'locations.id', 'agendamientos.location_id')
+            ->leftJoin('locations', 'locations.id', 'agendamientos.location_id')
             ->join('people As agente', 'agente.identifier', 'call_ins.Identificacion_Agente')
             ->join('people As doctor', 'doctor.id', 'agendamientos.person_id')
             ->join('type_appointments', 'type_appointments.id', 'agendamientos.type_agenda_id')
@@ -149,8 +149,8 @@ class ReporteController extends Controller
                 $dates = explode('-', request()->get('daterange'));
                 $dateStart = transformDate($dates[0]);
                 $dateEnd = transformDate($dates[1]);
-                $q->whereBetween('date_start', [$dateStart, $dateEnd])
-                    ->whereBetween('date_end', [$dateStart, $dateEnd]);
+                $q->whereBetween('appointments.created_at', [$dateStart, $dateEnd]);
+                    // ->whereBetween('appointments.hour_end', [$dateStart, $dateEnd]);
             })
 
             ->when(request()->get('company_id'),  function (Builder $q) {
