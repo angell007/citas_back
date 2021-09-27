@@ -422,15 +422,17 @@ class TestController extends Controller
          repeat:
              
              
-            // $ids = ['76143','76248','76261','77183','77221','79232','79559','79987','81498'];
+       // $ids = ['85665','85666','85667','85669','85670','85671','85672','85673','85674','85719','85720','85721','85722','85723','85724','85725','85726','85728','85741','85742','85743','85744','85745','85746','85747','85748','85749','85778','85779','85780','85781','85782','85783','85784','85785','85786','85830','85831','85832','85833','85834','85835','85836','85837','85838','85885','85886','85887','85888','85889','85890','85891','85892','85893','85902','85903','85904','85905','85906','85907','85908','85909','85910','85936','85937','85938','85939','85940','85941','85942','85943','85944'];
         
-        foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
+        //foreach ($ids as $temp) {
+        // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
         
         //foreach ($ids as $temp) {
 
-        // $appointment = Appointment::with('space', 'callin')->find(77045);
+         $appointment = Appointment::with('space', 'callin')->find(94599);
         
-        $appointment = Appointment::with('space', 'callin')->find($temp->id);
+        //$appointment = Appointment::with('space', 'callin')->find($temp);
+        // $appointment = Appointment::with('space', 'callin')->find($temp->id);
         
         if ($appointment->space && $appointment->callin->patient) {
 
@@ -506,11 +508,19 @@ class TestController extends Controller
                             'name' => $location->name
                         ],
                                             ];
-                                              //dd($body);
-                                             //dd($appointment->globo_id );
+                                            //   dd($body);
+                                            //  dd($appointment->globo_id );
+                                            
+                                            
+                                            // $response = Http::withOptions([
+                                            //     'debug' => true,
+                                            // ])->get('https://google.com');
 
-                    $response = Http::post(
-                        'https://mogarsalud.globho.com/api/integration/appointment/'. "?api_key=$company->code",
+                    $response = Http::withOptions([
+                                                'verify' => false,
+                                            ])
+                        ->post(
+                        'http://mogarsalud.globho.com/api/integration/appointment/'. "?api_key=$company->code",
                         // 'https://mogarsalud.globho.com/api/integration/appointment' . "?api_key=$company->code",
                         $body
                     );
@@ -540,7 +550,7 @@ class TestController extends Controller
       
         }
      
-      }
+      //}
        
        catch(Exception $e){
            echo ("=============================<br>");

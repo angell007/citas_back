@@ -41,6 +41,11 @@ class PersonController extends Controller
      */
     public function indexPaginate()
     {
+        
+        $data = json_decode(request()->get('data'));
+        
+        // dd($data->name);
+        
         return $this->success(
             DB::table('people as p')
                 ->select(
@@ -58,22 +63,22 @@ class PersonController extends Controller
                         'w.id AS work_contract_id'
                     )
                 )
-                ->join('work_contracts as w', function ($join) {
+                ->leftjoin('work_contracts as w', function ($join) {
                     $join->on('p.id', '=', 'w.person_id')
                         ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                                 join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
-                ->join('companies as c', 'c.id', '=', 'w.company_id')
-                ->join('positions as pos', 'pos.id', '=', 'w.position_id')
-                ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
-                ->when(request()->get('name'), function ($q, $fill) {
+                ->leftjoin('companies as c', 'c.id', '=', 'w.company_id')
+                ->leftjoin('positions as pos', 'pos.id', '=', 'w.position_id')
+                ->leftjoin('dependencies as d', 'd.id', '=', 'pos.dependency_id')
+                ->when($data->name, function ($q, $fill) {
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
-                ->when(request()->get('dependencies'), function ($q, $fill) {
+                ->when($data->dependencies, function ($q, $fill) {
                     $q->whereIn('d.id', $fill);
                 })
-                ->when(request()->get('status'), function ($q, $fill) {
+                ->when($data->status, function ($q, $fill) {
                     $q->whereIn('p.status', $fill);
                 })->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
         );

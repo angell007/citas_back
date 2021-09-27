@@ -149,7 +149,7 @@ Route::group(
 		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
 
 		Route::resource('dependencies', DependencyController::class);
-		Route::resource('work-contract-type', WorkContractTypeController::class);
+		Route::resource('work-contract-type', ContractController::class);
 		Route::resource('rotating-turns', RotatingTurnController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('positions', PositionController::class);

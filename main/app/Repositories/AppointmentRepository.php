@@ -6,7 +6,7 @@ use App\Models\Agendamiento;
 use App\Models\Appointment;
 use App\Models\Company;
 use App\Models\Space;
-use App\Services\globhoService;
+use App\Services\GlobhoService;
 use App\Services\ManagmentAppointmentCreation;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,7 +23,7 @@ class AppointmentRepository
     static $appointmentNotCreated = [];
     static $info = [];
 
-    public function __construct(globhoService $globoService,   ManagmentAppointmentCreation $managmentAppointmentCreation)
+    public function __construct(GlobhoService $globoService,   ManagmentAppointmentCreation $managmentAppointmentCreation)
     {
         self::$globoService = $globoService;
         self::$managmentAppointmentCreation = $managmentAppointmentCreation;
