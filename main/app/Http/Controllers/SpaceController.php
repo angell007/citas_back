@@ -43,6 +43,8 @@ class SpaceController extends Controller
         $params = Request()->all();
         $spaces = collect([]);
 
+        $departemIdPatient = $params['departemIdPatient'];
+
         $spaces = DB::table('spaces as s')
             ->join('agendamientos as a', 'a.id', '=', 's.agendamiento_id')
             ->leftJoin('locations', 'locations.id', 'a.location_id')
@@ -53,6 +55,16 @@ class SpaceController extends Controller
             ->where('s.hour_start', '>', DB::raw('now()'))
             ->where('s.status', [true])
             ->where('s.state', 'Activo')
+            ->where(function ($q) use ($departemIdPatient) {
+                $q->whereRaw(
+                    "
+                      CASE WHEN a.department_id   = $departemIdPatient  THEN  a.department_id =  $departemIdPatient AND   s.type =  'Regional'
+                                  WHEN a.department_id != $departemIdPatient  THEN  s.type =  'Nacional'
+                      END
+                     "
+                );
+            })
+
             ->when(array_key_exists('company_id', $params), function ($q) use ($params) {
                 $q->where('a.ips_id', '=', $params['company_id']);
             })

@@ -27,6 +27,8 @@ class AgendamientoRepository
 
         $this->validating($data);
 
+        $data['regional_percent'] = request()->get('regional_percent', 100);
+
         $agendamiento = Agendamiento::create($data);
 
         $this->person = Person::find($agendamiento->person_id);
@@ -36,8 +38,8 @@ class AgendamientoRepository
 
         $holidays = Holiday::pluck('date')->toArray();
         $agendamiento->user_id = auth()->user()->id;
+        $agendamiento->department_id = Person::findOrFail(auth()->user()->person_id)['department_id'];
         $agendamiento->save();
-
 
         $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
             ->where(function ($q) use ($agendamiento) {
@@ -102,13 +104,12 @@ class AgendamientoRepository
     }
 
 
-    public function fillMassiveDays($spaces, $agendamiento, $quantityRegional)
+    public function fillMassiveDays($spaces, $agendamiento, $settings)
     {
-
         foreach ($spaces as $date) {
             Space::create([
                 "agendamiento_id" => $agendamiento->id,
-                "type" => ($quantityRegional > 0) ? 'Nacional' : 'Regional',
+                "type" => ($settings['quantity'] > 0) ? $settings['first_type'] : $settings['second_type'],
                 "status" => true,
                 "hour_start" => (string) $date,
                 "hour_end" => (string) $date->addMinutes($agendamiento->long),
@@ -119,7 +120,7 @@ class AgendamientoRepository
                 "share" => $agendamiento->share,
             ]);
 
-            $quantityRegional--;
+            $settings['quantity']--;
         }
     }
 
@@ -193,6 +194,9 @@ class AgendamientoRepository
     public static function calculatePercent($regional_percent, $count)
     {
         $resul = floor(($regional_percent * $count) / 100);
-        return ($count - $resul);
+        if ((($count / 2) - $resul) > 0) {
+            return ['first_type' => 'Regional', 'second_type' => 'Nacional',  'quantity' => ($resul)];
+        }
+        return ['first_type' => 'Nacional', 'second_type' => 'Regional',  'quantity' => ($count - $resul)];
     }
 }

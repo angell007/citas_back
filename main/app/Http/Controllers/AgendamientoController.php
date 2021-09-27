@@ -179,13 +179,12 @@ class AgendamientoController extends Controller
                         END
                         AS backgroundColor
                         '),
-                    DB::raw('
+                    DB::raw('Concat_ws(":",
                         CASE
                             WHEN state = "Cancelado" THEN "Espacio Cancelado"
                             WHEN status = 0 THEN "Espacio Agendado" 
-                            WHEN status = 1 THEN "Espacio Disponible"
-                            
-                        END
+                            WHEN status = 1 THEN "Espacio Disponible"  
+                        END, type)
                         AS title
                         '),
                 ])

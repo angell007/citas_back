@@ -27,7 +27,8 @@ class Agendamiento extends Model
         'pending',
         'share',
         'type',
-        'regional_percent'
+        'regional_percent',
+        'department_id'
     ];
 
     protected $casts = [
