@@ -38,7 +38,6 @@ class PersonController extends Controller
 
     public function CrucePacientes()
     {
-
         ini_set('max_execution_time', 0);
         DB::table('Paciente-Cruce-Augusto')
             ->where('Paciente-Cruce-Augusto.Actualizado', '=', 0)
@@ -216,7 +215,6 @@ class PersonController extends Controller
 
         $this->medimasService =  new MedimasService($documentType, $documentNumber);
         $dataPatient = $this->medimasService->getDataMedimas()->loopDataMedimas();
-
 
         if (count($dataPatient) == 4 || count($dataPatient) < 4) {
             echo "----MEDIMAS SUBSIDIADO----";

@@ -131,7 +131,6 @@ class ManagmentAppointmentCreation
                 Log::info([
                     'appointment_id' => $this->appointment->id . ' :heart: ',
                     'message' => $this->sendMessage($this->appointment, $this->space, $this->data, $this->company),
-                    // 'User' => (gettype(auth()->user()) == 'object' && auth()->user()) ? Person::select(DB::raw("Concat_ws(' ', 'first_name', 'first_surname', ' : ' 'identifier') As User"))->firstWhere('identifier', auth()->user()->person_id)['User'] : 'Sin usuario',
                     'User' => (auth()->user()) ? auth()->user()->usuario : 'Sin usuario',
                     'body' => json_encode($this->body),
                     'Globo' => ($this->response != 'No migrado' && $this->response != 'null' && $this->response != null) ? $this->response->json() : 'No migrado'

@@ -75,6 +75,7 @@ class AppointmentRepository
     public static function pending()
     {
         return  DB::table('appointments')
+
             ->join('call_ins', 'call_ins.id', 'appointments.call_id')
             ->join('patients', 'patients.identifier', 'call_ins.Identificacion_Paciente')
             ->join('spaces', 'spaces.id', 'appointments.space_id')
@@ -85,7 +86,7 @@ class AppointmentRepository
                 'eps.name as eps',
                 DB::raw('DATE_FORMAT(spaces.hour_start, "%Y-%m-%d %h:%i %p") As date'),
                 DB::raw('Concat_ws(" ", people.first_name, people.first_surname) As professional'),
-                DB::raw('Concat_ws(" ", patients.firstname,  patients.surname, ' . DB::raw("FORMAT(patients.identifier, 0, '.')") . ' ) As patient'),
+                DB::raw('Concat_ws(" ", patients.firstname,  patients.surname, patients.identifier) As patient'),
                 'appointments.price As copago',
                 'appointments.observation As description',
                 'appointments.state',
@@ -94,11 +95,14 @@ class AppointmentRepository
             ->when((Request()->get('patient') && Request()->get('patient') != 'null'), function (Builder $query) {
                 $query->where('call_ins.Identificacion_Paciente', Request()->get('patient'));
             })
+            
             ->when((Request()->get('date') &&  Request()->get('date') != 'null'), function (Builder $query) {
                 $query->whereDate('spaces.hour_start', Request()->get('date'));
-            })
-            ->orderBy('spaces.hour_start', 'Asc')
-            ->paginate(Request()->get('pageSize', 20), '*', 'page',  Request()->get('page', 1));
+                })
+            ->where('appointments.state', '<>', 'Cancelado')
+            
+        ->paginate(Request()->get('pageSize', 20), '*', 'page',  Request()->get('page', 1));
+
     }
 
     public static function getstatistics()

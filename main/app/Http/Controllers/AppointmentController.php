@@ -22,13 +22,13 @@ class AppointmentController extends Controller
 
     use ApiResponser;
 
-    public function appointmentRecursive(AppointmentRepository $repository)
+    public function appointmentRecursive(AppointmentRequest $request, AppointmentRepository $repository)
     {
         try {
             return $this->success($repository::recurrent());
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -38,7 +38,7 @@ class AppointmentController extends Controller
             return $this->success($repository::pending());
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -57,7 +57,7 @@ class AppointmentController extends Controller
             return $this->success('La cita se ha cancelado con èxito');
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -86,7 +86,7 @@ class AppointmentController extends Controller
             return  Patient::findOrfail($id);;
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -97,7 +97,7 @@ class AppointmentController extends Controller
             return $this->success($repository::pending());
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -107,7 +107,7 @@ class AppointmentController extends Controller
             return  $this->success($repository::getstatistics());
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -125,7 +125,7 @@ class AppointmentController extends Controller
             return $this->success($repository::store());
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -135,7 +135,7 @@ class AppointmentController extends Controller
             return response()->json($repository::show($appointment));
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 
@@ -145,7 +145,7 @@ class AppointmentController extends Controller
             return response()->success($globhoService::sendGlobho(request()->get('id')));
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
-            return $this->error('Ha ocurrido un error' . $th->getMessage(), 401);
+            return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);
         }
     }
 }

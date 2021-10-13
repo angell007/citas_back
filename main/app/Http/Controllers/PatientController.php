@@ -11,11 +11,14 @@ use App\Models\Patient;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Traits\manipulateDataFromExternalService;
+
 
 class PatientController extends Controller
 {
 
-    use ApiResponser;
+    use ApiResponser, manipulateDataFromExternalService;
+    
     /**
      * Display a listing of the resource.
      *
@@ -50,8 +53,10 @@ class PatientController extends Controller
             $patient =   Patient::firstWhere('identifier', request('identifier'));
 
             if ($patient) {
+                  request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
                 $patient->update($request->all());
             } else {
+                 request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
                  $patient  = Patient::create(request()->all());     
             }
             return $this->success(['message' => 'Actualizacion existosa', 'patient' => $patient]);

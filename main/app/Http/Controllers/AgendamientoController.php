@@ -19,6 +19,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\SubTypeAppointment;
 
 class AgendamientoController extends Controller
 {
@@ -160,11 +161,17 @@ class AgendamientoController extends Controller
             $agendamiento->save();
 
 
+             $conditions = [$agendamiento->type_appointment_id];
+             if ($agendamiento->type_appointment_id != 2) $conditions = array_diff(SubTypeAppointment::pluck('id')->toArray(), [2]);
+            
+
             $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
                 ->where(function ($q) use ($agendamiento) {
                     $q->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
                         ->orWhereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end]);
-                })->get();
+                })
+                ->whereIn('type_appointment_id',  $conditions)
+                ->get();
 
 
             $inicio = Carbon::parse($agendamiento->date_start);
