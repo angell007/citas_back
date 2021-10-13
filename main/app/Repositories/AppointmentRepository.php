@@ -95,12 +95,14 @@ class AppointmentRepository
             ->when((Request()->get('patient') && Request()->get('patient') != 'null'), function (Builder $query) {
                 $query->where('call_ins.Identificacion_Paciente', Request()->get('patient'));
             })
+
             ->when((Request()->get('date') &&  Request()->get('date') != 'null'), function (Builder $query) {
                 $query->whereDate('spaces.hour_start', Request()->get('date'));
-            })
+                })
             ->where('appointments.state', '<>', 'Cancelado')
-            // ->orderByRaw('spaces.hour_start DESC')
-            ->paginate(Request()->get('pageSize', 20), '*', 'page',  Request()->get('page', 1));
+
+        ->paginate(Request()->get('pageSize', 20), '*', 'page',  Request()->get('page', 1));
+
     }
 
     public static function getstatistics()

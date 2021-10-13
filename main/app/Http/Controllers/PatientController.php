@@ -13,6 +13,7 @@ use App\Traits\manipulateDataFromExternalService;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
+
 class PatientController extends Controller
 {
 
@@ -48,13 +49,14 @@ class PatientController extends Controller
 
         try {
             $patient =   Patient::firstWhere('identifier', request('identifier'));
+            request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
+
             if ($patient) {
-                request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
                 $patient->update($request->all());
             } else {
-                request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
                 $patient  = Patient::create(request()->all());
             }
+
             return $this->success(['message' => 'Actualizacion existosa', 'patient' => $patient]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 400);
@@ -88,7 +90,7 @@ class PatientController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Patient  $patient
-     * @return \Illuminate\Http\Response 
+     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Patient $patient)
     {

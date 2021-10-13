@@ -38,7 +38,6 @@ class PersonController extends Controller
 
     public function CrucePacientes()
     {
-
         ini_set('max_execution_time', 0);
         DB::table('Paciente-Cruce-Augusto')
             ->where('Paciente-Cruce-Augusto.Actualizado', '=', 0)

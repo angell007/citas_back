@@ -20,6 +20,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\SubTypeAppointment;
 
 class AgendamientoController extends Controller
 {
@@ -173,17 +174,17 @@ class AgendamientoController extends Controller
                     DB::raw('
                         CASE
                             WHEN state = "Cancelado" THEN "#d9534f"
-                            WHEN status = 0 THEN "#5cb85c" 
+                            WHEN status = 0 THEN "#5cb85c"
                             WHEN status = 1 THEN "#0275d8"
-                            
+
                         END
                         AS backgroundColor
                         '),
                     DB::raw('Concat_ws(":",
                         CASE
                             WHEN state = "Cancelado" THEN "Espacio Cancelado"
-                            WHEN status = 0 THEN "Espacio Agendado" 
-                            WHEN status = 1 THEN "Espacio Disponible"  
+                            WHEN status = 0 THEN "Espacio Agendado"
+                            WHEN status = 1 THEN "Espacio Disponible"
                         END, type)
                         AS title
                         '),
@@ -314,18 +315,18 @@ class AgendamientoController extends Controller
                     DB::raw('
                     CASE
                         WHEN state = "Cancelado" THEN "#d9534f"
-                        WHEN status = 0 THEN "#5cb85c" 
+                        WHEN status = 0 THEN "#5cb85c"
                         WHEN status = 1 THEN "#0275d8"
-                        
+
                     END
                     AS backgroundColor
                     '),
                     DB::raw('
                     CASE
                         WHEN state = "Cancelado" THEN "Espacio Cancelado"
-                        WHEN status = 0 THEN "Espacio Agendado" 
+                        WHEN status = 0 THEN "Espacio Agendado"
                         WHEN status = 1 THEN "Espacio Disponible"
-                        
+
                     END
                     AS title
                     ')
