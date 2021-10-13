@@ -66,6 +66,7 @@ Route::get('/test', 'TestController@test');
 
 Auth::routes();
 
+Route::get('insert-contracts', function ($id) {});
 
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 

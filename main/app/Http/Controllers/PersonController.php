@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\CustomFacades\ImgUploadFacade;
 use App\Http\Requests\ProfessionalRequest;
 use App\Models\Eps;
 use App\Models\FixedTurn;
 use App\Models\Person;
-use App\Models\User;
 use App\Models\Usuario;
 use App\Models\WorkContract;
+use App\Services\CognitiveService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-
-use function PHPSTORM_META\map;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class PersonController extends Controller
 {
@@ -39,19 +42,20 @@ class PersonController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function indexPaginate()
     {
-        
-        $data = json_decode(request()->get('data'));
-        
-        // dd($data->name);
-        
+
+        $data =  request()->merge(json_decode(request()->get('data'), true));
+
         return $this->success(
             DB::table('people as p')
                 ->select(
                     'p.id',
                     'p.identifier',
-                    'p.image_blob',
+                    DB::raw(
+                        "Concat_ws('', IFNULL(p.image, p.image_blob )) As image"
+                    ),
                     'p.status',
                     DB::raw('Concat_ws(" ", p.first_name, p.first_surname ) as full_name'),
                     'p.first_surname',
@@ -86,7 +90,7 @@ class PersonController extends Controller
 
     public function getAll(Request $request)
     {
-        # code...
+
         $data = $request->all();
         return $this->success(
             DB::table('people as p')
@@ -129,7 +133,9 @@ class PersonController extends Controller
                     'p.first_name',
                     'p.first_surname',
                     'p.id',
-                    'p.image',
+                    DB::raw(
+                        "Concat_ws('', IFNULL(p.image, p.image_blob )) As image"
+                    ),
                     'p.second_name',
                     'p.second_surname',
                     'w.salary',
@@ -137,9 +143,9 @@ class PersonController extends Controller
                     'p.signature',
                     'p.title'
                 )
-                ->join('work_contracts as w', function ($join) {
+                ->leftJoin('work_contracts as w', function ($join) {
                     $join->on('p.id', '=', 'w.person_id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
                 ->where('p.id', '=', $id)
@@ -157,33 +163,32 @@ class PersonController extends Controller
                     'p.second_name',
                     'p.second_surname',
                     'p.identifier',
-                    'p.image',
+                    'p.image_blob',
                     'p.email',
                     'p.degree',
-                    'p.date_of_birth',
-                    'p.gener',
+                    'p.birth_date',
+                    'p.sex',
                     'p.marital_status',
                     'p.address',
                     'p.cell_phone',
                     'p.first_name',
                     'p.first_surname',
                     'p.id',
-                    'p.image',
+                    DB::raw(
+                        "Concat_ws('', IFNULL(p.image, p.image_blob )) As image"
+                    ),
                     'p.second_name',
                     'p.second_surname',
                 )
-                ->join('work_contracts as w', function ($join) {
+                ->LeftJoin('work_contracts as w', function ($join) {
                     $join->on('p.id', '=', 'w.person_id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
                 ->where('p.id', '=', $id)
                 ->first()
         );
     }
-
-
-
 
     public function salary($id)
     {
@@ -197,12 +202,12 @@ class PersonController extends Controller
                     'w.work_contract_type_id',
                     'w.id'
                 )
-                ->join('work_contracts as w', function ($join) {
+                ->leftJoin('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                     join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
-                ->join('work_contract_types as wc', function ($join) {
+                ->leftJoin('work_contract_types as wc', function ($join) {
                     $join->on('wc.id', '=', 'w.work_contract_type_id');
                 })
                 ->where('p.id', '=', $id)
@@ -224,6 +229,7 @@ class PersonController extends Controller
     public function afiliation($id)
     {
         try {
+            // DB::select('select * from eps where active = ?', [1])
             return $this->success(
                 DB::table('people as p')
                     ->select(
@@ -238,7 +244,7 @@ class PersonController extends Controller
                         'a.id as arl_id',
                         'a.name as arl_name'
                     )
-                    ->leftJoin('epss as e', function ($join) {
+                    ->leftJoin('eps as e', function ($join) {
                         $join->on('e.id', '=', 'p.eps_id');
                     })
                     ->leftJoin('arl as a', function ($join) {
@@ -294,25 +300,24 @@ class PersonController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
 
     public function updateBasicData(Request $request, $id)
     {
         try {
             $person = Person::find($id);
+            if (ImgUploadFacade::validate(request()->get('image'))) {
+                ImgUploadFacade::deleteImg($person->image_blob);
+                $infoImg =  ImgUploadFacade::converFromBase64(request()->get('image'));
+                request()->merge([
+                    'image_blob' =>  $infoImg['image_blob'],
+                    'image' =>  $infoImg['image']
+                ]);
+            }
+
             $person->update($request->all());
             return response()->json($person);
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
         }
     }
 
@@ -324,23 +329,161 @@ class PersonController extends Controller
      */
     public function store(Request $request)
     {
+
+
+        $per = [];
         try {
-            $personData = $request->get('person');
-            $person = Person::create($personData);
-            $contractData = $personData['workContract'];
-            $contractData['person_id'] = $person->id;
+
+            $personData = $request->get("person");
+
+            $infoImg =  ImgUploadFacade::converFromBase64($personData["image"]);
+
+            $personData["image_blob"]  =  $infoImg['image_blob'];
+            $personData["image"]  =  $infoImg['image'];
+
+            // $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
+
+            $personData["personId"] = null;
+
+            $per = $person = Person::create($personData);
+            $contractData = $personData["workContract"];
+            $contractData["person_id"] = $person->id;
+
             WorkContract::create($contractData);
 
             Usuario::create([
-                'person_id' => $person->id,
-                'usuario' => $person->identifier,
-                'password' => Hash::make($person->identifier),
-                'change_password' => 1,
+                "person_id" => $person->id,
+                "usuario" => $person->identifier,
+                "password" => Hash::make($person->identifier),
+                "change_password" => 1,
             ]);
-            return $this->success(['id' => $person->id]);
+            //crear personID
+            if ($personData["image"]) {
+                $cognitive = new CognitiveService();
+                $person->personId = $cognitive->createPerson($person);
+                $cognitive->deleteFace($person);
+
+                $person->persistedFaceId = $cognitive->createFacePoints(
+                    $person
+                );
+                $person->save();
+                $cognitive->train();
+            }
+
+            return $this->success(["id" => $person->id, 'faceCreated' => true]);
         } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
+            if ($per) {
+                return $this->success(["id" => $person->id, 'faceCreated' => false]);
+            }
+            return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
         }
+
+
+        // try {
+
+        //     $personData = $request->get('person');
+
+        //     // if (ImgUploadFacade::validate(request()->get('image'))) $personData['image'] = ImgUploadFacade::converFromBase64(request()->get('image'));
+
+        //     $personData['personId'] = null;
+
+        //     // $personData = $this->asure($personData['image'], $personData);
+
+        //     $person = Person::create($personData);
+        //     $contractData = $personData['workContract'];
+        //     $contractData['person_id'] = $person->id;
+        //     WorkContract::create($contractData);
+
+        //     Usuario::create([
+        //         'person_id' => $person->id,
+        //         'usuario' => $person->identifier,
+        //         'password' => Hash::make($person->identifier),
+        //         'change_password' => 1,
+        //     ]);
+
+        //     return $this->success(['id' => $person->id]);
+        // } catch (\Throwable $th) {
+        //     return $this->error($th->getMessage(), 500);
+        // }
+
+        // try {
+        //     $personData = $request->get('person');
+        //     $person = Person::create($personData);
+        //     $contractData = $personData['workContract'];
+        //     $contractData['person_id'] = $person->id;
+        //     WorkContract::create($contractData);
+
+        //     Usuario::create([
+        //         'person_id' => $person->id,
+        //         'usuario' => $person->identifier,
+        //         'password' => Hash::make($person->identifier),
+        //         'change_password' => 1,
+        //     ]);
+        //     return $this->success(['id' => $person->id]);
+        // } catch (\Throwable $th) {
+        //     return $this->error($th->getMessage(), 500);
+        // }
+    }
+
+    public function asure($fully, $atributos)
+    {
+        if ($fully != '') {
+
+            $atributos['image'] = $fully;
+            if ($atributos["personId"] == "0" || $atributos["personId"] == "null"  || $atributos["personId"] == null) {
+                try {
+                    $parameters = array();
+                    $response = Http::accept('application/json')->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey
+                    ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons' . http_build_query($parameters), [
+                        "name" => $atributos["first_name"] . " " . $atributos["first_surname"],
+                        "userData" => $atributos["identifier"]
+                    ]);
+                    $res = $response->json();
+                    $atributos["personId"] = $res->personId;
+                } catch (HttpExceptionInterface $ex) {
+                    echo "error: " . $ex;
+                }
+            }
+            if ($atributos["persistedFaceId"] != "0") {
+                $parameters = array();
+                $response = Http::accept('application/json')->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey
+                ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons/' . $atributos["personId"] . '/persistedFaces/' . $atributos["persistedFaceId"] . http_build_query($parameters), [
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+                ]);
+                $res = $response->json();
+            }
+            $ruta_guardada = $fully;
+
+            try {
+                $parameters = array(
+                    "detectionModel" => "detection_02"
+                );
+                $response = Http::accept('application/json')->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Ocp-Apim-Subscription-Key' => $this->ocpApimSubscriptionKey,
+                ])->post($this->uriBase . '/persongroups/' . $this->azure_grupo . '/persons/' . $atributos["personId"] . '/persistedFaces' . http_build_query($parameters), [
+                    "url" => $ruta_guardada
+                ]);
+                $resp = $response->json();
+                return ($res);
+                if (isset($resp->persistedFaceId) && $resp->persistedFaceId != '') {
+                    $persistedFaceId = $resp->persistedFaceId;
+                    $atributos["persistedFaceId"] = $persistedFaceId;
+                } else {
+                    if ($resp->error->code == 'InvalidImage') {
+                        return response()->json(['message' => 'No se ha encontrado un rostro en la imagen, revise e intente nuevamente'], 400);
+                    }
+                    return response()->json(['message' => 'Ha ocurrido un error inisperado'], 400);
+                }
+            } catch (HttpExceptionInterface $ex) {
+                echo $ex;
+            }
+        }
+        return $atributos;
     }
 
     /**
@@ -351,8 +494,8 @@ class PersonController extends Controller
      */
     public function show(Person $person)
     {
-        $person = Person::find($person);
-        return response()->json($person, 200);
+        // $person = Person::find($person);
+        return response()->success($person, 200);
     }
 
     /**

@@ -2,12 +2,15 @@
 
 namespace App\Repositories;
 
+use App\CustomFacades\ImgUploadFacade;
 use App\Models\Person;
 use App\Models\Usuario;
 use App\Models\WorkContract;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+
+use function GuzzleHttp\Promise\all;
 
 class ProfessionalRepository
 {
@@ -18,7 +21,9 @@ class ProfessionalRepository
         return   DB::table('people as p')
             ->select(
                 'p.id',
-                DB::raw('Concat_ws("", "' . $urlBase->url . '" ,p.image_blob) As image'),
+                DB::raw(
+                    "Concat_ws('', IFNULL(p.image, p.image_blob )) As image"
+                ),
                 'p.identifier',
                 'p.status',
                 DB::raw('Concat_ws(" ", p.first_name, p.first_surname ) as full_name'),
@@ -29,14 +34,14 @@ class ProfessionalRepository
                 'c.name as company',
                 DB::raw('w.id AS work_contract_id')
             )
-            ->join('work_contracts as w', function ($join) {
+            ->leftJoin('work_contracts as w', function ($join) {
                 $join->on('p.id', '=', 'w.person_id')
                     ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                                     join people as u2 on u2.id = a2.person_id group by u2.id)');
             })
-            ->join('companies as c', 'c.id', '=', 'w.company_id')
-            ->join('positions as pos', 'pos.id', '=', 'w.position_id')
-            ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
+            ->leftJoin('companies as c', 'c.id', '=', 'w.company_id')
+            ->leftJoin('positions as pos', 'pos.id', '=', 'w.position_id')
+            ->leftJoin('dependencies as d', 'd.id', '=', 'pos.dependency_id')
 
             ->when(request()->get('identifier'), function ($q) {
                 $q->where('p.identifier', 'like', request()->get('identifier') . '%');
@@ -57,34 +62,42 @@ class ProfessionalRepository
     public function store()
     {
 
-        $mydata = collect(json_decode(request()->get('form')))->except(['signature_blob', 'image_blob']);
+        $person = Person::find(request()->get('id'));
 
-        if (request()->file('signature_blob')) {
-            $mydata['signature_blob'] = getFilename('signature_blob');
+        if (ImgUploadFacade::validate(request()->get('signature_blob'))) {
+            if ($person) ImgUploadFacade::deleteImg($person->signature_blob);
+            $infoImg =  ImgUploadFacade::converFromBase64(request()->get('signature_blob'));
+            request()->merge([
+                'signature_blob' =>  $infoImg['image_blob'],
+            ]);
         }
-        if (request()->file('image_blob')) {
-            $mydata['image_blob'] = getFilename('image_blob');
+
+        if (ImgUploadFacade::validate(request()->get('image_blob'))) {
+            if ($person) ImgUploadFacade::deleteImg($person->image_blob);
+            $infoImg =  ImgUploadFacade::converFromBase64(request()->get('image_blob'));
+            request()->merge([
+                'image_blob' =>  $infoImg['image_blob'],
+            ]);
         }
 
-        $person = Person::updateOrCreate(['id' => $mydata->get('id')], $mydata->all());
-
-        $person->companies()->sync($mydata->get('companies'));
-        $person->specialities()->sync($mydata->get('specialities'));
+        $person = Person::updateOrCreate(['id' => request()->get('id')], request()->all());
+        $person->companies()->sync(request()->get('companies'));
+        $person->specialities()->sync(request()->get('specialities'));
 
         WorkContract::create([
-            'company_id' => $mydata->get('company_id'),
+            'company_id' => request()->get('company_id'),
             'liquidated' =>  0,
             'salary' => 0,
             'person_id' => $person->id,
-            'work_contract_type_id' => $mydata->get('contract'),
+            'work_contract_type_id' => request()->get('contract'),
             'date_end' => Carbon::now()->addDecade(),
             'turn_type' => 'Fijo',
         ]);
 
         Usuario::create([
             'person_id' => $person->id,
-            'usuario' => $mydata->get('identifier'),
-            'password' => Hash::make($mydata->get('identifier')),
+            'usuario' => request()->get('identifier'),
+            'password' => Hash::make(request()->get('identifier')),
             'change_password' => 1,
         ]);
 

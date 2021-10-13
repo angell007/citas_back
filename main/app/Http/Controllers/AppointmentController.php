@@ -22,7 +22,7 @@ class AppointmentController extends Controller
 
     use ApiResponser;
 
-    public function appointmentRecursive(AppointmentRepository $repository)
+    public function appointmentRecursive(AppointmentRequest $request, AppointmentRepository $repository)
     {
         try {
             return $this->success($repository::recurrent());

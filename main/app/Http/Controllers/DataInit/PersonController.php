@@ -115,10 +115,13 @@ class PersonController extends Controller
 
     public function customUpdateOld($identificacion, $tipo_documento)
     {
+        
         $documentType =  $tipo_documento;
         $documentNumber =  $identificacion;
 
-        Log::info([$documentType, $documentNumber]);
+        // dd([$documentType, $documentNumber]);
+
+        // Log::info([$documentType, $documentNumber]);
 
         if ($this->createOrUpdatePatient($documentType, $documentNumber)) {
             return $this->success(['EnBase' => $this->message, 'paciente' => $this->patient]);
@@ -140,6 +143,7 @@ class PersonController extends Controller
 
     public function createOrUpdatePatient($documentType, $documentNumber)
     {
+
         $dataPatient = $this->searchPatientInServices($documentType, $documentNumber);
 
         if (count($dataPatient) == 0) {
@@ -185,9 +189,12 @@ class PersonController extends Controller
 
     public function searchPatientInServices($documentType, $documentNumber)
     {
+        
         $this->medimasService = $dataPatient = [];
 
-        $p = Patient::firstWhere('identifier', $documentNumber);
+        $p = null;
+        
+        // $p = Patient::firstWhere('identifier', $documentNumber);
 
         if ($p) {
             $dataPatient['identifier'] = $documentNumber;
@@ -197,18 +204,20 @@ class PersonController extends Controller
         $this->medimasService =  new MedimasService($documentType, $documentNumber);
         $dataPatient = $this->medimasService->getDataMedimas()->loopDataMedimas();
 
-        if (count($dataPatient) == 3 || count($dataPatient) < 3) {
-
+        
+        if (count($dataPatient) <= 4) {
             $this->medimasService =  new MedimasServiceSubsidiado($documentType, $documentNumber);
             $dataPatient =  $this->medimasService->getDataMedimas()->loopDataMedimas();
         }
-
-        if (count($dataPatient) == 3 || count($dataPatient) < 3) {
-
+        
+        
+        if (count($dataPatient) <= 4) {
             $this->medimasService =  new EcoopsosService($documentType, $documentNumber);
             $dataPatient =  $this->medimasService->getDataWebEcoopsos()->loopDataEcoopsos();
         }
+                
         return $dataPatient;
+        
     }
     public function searchPatientInServicesUpdate($documentType, $documentNumber)
     {
@@ -216,7 +225,6 @@ class PersonController extends Controller
 
         $this->medimasService =  new MedimasService($documentType, $documentNumber);
         $dataPatient = $this->medimasService->getDataMedimas()->loopDataMedimas();
-
 
         if (count($dataPatient) == 4 || count($dataPatient) < 4) {
             echo "----MEDIMAS SUBSIDIADO----";

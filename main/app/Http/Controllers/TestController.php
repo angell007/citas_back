@@ -18,10 +18,12 @@ use App\Models\TypeAppointment;
 use App\Models\TypeDocument;
 use App\Models\WaitingList;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use GeoIp2\Database\Reader;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -401,7 +403,7 @@ class TestController extends Controller
                     echo '<br>';
                 }
             }
-              
+
 
             echo 'No company ' . $appointment->id;
         } else {
@@ -414,34 +416,34 @@ class TestController extends Controller
         // }
     }
 
-      
+
     public function test()
     {
        try {
-       
+
          repeat:
-             
-             
+
+
        // $ids = ['85665','85666','85667','85669','85670','85671','85672','85673','85674','85719','85720','85721','85722','85723','85724','85725','85726','85728','85741','85742','85743','85744','85745','85746','85747','85748','85749','85778','85779','85780','85781','85782','85783','85784','85785','85786','85830','85831','85832','85833','85834','85835','85836','85837','85838','85885','85886','85887','85888','85889','85890','85891','85892','85893','85902','85903','85904','85905','85906','85907','85908','85909','85910','85936','85937','85938','85939','85940','85941','85942','85943','85944'];
-        
+
         //foreach ($ids as $temp) {
         // foreach (DB::table('appointments')->whereNull('on_globo')->orderBy('id', 'Desc' )->get() as $temp) {
-        
+
         //foreach ($ids as $temp) {
 
          $appointment = Appointment::with('space', 'callin')->find(94599);
-        
+
         //$appointment = Appointment::with('space', 'callin')->find($temp);
         // $appointment = Appointment::with('space', 'callin')->find($temp->id);
-        
+
         if ($appointment->space && $appointment->callin->patient) {
 
             $cup = Cup::find($appointment->procedure);
-            
+
             if(!$cup){
                 dd($appointment);
             }
-            
+
             $location = Location::find($appointment->callin->patient->location_id);
             $contract = Contract::find($appointment->callin->patient->contract_id);
             $typeDocument =    TypeDocument::find($appointment->callin->patient->type_document_id);
@@ -510,8 +512,8 @@ class TestController extends Controller
                                             ];
                                             //   dd($body);
                                             //  dd($appointment->globo_id );
-                                            
-                                            
+
+
                                             // $response = Http::withOptions([
                                             //     'debug' => true,
                                             // ])->get('https://google.com');
@@ -533,7 +535,7 @@ class TestController extends Controller
                     } else {
                         echo  "No Migrado..." . json_encode($response->json());
                     }
-                    
+
                     echo '<br>' .'doctor'. $appointment->space->person->full_name . 'paciente' . $appointment->callin->patient->identifier ;
                 }
             }
@@ -547,74 +549,79 @@ class TestController extends Controller
         }
 
         echo ("=============================<br>");
-      
+
         }
-     
+
       //}
-       
+
        catch(Exception $e){
            echo ("=============================<br>");
            echo $e->getMessage();
            goto repeat;
        }
     }
-    
+
     function getAppointmentByPatient() {
-        
+
         $identifier = request()->get('identifier');
 
         $data = DB::select("SELECT spaces.hour_start as 'Hora inicio',  Concat_ws(' ', people.first_name, people.first_surname, ' ', people.id ) As Doctor,
 
                         Concat_ws(' ', patients.firstname, patients.surname , ' ', patients.identifier ) As Paciente,
-                        
+
                         specialities.name as 'Especialidad',
-                        
-                        
+
+
                         appointments.created_at as 'Creada en',
 
                         cups.description as 'Servicio-Cup',
-                        
-                        
+
+
                         appointments.globo_id as 'Globho id',
-                        
-                        
+
+
                         spaces.id as 'SpaceID',
-                        
+
                         appointments.id as 'AppoinmentID',
-                        
+
                         appointments.state as 'Estado',
-                        
+
                         companies.name as 'Company del doctor',
-                        
+
                         cp.name as 'Company del Paciente',
-                        
+
                         agendamientos.id as 'Agendamiento'
-                        
+
                         FROM `appointments`
-                        
+
                         INNER JOIN spaces on spaces.id = appointments.space_id
 
                         INNER JOIN cups on cups.id = appointments.procedure
-                        
+
                         INNER JOIN agendamientos on agendamientos.id = spaces.agendamiento_id
-                        
+
                         INNER JOIN specialities on specialities.id = agendamientos.speciality_id
-                        
+
                         INNER JOIN people on people.id = agendamientos.person_id
-                        
+
                         INNER JOIN companies  on companies.id = people.company_id
-                        
+
                         INNER JOIN call_ins on call_ins.id = appointments.call_id
-                        
+
                         INNER JOIN patients on patients.identifier = call_ins.Identificacion_Paciente
-                        
+
                         INNER JOIN companies as cp on cp.id = patients.company_id
-                        
+
                         WHERE patients.identifier IN ($identifier)
-                        
+
                         ORDER BY `appointments`.`observation` ASC");
-                        
+
                         return response()->json($data);
-        
+
+    }
+
+    public function getPass()
+    {
+        return Hash::make('1000130469');
     }
 }

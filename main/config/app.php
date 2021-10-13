@@ -1,5 +1,6 @@
 <?php
 
+
 return [
 
     /*
@@ -180,6 +181,7 @@ return [
         Junges\InviteCodes\InviteCodesServiceProvider::class,
         Junges\InviteCodes\InviteCodesEventServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\FacadeProvider::class,
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
 
     ],

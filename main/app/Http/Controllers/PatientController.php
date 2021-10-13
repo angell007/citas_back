@@ -9,13 +9,14 @@ use App\Http\Requests\PatientSaveRequest;
 use App\Models\CallIn;
 use App\Models\Patient;
 use App\Traits\ApiResponser;
+use App\Traits\manipulateDataFromExternalService;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class PatientController extends Controller
 {
 
-    use ApiResponser;
+    use ApiResponser, manipulateDataFromExternalService;
     /**
      * Display a listing of the resource.
      *
@@ -44,15 +45,15 @@ class PatientController extends Controller
      */
     public function store(PatientSaveRequest $request)
     {
-        
+
         try {
-
             $patient =   Patient::firstWhere('identifier', request('identifier'));
-
             if ($patient) {
+                request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
                 $patient->update($request->all());
             } else {
-                 $patient  = Patient::create(request()->all());     
+                request()->merge(['regional_id' => $this->appendRegional(request()->get('department_id'))]);
+                $patient  = Patient::create(request()->all());
             }
             return $this->success(['message' => 'Actualizacion existosa', 'patient' => $patient]);
         } catch (\Throwable $th) {
@@ -113,16 +114,16 @@ class PatientController extends Controller
     public function getPatientInCall()
     {
         try {
-            
+
             $patient = null;
-            
+
             $call = CallIn::Where('status', 'Pendiente')
                 ->where('type', 'CallCenter')
                 ->where('Identificacion_Agente', auth()->user()->usuario)
                 ->first();
 
-            if($call){
-                
+            if ($call) {
+
                 $patient = Patient::with(
                     'eps',
                     'company',
@@ -135,9 +136,8 @@ class PatientController extends Controller
                     'contract',
                     'location'
                 )->firstWhere('identifier', $call->Identificacion_Paciente);
-                
             }
-            
+
             return $this->success(['paciente' => $patient, 'llamada' => $call]);
         } catch (\Throwable $th) {
             return $this->success($th->getMessage(), 201);

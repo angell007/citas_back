@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\WorkContract;
+use App\Models\WorkContractType;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class WorkContractController extends Controller
 {
-    //
+
     use ApiResponser;
 
     public function index()
     {
-        return $this->success('');
+        return response()->success(WorkContractType::get(['id as value', 'name as text']));
     }
 
     public function show($id)
@@ -37,24 +38,24 @@ class WorkContractController extends Controller
                     'w.fixed_turn_id',
                     'w.id'
                 )
-                ->join('work_contracts as w', function ($join) {
+                ->leftJoin('work_contracts as w', function ($join) {
                     $join->on('w.person_id', '=', 'p.id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2 
+                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                             join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
-                ->join('positions as posi', function ($join) {
+                ->leftJoin('positions as posi', function ($join) {
                     $join->on('posi.id', '=', 'w.position_id');
                 })
-                ->join('dependencies as d', function ($join) {
+                ->leftJoin('dependencies as d', function ($join) {
                     $join->on('d.id', '=', 'posi.dependency_id');
                 })
-                ->join('groups as gr', function ($join) {
+                ->leftJoin('groups as gr', function ($join) {
                     $join->on('gr.id', '=', 'd.group_id');
                 })
                 ->leftJoin('fixed_turns as f', function ($join) {
                     $join->on('f.id', '=', 'w.fixed_turn_id');
                 })
-                ->join('companies as c', function ($join) {
+                ->leftJoin('companies as c', function ($join) {
                     $join->on('c.id', '=', 'w.company_id');
                 })
                 ->where('p.id', '=', $id)

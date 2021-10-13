@@ -52,10 +52,9 @@ class Person extends Model
         "company_id",
         "department_id",
         "municipality_id",
-        "medical_record"
+        "medical_record",
+        // "ips"
 
-
-        // Ips: '';
         // contract: '';
         // companies: [];
         // medical_register: '';
@@ -73,7 +72,7 @@ class Person extends Model
     {
         return $this->belongsToMany(Speciality::class);
     }
-    
+
     public function locations()
     {
         return $this->belongsToMany(Location::class);

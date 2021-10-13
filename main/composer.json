@@ -54,7 +54,8 @@
             "app/helpers/normalize.php",
             "app/helpers/globals.php",
             "app/helpers/transformDates.php",
-            "app/helpers/UppercaseHelper.php"
+            "app/helpers/UppercaseHelper.php",
+            "app/helpers/image.php"
         ],
         "classmap": [
             "database/seeds",

@@ -49,6 +49,10 @@ class CupController extends Controller
             $q->where('speciality', request()->get('speciality'))->get();
         });
 
+        $cups->when(request()->get('year'), function ($q) {
+            $q->where('year', request()->get('year'))->get();
+        });
+
         $cups->when(request()->get('space'), function ($q, $spaceId) {
             $space = Space::with('agendamiento.cups:id')->find($spaceId);
             $cupIds = DB::table('cup_speciality')->select('cup_id')->where('speciality_id', $space->agendamiento->speciality_id);

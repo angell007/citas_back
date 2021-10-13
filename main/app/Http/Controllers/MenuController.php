@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Menu;
 use App\Models\Usuario;
 use App\Traits\ApiResponser;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -160,14 +161,20 @@ class MenuController extends Controller
      */
     public function getByPerson()
     {
-        self::$user = Usuario::where('person_id', Request()->get('person_id'))->first();
-        $menus = Menu::whereNull('parent_id')->get(['id', 'name']);
-        foreach ($menus as &$item) {
+        try {
 
-            $item['child'] = [];
-            if (!$item->link) $item['child'] =  $this->getChilds($item);
+            self::$user = Usuario::where('person_id', Request()->get('person_id'))->first();
+            if (!self::$user) throw new Exception("No existe un usuario asociado", 400);
+            $menus = Menu::whereNull('parent_id')->get(['id', 'name']);
+
+            foreach ($menus as &$item) {
+                $item['child'] = [];
+                if (!$item->link) $item['child'] =  $this->getChilds($item);
+            }
+            return response()->json($menus);
+        } catch (\Throwable $th) {
+            return response()->error($th->getMessage());
         }
-        return response()->json($menus);
     }
 
     private function getChilds($item)

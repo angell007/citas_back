@@ -7,6 +7,7 @@ use App\Holiday;
 use App\Models\Agendamiento;
 use App\Models\Person;
 use App\Models\Space;
+use App\Models\SubTypeAppointment;
 use App\Models\TypeAppointment;
 use Carbon\Carbon;
 use Exception;
@@ -20,7 +21,6 @@ class AgendamientoRepository
 
     public function store()
     {
-
         $data = request()->all();
 
         $daySpaces = collect([]);
@@ -41,11 +41,16 @@ class AgendamientoRepository
         $agendamiento->department_id = Person::findOrFail(auth()->user()->person_id)['department_id'];
         $agendamiento->save();
 
+        $conditions = [$agendamiento->type_appointment_id];
+        if ($agendamiento->type_appointment_id != 2) $conditions = array_diff(SubTypeAppointment::pluck('id')->toArray(), [2]);
+
         $agendamientos = Agendamiento::with('spaces')->where('person_id', $agendamiento->person_id)
             ->where(function ($q) use ($agendamiento) {
                 $q->whereBetween('date_start', [$agendamiento->date_start, $agendamiento->date_end])
                     ->orWhereBetween('date_end',  [$agendamiento->date_start, $agendamiento->date_end]);
-            })->get();
+            })
+            ->whereIn('type_appointment_id',  $conditions)
+            ->get();
 
 
         $inicio = Carbon::parse($agendamiento->date_start);

@@ -32,6 +32,7 @@ class ServiceGlobhoController extends AppointmentController
                 throw new Exception('No se logra encontrar appointment');
             }
 
+            
             $appointment->state = $state;
             $appointment->saveOrfail();
 

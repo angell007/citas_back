@@ -3,21 +3,18 @@
 use App\Http\Controllers\AdministratorController;
 use App\Http\Controllers\AgendamientoController;
 use App\Http\Controllers\AppointmentController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CaracterizacionController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ContractController;
+// use App\Http\Controllers\ContractController as ContractEpsController;
 use App\Http\Controllers\CupController;
 use App\Http\Controllers\DataInit\PersonController as DataInitPersonController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\DurationController;
 use App\Http\Controllers\TestController;
-use App\Http\Controllers\EpsController;
 use App\Http\Controllers\FormularioController;
 
-use App\Http\Controllers\OtherController;
-// use App\Http\Controllers\PersonController as FunctionaryController;
-// use App\Http\Controllers\PersonController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PeopleTypeController;
@@ -28,33 +25,6 @@ use App\Http\Controllers\SpecialityController;
 use App\Http\Controllers\SubTypeAppointmentController;
 use App\Http\Controllers\TypeAppointmentController;
 use App\Http\Controllers\WaitingListController;
-use App\Models\Person;
-
-use App\Models\RegimenType;
-use App\Models\Level;
-use App\Models\Municipality;
-use App\Models\Department;
-
-use App\Models\Appointment;
-use App\Models\Agendamiento;
-use App\Models\Contract;
-use App\Models\Location;
-use App\Models\TypeDocument;
-use App\Models\Cup;
-use Illuminate\Support\Facades\Http;
-use App\Models\TypeAppointment;
-use App\Models\Space;
-use App\Models\Company;
-use App\Models\WaitingList;
-use Carbon\Carbon;
-use Danilo\SmsHablame\SmsHablameFacade;
-use Illuminate\Support\Facades\DB;
-
-// use App\Models\Person;
-// use App\Models\CallIn;
-// use App\Models\SpaceT;
-// use App\Models\Usuario;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -85,7 +55,7 @@ Route::prefix("auth")->group(
 	}
 );
 
-Route::get('get-info', [TestController::class, 'getAppointmentByPatient']);
+Route::get('get-pass', [TestController::class, 'getPass']);
 
 Route::group(
 	[
@@ -137,7 +107,7 @@ Route::group(
 
 		Route::get("people-type-custom", [PeopleTypeController::class, "indexCustom"]);
 		Route::get("people-paginate", 'PersonController@indexPaginate');
-		Route::resource('people', PersonController::class);
+		Route::resource('people', \PersonController::class);
 
 		Route::get("get-patient-fill/{id}", "PatientController@getPatientResend");
 		Route::get("type-service/formality/{id}", "TypeServiceController@allByFormality");
@@ -149,7 +119,7 @@ Route::group(
 		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
 
 		Route::resource('dependencies', DependencyController::class);
-		Route::resource('work-contract-type', ContractController::class);
+		Route::resource('work-contract-type', WorkContractController::class);
 		Route::resource('rotating-turns', RotatingTurnController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('positions', PositionController::class);
@@ -168,6 +138,11 @@ Route::group(
 		Route::resource("people-type", "PeopleTypeController");
 		Route::resource("departments", "DepartmentController");
 		Route::resource("contract", "ContractController");
+
+		Route::post("contracts", [ContractController::class, 'store']);
+		Route::get("contracts", [ContractController::class, 'paginate']);
+		Route::get("contracts/{id?}", [ContractController::class, 'edit']);
+
 		Route::resource("cities", "MunicipalityController");
 		Route::resource("agreements", "AgreementController");
 		Route::resource("type-documents", "TypeDocumentController");
@@ -183,6 +158,7 @@ Route::group(
 		Route::get("get-specialties/{sede?}/{procedure?}", [SpecialityController::class, "index",]);
 		Route::get("get-professionals/{ips?}/{speciality?}", 'PersonController@index');
 		Route::resource("specialities", "SpecialityController");
+		Route::get("get-specialties-by-procedure/{cup?}", "SpecialityController@byProcedure");
 		Route::get("paginate-especialities", [SpecialityController::class, "paginate"]);
 
 
@@ -202,6 +178,45 @@ Route::group(
 		Route::resource("reasons", "ReasonController");
 		Route::resource("method-pays", "MethodPayController");
 		Route::resource("banks", "BankController");
+
+
+		//Payment Method
+		Route::resource('payment_methods', PaymentMethodController::class);
+		Route::get('paginatePaymentMethod', [PaymentMethodController::class, 'paginate']);
+
+
+		//Price List
+		Route::resource('price_lists', PriceListController::class);
+		Route::get('paginatePriceList', [PriceListController::class, 'paginate']);
+
+		//Benefits_plan
+		Route::resource('benefits_plans', BenefitsPlanController::class);
+		Route::get('paginateBenefitsPlan', [BenefitsPlanController::class, 'paginate']);
+
+		Route::resource('arl', ArlController::class);
+		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
+		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
+
+		Route::get('person/{id}', [PersonController::class, 'basicData']);
+		Route::get('basicData/{id}', [PersonController::class, 'basicDataForm']);
+		Route::post('updatebasicData/{id}', [PersonController::class, 'updateBasicData']);
+
+		Route::get('salary/{id}', [PersonController::class, 'salary']);
+		Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
+		Route::resource('salaryTypes', SalaryTypesController::class);
+		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
+
+		Route::resource('work_contracts', WorkContractController::class);
+
+
+		Route::resource('fixed-turns', FixedTurnController::class);
+		Route::get('fixed_turn', [PersonController::class, 'fixed_turn']);
+		Route::post('/fixed-turns/change-state/{id}', [FixedTurnController::class, 'changeState']);
+		Route::get('/fixed-turn-hours', [FixedTurnHourController::class, 'index']);
+		Route::get('/reporte/horarios/{fechaInicio}/{fechaFin}/turno_fijo', [ReporteHorariosController::class, 'fixed_turn_diaries'])->where([
+			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
+		]);
 	}
 );
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\SpecialityResource;
+use App\Models\Cup;
 use App\Models\Speciality;
 use App\Traits\ApiResponser;
 use Illuminate\Database\Eloquent\Builder;
@@ -118,5 +119,10 @@ class SpecialityController extends Controller
     public function destroy(Speciality $speciality)
     {
         //
+    }
+
+    public function byProcedure($procedure = 0)
+    {
+        return Cup::find($procedure)->specialities()->get(['specialities.id as value', 'specialities.name as text']);
     }
 }
