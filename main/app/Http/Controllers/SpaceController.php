@@ -63,15 +63,15 @@ class SpaceController extends Controller
                 ->where('s.hour_start', '>', DB::raw('now()'))
                 ->where('s.status', [true])
                 ->where('s.state', 'Activo')
-                ->where(function ($q) use ($departemIdPatient) {
-                    $q->whereRaw(
-                        "
-                          CASE WHEN a.department_id   = $departemIdPatient  THEN  a.department_id =  $departemIdPatient AND   s.type =  'Regional'
-                                      WHEN a.department_id != $departemIdPatient  THEN  s.type =  'Nacional'
-                          END
-                         "
-                    );
-                })
+                // ->where(function ($q) use ($departemIdPatient) {
+                //     $q->whereRaw(
+                //         "
+                //           CASE WHEN a.department_id   = $departemIdPatient  THEN  a.department_id =  $departemIdPatient AND   s.type =  'Regional'
+                //                       WHEN a.department_id != $departemIdPatient  THEN  s.type =  'Nacional'
+                //           END
+                //          "
+                //     );
+                // })
 
                 ->when(array_key_exists('company_id', $params), function ($q) use ($params) {
                     $q->where('a.ips_id', '=', $params['company_id']);

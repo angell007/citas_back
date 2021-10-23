@@ -9,13 +9,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Usuario;
 use App\Response;
+use App\Traits\ApiResponser;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
-
 class AuthController extends Controller
 {
+
+    use ApiResponser;
     /**
      * Login usuario y retornar el token
      * @return token
@@ -26,7 +28,7 @@ class AuthController extends Controller
 
     public function index()
     {
-        // implement users on line 
+        // implement users on line
     }
 
     public function paginate()

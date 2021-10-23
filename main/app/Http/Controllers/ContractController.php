@@ -26,9 +26,9 @@ class ContractController extends Controller
 
         $contract = Contract::query();
 
-        // $contract->when(request()->get('department_id'), function (Builder $q) {
-        //     $q->where('department_id', request()->get('department_id'));
-        // });
+        $contract->when(request()->get('department_id'), function (Builder $q) {
+            $q->where('department_id', request()->get('department_id'));
+        });
 
         $contract->when(request()->get('eps_id'), function (Builder $q) {
             $q->where(function (Builder $q) {

@@ -45,7 +45,7 @@ class AppointmentService
         $page = $page ? $page : 1;
 
         $pageSize = Request()->get('pageSize');
-        $pageSize = $pageSize ? $pageSize : 10;
+        $pageSize = $pageSize ? $pageSize : 20;
 
         return   DB::table('appointments')
             ->join('call_ins', 'call_ins.id', '=', 'appointments.call_id')
@@ -95,7 +95,7 @@ class AppointmentService
             ->when(Request()->get('space_date'), function ($query, $date) {
                 $query->whereDate('spaces.hour_start', $date);
             })
-            ->orderBy('spaces.hour_start', 'Asc')
+            ->orderBy('spaces.hour_start', 'Desc')
             ->paginate($pageSize, '*', 'page', $page);
     }
     static public function toMigrate()

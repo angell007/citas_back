@@ -153,6 +153,7 @@ Route::group(
 		// Cups
 		Route::resource("cups", "CupController");
 		Route::get("paginate-cup", [CupController::class, "paginate"]);
+		
 
 		// Specialities
 		Route::get("get-specialties/{sede?}/{procedure?}", [SpecialityController::class, "index",]);
@@ -207,6 +208,11 @@ Route::group(
 		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
 
 		Route::resource('work_contracts', WorkContractController::class);
+		
+		Route::post('mycita', function(){
+		    return response()->json(request()->all());
+		});
+		
 
 
 		Route::resource('fixed-turns', FixedTurnController::class);
