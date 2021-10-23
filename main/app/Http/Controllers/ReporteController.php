@@ -70,9 +70,9 @@ class ReporteController extends Controller
             ->when(request()->get('daterange') && request()->get('daterange') != 'undefined', function (Builder $q) {
                 $dates = explode('-', request()->get('daterange'));
                 $dateStart = transformDate($dates[0]);
-                $dateEnd = transformDate($dates[1]);
-                $q->whereBetween('date_start', [$dateStart, $dateEnd])
-                    ->whereBetween('date_end', [$dateStart, $dateEnd]);
+                $dateEnd = transformDate($dates[1])->addHours(23)->addMinutes(59);
+                $q->whereBetween('spaces.date_start', [$dateStart, $dateEnd]);
+                // ->whereBetween('date_end', [$dateStart, $dateEnd]);
             })
 
 
@@ -155,9 +155,8 @@ class ReporteController extends Controller
             ->when(request()->get('daterange') && request()->get('daterange') != 'undefined', function (Builder $q) {
                 $dates = explode('-', request()->get('daterange'));
                 $dateStart = transformDate($dates[0]);
-                $dateEnd = transformDate($dates[1]);
-                $q->whereBetween('appointments.created_at', [$dateStart, $dateEnd]);
-                // ->whereBetween('appointments.hour_end', [$dateStart, $dateEnd]);
+                $dateEnd = transformDate($dates[1])->addHours(23)->addMinutes(59);
+                $q->whereBetween('spaces.hour_start', [$dateStart, $dateEnd]);
             })
 
             ->when(request()->get('company_id'),  function (Builder $q) {
@@ -177,14 +176,16 @@ class ReporteController extends Controller
             })
 
             ->whereIn('appointments.state', ['Confirmado', 'SalaEspera', 'Agendado'])
+            ->whereNotNull('appointments.globo_id')
 
             ->select(
 
-                'appointments.code As consecutivo',
+                'appointments.globo_id As consecutivo',
                 'type_documents.code as tipo_documnto',
-                DB::raw('Concat_ws(" ",patients.firstname, patients.surname) As nombre'),
+                DB::raw('Concat_ws(" ",patients.firstname, patients.secondsurname, patients.middlename, patients.surname) As nombre'),
                 'patients.date_of_birth As cumple',
                 'patients.gener As sexo',
+                'patients.identifier',
                 'patients.phone As telefono',
                 'patients.address As direccion',
                 'municipalities.name As municipio',

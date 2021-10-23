@@ -50,19 +50,21 @@ use App\Models\TypeAppointment;
 */
 
 Route::get('/test', 'TestController@test');
+Route::get('/get-info', 'TestController@getAppointmentByPatient');
 
+//Log::info('test');
 
-// Route::get('/', function () {
+Route::get('/clear-cache', function () {
 
-//   $exitCode = Artisan::call('config:clear');
+  $exitCode = Artisan::call('config:clear');
 
-//   $exitCode = Artisan::call('cache:clear');
+  $exitCode = Artisan::call('cache:clear');
 
-//   $exitCode = Artisan::call('config:cache');
+  $exitCode = Artisan::call('config:cache');
 
-//   return 'DONE'; //Return anything
+  return 'DONE'; //Return anything
 
-// });
+});
 
 Auth::routes();
 

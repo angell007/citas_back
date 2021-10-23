@@ -27,8 +27,8 @@ class AgendamientoRepository
 
         $this->validating($data);
 
-        $data['regional_percent'] = request()->get('regional_percent', 100);
-
+        $data['regional_percent'] = request()->get('regionalPercent', 100);
+        
         $agendamiento = Agendamiento::create($data);
 
         $this->person = Person::find($agendamiento->person_id);
