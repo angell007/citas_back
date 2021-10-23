@@ -26,6 +26,13 @@ class ContractController extends Controller
 
         $contract = Contract::query();
 
+        $contract->select(
+            'id As value',
+            'company_id',
+            'regimen_id',
+            DB::raw("Concat_ws(' ', code, '-' , name) As text")
+        );
+
         // $contract->when(request()->get('department_id'), function (Builder $q) {
         //     $q->where('department_id', request()->get('department_id'));
         // });
@@ -42,7 +49,7 @@ class ContractController extends Controller
         });
 
 
-        $result = $contract->get(['name As text', 'id As value']);
+        $result = $contract->get();
 
         return $this->success($result);
     }
@@ -157,7 +164,6 @@ class ContractController extends Controller
                     }
 
                     $newService->specialities()->sync($specialities);
-                    
                 }
             }
 

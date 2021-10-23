@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTechnicNotesTable extends Migration
+class CreateTypeReportsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateTechnicNotesTable extends Migration
      */
     public function up()
     {
-        // Schema::create('technic_notes', function (Blueprint $table) {
-        //     $table->id();
-        //     $table->timestamps();
-        // });
+        Schema::create('type_reports', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -26,6 +26,6 @@ class CreateTechnicNotesTable extends Migration
      */
     public function down()
     {
-        // Schema::dropIfExists('technic_notes');
+        Schema::dropIfExists('type_reports');
     }
 }

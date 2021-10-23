@@ -22,9 +22,9 @@ class SpaceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function indexCustom($idSpeciality, $person = 0)
     {
-
         $spaces = collect([]);
         $persons = Person::query();
         $persons->when($person && $person != 0 && $person != 'undefined',  function ($q) use ($person) {
@@ -39,10 +39,6 @@ class SpaceController extends Controller
         $spaces = DB::table('spaces')->where('person_id', [$data])->where('status', [true])->get(['id', 'hour_start As start', 'hour_end As end', 'status', 'backgroundColor', 'className']);
         return  $this->success($spaces);
     }
-
-
-
-
 
     public function index()
     {

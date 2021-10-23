@@ -33,7 +33,23 @@ class PersonController extends Controller
             Person::orderBy('first_name')
                 ->whereHas('specialties', function ($q) use ($speciality) {
                     $q->where('id', $speciality);
-                })->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')])
+                })
+                ->when(request()->get('type-appointment'), function ($q) {
+                    $q->whereHas('restriction.typeappointments', function ($q) {
+                        $q->where('type_appointment_id', request()->get('type-appointment'));
+                    });
+                })
+                ->when(request()->get('contract_id'), function ($q) {
+                    $q->whereHas('restriction.contracts', function ($q) {
+                        $q->where('contract_id', request()->get('contract_id'));
+                    });
+                })
+                ->when(request()->get('regimen_id'), function ($q) {
+                    $q->whereHas('restriction.regimentypes', function ($q) {
+                        $q->where('regimen_type_id', request()->get('regimen_id'));
+                    });
+                })
+                ->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')])
         );
     }
 

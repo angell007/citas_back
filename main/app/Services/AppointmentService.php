@@ -61,9 +61,9 @@ class AppointmentService
                 DB::raw('DATE_FORMAT(spaces.hour_start, "%Y-%m-%d %h:%i %p") As hour_start'),
                 DB::raw('Concat_ws(" ", people.first_name, people.first_surname) as profesional_name'),
                 DB::raw('Concat_ws(" ", patients.firstname,  patients.surname,
-                
+
                 ' . DB::raw("FORMAT(patients.identifier, 0, '.')") . '
-                
+
                 ) as patient_name'),
                 'specialities.name as speciality',
                 'patients.phone as phone'
@@ -97,6 +97,7 @@ class AppointmentService
             })
             ->orderBy('spaces.hour_start', 'Asc')
             ->paginate($pageSize, '*', 'page', $page);
+
     }
     static public function toMigrate()
     {
@@ -121,14 +122,14 @@ class AppointmentService
                 DB::raw('DATE_FORMAT(spaces.hour_start, "%Y-%m-%d %h:%i %p") As hour_start'),
                 DB::raw('Concat_ws(" ", people.first_name, people.first_surname) as profesional_name'),
                 DB::raw('Concat_ws(" ", patients.firstname,  patients.surname,
-                
+
                 ' . DB::raw(" patients.identifier ") . '
-                
+
                 ) as patient_name'),
                 'specialities.name as speciality',
                 'patients.phone as phone'
             )
-            
+
             ->whereNull('globo_id')
             ->whereNull('on_globo')
             ->whereNotNull('space_id')
@@ -141,7 +142,7 @@ class AppointmentService
             ->when((Request()->get('person_id') && Request()->get('person_id') != 'null') , function ($query) {
                 $query->where('people.id', '=', Request()->get('person_id'));
             })
-            
+
             ->when(Request()->get('type_appointment_id'), function ($query, $state) {
                 $query->where('type_appointments.id', $state);
             })

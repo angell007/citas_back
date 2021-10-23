@@ -6,6 +6,7 @@ use App\CustomFacades\ImgUploadFacade;
 use App\Models\Person;
 use App\Models\Usuario;
 use App\Models\WorkContract;
+use App\Restriction;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +17,7 @@ class ProfessionalRepository
 {
     public function paginate()
     {
+
         $urlBase = DB::table('site_settings')->get(['url', 'folder_functionaries'])->first();
 
         return   DB::table('people as p')
@@ -42,7 +44,7 @@ class ProfessionalRepository
             ->leftJoin('companies as c', 'c.id', '=', 'w.company_id')
             ->leftJoin('positions as pos', 'pos.id', '=', 'w.position_id')
             ->leftJoin('dependencies as d', 'd.id', '=', 'pos.dependency_id')
-
+            ->where('people_type_id', 3)
             ->when(request()->get('identifier'), function ($q) {
                 $q->where('p.identifier', 'like', request()->get('identifier') . '%');
             })
@@ -80,16 +82,22 @@ class ProfessionalRepository
             ]);
         }
 
+
         $person = Person::updateOrCreate(['id' => request()->get('id')], request()->all());
+        // TODO:
+        $person->people_type_id = 3;
+        $person->save();
+
         $person->companies()->sync(request()->get('companies'));
         $person->specialities()->sync(request()->get('specialities'));
+
 
         WorkContract::create([
             'company_id' => request()->get('company_id'),
             'liquidated' =>  0,
             'salary' => 0,
             'person_id' => $person->id,
-            'work_contract_type_id' => request()->get('contract'),
+            'work_contract_type_id' => request()->get('contract_type_id', 1),
             'date_end' => Carbon::now()->addDecade(),
             'turn_type' => 'Fijo',
         ]);
@@ -101,12 +109,48 @@ class ProfessionalRepository
             'change_password' => 1,
         ]);
 
+        if ($person->id) {
+            $restrictions = Restriction::Where('person_id', $person->id)->get();
+            foreach ($restrictions ?? []  as  $restriction) {
+                $restriction->regimentypes()->detach();
+                $restriction->contracts()->detach();
+                $restriction->companies()->detach();
+                $restriction->typeappointments()->detach();
+                $restriction->delete();
+            }
+        }
+
+        $contracts = request()->get('contract', []);
+
+        foreach ($contracts as $contract) {
+            $restriction = Restriction::create([
+                'person_id' => $person->id,
+                'company_id' => $contract['company_id']
+            ]);
+            $restriction->regimentypes()->sync($contract['regimen_id'] ?? []);
+            $restriction->contracts()->sync($contract['contract_id'] ?? []);
+            $restriction->companies()->sync($contract['companies_id'] ?? []);
+            $restriction->typeappointments()->sync($contract['type_agenda_id'] ?? []);
+        }
+
+
         return ['id' => $person->id];
     }
 
     public function show($id)
     {
-        return Person::select('*')->with(['specialities:id', 'companies:id'])
+        return Person::select('*')->with(
+            [
+                'specialities:id',
+                'companies:id',
+                'restriction:id,person_id,company_id',
+                'restriction.regimentypes:id,name',
+                'restriction.company:id,name',
+                'restriction.contracts:id,name',
+                'restriction.companies:id,name',
+                'restriction.typeappointments:id,name'
+            ]
+        )
             ->find($id);
     }
 }

@@ -104,17 +104,16 @@ class ManagmentAppointmentCreation
 
 
                 $this->space->share = $this->space->share - $this->reducer;
-                
+
                 if ($this->space->share <= 0  ) {
                     $this->space->status = 0;
                 }
-
 
                 $this->space->saveOrFail();
                 $this->appointment->code = $this->company->simbol . date("ymd", strtotime($this->space->hour_start)) . str_pad($this->appointment->id, 7, "0", STR_PAD_LEFT);
                 $this->appointment->link = 'https://meet.jit.si/' . $this->company->simbol . date("ymd", strtotime($this->appointment->space->hour_start)) . str_pad($this->appointment->id, 7, "0", STR_PAD_LEFT);
                 $this->appointment->saveOrFail();
-                    
+
 
                 if ($this->space->person->to_globo) {
                     $this->response =  $this->reportToGlobo($this->appointment->id);

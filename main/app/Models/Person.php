@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Controllers\LateArrivalController;
+use App\Restriction;
 use Illuminate\Database\Eloquent\Model;
 
 class Person extends Model
@@ -160,6 +161,11 @@ class Person extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function restriction()
+    {
+        return $this->hasMany(Restriction::class);
     }
 
     public function companies()

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TypeReport;
 use Carbon\Carbon;
 use Dotenv\Result\Success;
 use Illuminate\Database\Query\Builder;
@@ -12,6 +13,12 @@ use PhpParser\Node\Expr\AssignOp\Concat;
 
 class ReporteController extends Controller
 {
+
+    public function getReportes()
+    {
+        return TypeReport::get(['id as value', 'name as text']);
+    }
+
     public function general()
     {
         request()->get('typeReport');
@@ -150,7 +157,7 @@ class ReporteController extends Controller
                 $dateStart = transformDate($dates[0]);
                 $dateEnd = transformDate($dates[1]);
                 $q->whereBetween('appointments.created_at', [$dateStart, $dateEnd]);
-                    // ->whereBetween('appointments.hour_end', [$dateStart, $dateEnd]);
+                // ->whereBetween('appointments.hour_end', [$dateStart, $dateEnd]);
             })
 
             ->when(request()->get('company_id'),  function (Builder $q) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CompanyResource;
 use App\Models\Company;
 use App\Models\Other;
+use App\Models\Person;
 use App\Models\TypeLocation;
 use App\Traits\ApiResponser;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,7 +27,13 @@ class CompanyController extends Controller
      */
     public function index($typeLocation = 0)
     {
+
         $brandShowCompany = 0;
+        $companies = Company::query();
+        $companies->when(request()->get('professional_id'), function ($q) {
+            $companies = Person::findOrfail(request()->get('professional_id'))->restriction()->with('companies:id,name,type')->first(['restrictions.id']);
+            $q->whereIn('id', $companies->companies->pluck('id'));
+        });
 
         if ($typeLocation &&  $typeLocation != 3) {
             $typeLocation = TypeLocation::findOrfail($typeLocation);
@@ -34,11 +41,10 @@ class CompanyController extends Controller
         }
 
         if (gettype($typeLocation) != 'object' && $typeLocation == 3) {
-            return CompanyResource::collection(Company::get());
+            return CompanyResource::collection($companies->get());
         }
 
-        return $this->success(CompanyResource::collection(Company::get()));
-        // return $this->success(CompanyResource::collection(Company::where('type', $brandShowCompany)->get()));
+        return $this->success(CompanyResource::collection($companies->where('type', $brandShowCompany)->get()));
     }
 
     /**
@@ -110,7 +116,7 @@ class CompanyController extends Controller
     {
         $data = Company::withWhereHas('locations', function ($q) use ($municipalityId) {
             $q->select('id As value', 'name As text', 'company_id');
-                // ->where('city', $municipalityId);
+            // ->where('city', $municipalityId);
         })
             ->get(['id As value', 'name As text', 'id']);
 

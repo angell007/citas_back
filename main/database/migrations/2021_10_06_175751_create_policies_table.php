@@ -13,10 +13,10 @@ class CreatePoliciesTable extends Migration
      */
     public function up()
     {
-        Schema::create('policies', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        // Schema::create('policies', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->timestamps();
+        // });
     }
 
     /**

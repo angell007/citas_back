@@ -13,15 +13,15 @@ class CreateTecnicNotesTable extends Migration
      */
     public function up()
     {
-        Schema::create('tecnic_notes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('frequency');
-            $table->string('alert_percentage');
-            $table->string('unit_value');
-            $table->date('date');
-            $table->string('chance');
-            $table->timestamps();
-        });
+        // Schema::create('tecnic_notes', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->string('frequency');
+        //     $table->string('alert_percentage');
+        //     $table->string('unit_value');
+        //     $table->date('date');
+        //     $table->string('chance');
+        //     $table->timestamps();
+        // });
     }
 
     /**
@@ -31,6 +31,6 @@ class CreateTecnicNotesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tecnic_notes');
+        // Schema::dropIfExists('tecnic_notes');
     }
 }

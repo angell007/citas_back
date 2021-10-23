@@ -124,6 +124,22 @@ Route::group(
 		Route::resource('group', GroupController::class);
 		Route::resource('positions', PositionController::class);
 
+		Route::get("tester", function ($array = [5, -1, 15, 28, 28]) {
+
+			// $tem =  $array[0];
+			// $newArray = [];
+
+			// foreach ($array as $key => $value) {
+			// 	if ($array[$key - 1] > $array[$key]) {
+			// 		$tem = $array[$key - 1];
+			// 		$array[$key - 1] = $array[$key];
+			// 		$array[$key] = $value;
+			// 	}
+			// }
+
+			// echo json_encode($array);
+
+		});
 
 		Route::resource("agendamientos", "AgendamientoController");
 		Route::resource("appointments", "AppointmentController");
@@ -138,9 +154,11 @@ Route::group(
 		Route::resource("people-type", "PeopleTypeController");
 		Route::resource("departments", "DepartmentController");
 		Route::resource("contract", "ContractController");
+		Route::resource("contract-for-select", "ContractController@");
 
 		Route::post("contracts", [ContractController::class, 'store']);
 		Route::get("contracts", [ContractController::class, 'paginate']);
+		Route::get("contracts-for-select", [ContractController::class, 'index']);
 		Route::get("contracts/{id?}", [ContractController::class, 'edit']);
 
 		Route::resource("cities", "MunicipalityController");
@@ -183,6 +201,8 @@ Route::group(
 		//Payment Method
 		Route::resource('payment_methods', PaymentMethodController::class);
 		Route::get('paginatePaymentMethod', [PaymentMethodController::class, 'paginate']);
+
+		Route::get('type_reportes', [ReporteController::class, 'getReportes']);
 
 
 		//Price List
