@@ -3,6 +3,7 @@
         <tr>
             <th> Consecutivo </th>
             <th> Tipo documento </th>
+            <th> Documento </th>
             <th> Nombre </th>
             <th> Cumple </th>
             <th> Sexo </th>
@@ -32,6 +33,7 @@
         <tr>
             <td> {{ $datum->consecutivo }} </td>
             <td> {{ $datum->tipo_documnto }} </td>
+            <td> {{ $datum->identifier }} </td>
             <td> {{ $datum->nombre }} </td>
             <td> {{ $datum->cumple }} </td>
             <td> {{ $datum->sexo }} </td>

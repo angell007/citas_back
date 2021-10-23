@@ -6,6 +6,8 @@ use App\Models\Municipality;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
+use function GuzzleHttp\Promise\all;
+
 class MunicipalityController extends Controller
 {
     use ApiResponser;
@@ -17,11 +19,11 @@ class MunicipalityController extends Controller
     public function index()
     {
         $data = Municipality::orderBy('name', 'DESC')
-        ->when(Request()->get('department_id'),function($q,$param){
-        
-            $q->where('department_id',$param);
-        })
-        ->get(['name As text', 'id As value']);
+            ->when(Request()->get('department_id'), function ($q) {
+                $params = explode(",", request()->get('department_id'));
+                $q->whereIn('department_id', $params);
+            })
+            ->get(['name As text', 'id As value']);
         return $this->success($data);
     }
 

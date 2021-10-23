@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\TypeReport;
 use Carbon\Carbon;
 use Dotenv\Result\Success;
 use Illuminate\Database\Query\Builder;
@@ -12,6 +13,12 @@ use PhpParser\Node\Expr\AssignOp\Concat;
 
 class ReporteController extends Controller
 {
+
+    public function getReportes()
+    {
+        return TypeReport::get(['id as value', 'name as text']);
+    }
+
     public function general()
     {
         request()->get('typeReport');
@@ -63,9 +70,9 @@ class ReporteController extends Controller
             ->when(request()->get('daterange') && request()->get('daterange') != 'undefined', function (Builder $q) {
                 $dates = explode('-', request()->get('daterange'));
                 $dateStart = transformDate($dates[0]);
-                $dateEnd = transformDate($dates[1]);
-                $q->whereBetween('date_start', [$dateStart, $dateEnd])
-                    ->whereBetween('date_end', [$dateStart, $dateEnd]);
+                $dateEnd = transformDate($dates[1])->addHours(23)->addMinutes(59);
+                $q->whereBetween('spaces.date_start', [$dateStart, $dateEnd]);
+                // ->whereBetween('date_end', [$dateStart, $dateEnd]);
             })
 
 
@@ -119,13 +126,12 @@ class ReporteController extends Controller
                 'cie10s.description As diagnostico',
                 'appointments.ips As ips_remisora',
                 'appointments.profesional As professional_remisor',
-                'appointments.speciality As speciality_remisor',
-            )->get()->chunk(500);
+                'appointments.speciality As speciality_remisor'
+            )->get();
     }
 
     public function AttentionReport($request)
     {
-        // return DB::table('attentions')
 
         return DB::table('agendamientos')
 
@@ -134,11 +140,11 @@ class ReporteController extends Controller
             ->join('call_ins', 'call_ins.id', 'appointments.call_id')
             ->join('patients', 'patients.identifier', 'call_ins.Identificacion_Paciente')
             ->join('type_documents', 'type_documents.id', 'patients.type_document_id')
-            ->join('municipalities', 'municipalities.id', 'patients.municipality_id')
-            ->join('departments', 'departments.id', 'patients.department_id')
+            ->leftJoin('municipalities', 'municipalities.id', 'patients.municipality_id')
+            ->leftJoin('departments', 'departments.id', 'patients.department_id')
             ->join('administrators', 'administrators.id', 'patients.eps_id')
             ->join('regimen_types', 'regimen_types.id', 'patients.regimen_id')
-            ->join('locations', 'locations.id', 'agendamientos.location_id')
+            ->leftJoin('locations', 'locations.id', 'agendamientos.location_id')
             ->join('people As agente', 'agente.identifier', 'call_ins.Identificacion_Agente')
             ->join('people As doctor', 'doctor.id', 'agendamientos.person_id')
             ->join('type_appointments', 'type_appointments.id', 'agendamientos.type_agenda_id')
@@ -149,9 +155,8 @@ class ReporteController extends Controller
             ->when(request()->get('daterange') && request()->get('daterange') != 'undefined', function (Builder $q) {
                 $dates = explode('-', request()->get('daterange'));
                 $dateStart = transformDate($dates[0]);
-                $dateEnd = transformDate($dates[1]);
-                $q->whereBetween('date_start', [$dateStart, $dateEnd])
-                    ->whereBetween('date_end', [$dateStart, $dateEnd]);
+                $dateEnd = transformDate($dates[1])->addHours(23)->addMinutes(59);
+                $q->whereBetween('spaces.hour_start', [$dateStart, $dateEnd]);
             })
 
             ->when(request()->get('company_id'),  function (Builder $q) {
@@ -171,14 +176,16 @@ class ReporteController extends Controller
             })
 
             ->whereIn('appointments.state', ['Confirmado', 'SalaEspera', 'Agendado'])
+            ->whereNotNull('appointments.globo_id')
 
             ->select(
 
-                'appointments.code As consecutivo',
+                'appointments.globo_id As consecutivo',
                 'type_documents.code as tipo_documnto',
-                DB::raw('Concat_ws(" ",patients.firstname, patients.surname) As nombre'),
+                DB::raw('Concat_ws(" ",patients.firstname, patients.secondsurname, patients.middlename, patients.surname) As nombre'),
                 'patients.date_of_birth As cumple',
                 'patients.gener As sexo',
+                'patients.identifier',
                 'patients.phone As telefono',
                 'patients.address As direccion',
                 'municipalities.name As municipio',
@@ -197,7 +204,7 @@ class ReporteController extends Controller
                 'cie10s.description As diagnostico',
                 'appointments.ips As ips_remisora',
                 'appointments.profesional As professional_remisor',
-                'appointments.speciality As speciality_remisor',
+                'appointments.speciality As speciality_remisor'
             )->get();
     }
 
@@ -266,7 +273,7 @@ class ReporteController extends Controller
                 'administrators.name As eps',
                 'regimen_types.name As regimen',
                 'appointments.observation As observaciones',
-                'appointments.created_at As fecha',
+                'appointments.created_at As fecha'
             )->get();
     }
 
@@ -322,7 +329,7 @@ class ReporteController extends Controller
                 'agendamientos.date_start As fecha_inicio',
                 'agendamientos.date_end As fecha_finalizacion',
                 'agendamientos.created_at As hora_creacion',
-                'specialities.name As especialidad',
+                'specialities.name As especialidad'
             )
             ->groupBy('agendamientos.id')
             ->get();

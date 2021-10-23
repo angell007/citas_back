@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use App\Models\Patient;
+use App\Traits\scopesAppointment;
 use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
+
+    use scopesAppointment;
+
     protected $table = 'appointments';
 
     protected $fillable = [
@@ -37,6 +41,8 @@ class Appointment extends Model
     protected $casts = [
         'diagnosticoId' => 'array',
     ];
+
+
 
     function patient()
     {

@@ -50,7 +50,9 @@ use App\Models\TypeAppointment;
 */
 
 Route::get('/test', 'TestController@test');
+Route::get('/get-info', 'TestController@getAppointmentByPatient');
 
+//Log::info('test');
 
 Route::get('/clear-cache', function () {
 
@@ -66,6 +68,7 @@ Route::get('/clear-cache', function () {
 
 Auth::routes();
 
+Route::get('insert-contracts', function ($id) {});
 
 Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 
@@ -94,6 +97,5 @@ Route::get('/create-cups', 'CupController@storeFromMedical');
 // agreements
 Route::get('/create-cups', 'CupController@storeFromMedical');
 Route::get('/create-agreements',  [AgreementController::class, 'store']);
-Route::get('{any}', function () {
-  return view('home');
-})->where('any', '.*');
+
+Route::view('{any}', 'home')->where('any', '.*');
