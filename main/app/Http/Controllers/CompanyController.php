@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Exists;
+use App\Models\WorkContract;
 
 use function GuzzleHttp\Promise\all;
 
@@ -63,7 +64,7 @@ class CompanyController extends Controller
         //
     }
 
-    /**
+     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -71,7 +72,13 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $work_contract = WorkContract::find($request->get('id'));
+                $work_contract->update($request->all());
+                return response()->json(['message' => 'Se ha actualizado con éxito']);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 
     /**

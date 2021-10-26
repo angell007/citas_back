@@ -68,6 +68,7 @@ use App\Http\Controllers\WaitingListController;
 use App\Http\Controllers\WorkContractController as CoreWorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
+use App\Http\Controllers\BonificationsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -252,7 +253,9 @@ Route::group(
 
 		Route::resource('winnings-list', 'WinningListController');
 
-
+		Route::resource('countable_incomes', 'Countable_incomeController');
+		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
+		Route::resource('bonifications', 'BonificationsController');
 
 		/********************************************************************* */
 
@@ -316,23 +319,6 @@ Route::group(
 		Route::resource('rotating-turns', RotatingTurnController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('positions', 'PositionController');
-
-		Route::get("tester", function ($array = [5, -1, 15, 28, 28]) {
-
-			// $tem =  $array[0];
-			// $newArray = [];
-
-			// foreach ($array as $key => $value) {
-			// 	if ($array[$key - 1] > $array[$key]) {
-			// 		$tem = $array[$key - 1];
-			// 		$array[$key - 1] = $array[$key];
-			// 		$array[$key] = $value;
-			// 	}
-			// }
-
-			// echo json_encode($array);
-
-		});
 
 		Route::resource("agendamientos", "AgendamientoController");
 		Route::resource("appointments", "AppointmentController");
@@ -416,6 +402,8 @@ Route::group(
 
 		Route::get('salary/{id}', [PersonController::class, 'salary']);
 		Route::post('salary', [PersonController::class, 'updateSalaryInfo']);
+
+		Route::resource('work_contracts', 'WorkContractController');
 
 		Route::post('mycita', function () {
 			return response()->json(request()->all());
