@@ -11,7 +11,7 @@ class WorkContract extends Model
     // use HasFactory;
 
     protected $fillable = [
-        'position_id',
+        'liquidated',
         'date_end',
         'position_id',
         'salary',
@@ -19,8 +19,9 @@ class WorkContract extends Model
         'work_contract_type_id',
         'rotating_turn_id',
         'company_id',
+        'fixed_turn_id',
         'person_id',
-        'liquidated'
+        'date_of_admission'
     ];
 
     public function position()

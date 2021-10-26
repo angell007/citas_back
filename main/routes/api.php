@@ -25,6 +25,7 @@ use App\Http\Controllers\SpecialityController;
 use App\Http\Controllers\SubTypeAppointmentController;
 use App\Http\Controllers\TypeAppointmentController;
 use App\Http\Controllers\WaitingListController;
+use App\Http\Controllers\BonificationsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,14 @@ Route::group(
 	],
 
 	function ($router) {
+	    
+	    
+	    /********************************************/
+	    Route::resource('countable_incomes', 'Countable_incomeController');
+		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
+		Route::resource('bonifications', 'BonificationsController');
+
+	    /********************************************/
 		Route::post('create-menu',  [MenuController::class, 'store']);
 
 		Route::post('/save-menu',  [MenuController::class, 'store']);
@@ -207,7 +216,7 @@ Route::group(
 		Route::resource('salaryTypes', SalaryTypesController::class);
 		Route::get('paginateSalaryType', [SalaryTypesController::class, 'paginate']);
 
-		Route::resource('work_contracts', WorkContractController::class);
+		Route::resource('work_contracts', 'WorkContractController');
 		
 		Route::post('mycita', function(){
 		    return response()->json(request()->all());

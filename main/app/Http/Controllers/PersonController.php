@@ -75,6 +75,7 @@ class PersonController extends Controller
                 ->leftjoin('companies as c', 'c.id', '=', 'w.company_id')
                 ->leftjoin('positions as pos', 'pos.id', '=', 'w.position_id')
                 ->leftjoin('dependencies as d', 'd.id', '=', 'pos.dependency_id')
+                ->where('people_type_id', 2)
                 ->when($data->name, function ($q, $fill) {
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
@@ -178,7 +179,7 @@ class PersonController extends Controller
                         "Concat_ws('', IFNULL(p.image, p.image_blob )) As image"
                     ),
                     'p.second_name',
-                    'p.second_surname',
+                    'p.second_surname'
                 )
                 ->LeftJoin('work_contracts as w', function ($join) {
                     $join->on('p.id', '=', 'w.person_id')
@@ -220,6 +221,9 @@ class PersonController extends Controller
         try {
             $salary = WorkContract::find($request->get('id'));
             $salary->update($request->all());
+            $salary->date_of_admission = request()->get('date_of_admission');
+            $salary->save();
+             return response()->success($salary);
             return response()->json(['message' => 'Se ha actualizado con éxito']);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -270,7 +274,9 @@ class PersonController extends Controller
     public function updateAfiliation(Request $request, $id)
     {
         try {
+            // return response()->success(request()->all());
             $afiliation = Person::find($id);
+            // return response()->success( $afiliation);
             $afiliation->update($request->all());
             return response()->json(['message' => 'Se ha actualizado con éxito']);
         } catch (\Throwable $th) {
