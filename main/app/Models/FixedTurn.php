@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class FixedTurn extends Model
 {
-	// use HasFactory;
-	
+	//
+
 	protected $fillable = [
 		"entry_tolerance",
 		"extra_hours",

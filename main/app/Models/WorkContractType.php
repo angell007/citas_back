@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class WorkContractType extends Model
 {
-    // use HasFactory;
+    //
 }

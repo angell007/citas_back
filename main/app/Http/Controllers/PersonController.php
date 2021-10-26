@@ -29,28 +29,39 @@ class PersonController extends Controller
      */
     public function index($company = 0, $speciality = 0)
     {
-        return $this->success(
-            Person::orderBy('first_name')
-                ->whereHas('specialties', function ($q) use ($speciality) {
-                    $q->where('id', $speciality);
-                })
-                ->when(request()->get('type-appointment'), function ($q) {
-                    $q->whereHas('restriction.typeappointments', function ($q) {
-                        $q->where('type_appointment_id', request()->get('type-appointment'));
-                    });
-                })
-                ->when(request()->get('contract_id'), function ($q) {
-                    $q->whereHas('restriction.contracts', function ($q) {
-                        $q->where('contract_id', request()->get('contract_id'));
-                    });
-                })
-                ->when(request()->get('regimen_id'), function ($q) {
-                    $q->whereHas('restriction.regimentypes', function ($q) {
-                        $q->where('regimen_type_id', request()->get('regimen_id'));
-                    });
-                })
-                ->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')])
-        );
+        // TODO: refactor para solo funcionarios?
+
+
+        if (request()->get('type')) {
+
+            return response()->success(Person::orderBy('first_name')->whereNull('people_type_id')->get(
+                ["id as value", DB::raw('CONCAT_WS(" ",first_name,first_surname) as text ')]
+            ));
+
+            // return response()->success(Person::orderBy('first_name')->where('people_type_id', '<>', request()->get('type'))->get());
+        }
+
+        $persons = Person::orderBy('first_name')
+            ->whereHas('specialties', function ($q) use ($speciality) {
+                $q->where('id', $speciality);
+            })
+            ->when(request()->get('type-appointment'), function ($q) {
+                $q->whereHas('restriction.typeappointments', function ($q) {
+                    $q->where('type_appointment_id', request()->get('type-appointment'));
+                });
+            })
+            ->when(request()->get('contract_id'), function ($q) {
+                $q->whereHas('restriction.contracts', function ($q) {
+                    $q->where('contract_id', request()->get('contract_id'));
+                });
+            })
+            ->when(request()->get('regimen_id'), function ($q) {
+                $q->whereHas('restriction.regimentypes', function ($q) {
+                    $q->where('regimen_type_id', request()->get('regimen_id'));
+                });
+            })
+            ->get(['id As value', DB::raw('concat(first_name, " ", first_surname)  As text')]);
+        return response()->success($persons);
     }
 
     /**
@@ -106,36 +117,42 @@ class PersonController extends Controller
 
     public function getAll(Request $request)
     {
-
+        # code...
         $data = $request->all();
         return $this->success(
-            DB::table('people as p')
+            DB::table("people as p")
                 ->select(
-                    'p.id',
-                    'p.identifier',
-                    'p.image',
-                    'p.status',
-                    'p.full_name',
-                    'p.first_surname',
-                    'p.first_name',
-                    'pos.name as position',
-                    'd.name as dependency',
-                    'p.id as value',
+                    "p.id",
+                    "p.identifier",
+                    "p.image",
+                    "p.status",
+                    "p.full_name",
+                    "p.first_surname",
+                    "p.first_name",
+                    "pos.name as position",
+                    "d.name as dependency",
+                    "p.id as value",
+                    // "p.passport_number",
+                    // "p.visa",
                     DB::raw('CONCAT_WS(" ",first_name,first_surname) as text '),
-                    'c.name as company',
-                    DB::raw('w.id AS work_contract_id')
+                    "c.name as company",
+                    DB::raw("w.id AS work_contract_id"),
+                    DB::raw("'Funcionario' AS type")
                 )
-                ->join('work_contracts as w', function ($join) {
-                    $join->on('p.id', '=', 'w.person_id')
-                        ->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
+                ->join("work_contracts as w", function ($join) {
+                    $join->on(
+                        "p.id",
+                        "=",
+                        "w.person_id"
+                    )->whereRaw('w.id IN (select MAX(a2.id) from work_contracts as a2
                                 join people as u2 on u2.id = a2.person_id group by u2.id)');
                 })
-                ->join('companies as c', 'c.id', '=', 'w.company_id')
-                ->join('positions as pos', 'pos.id', '=', 'w.position_id')
-                ->join('dependencies as d', 'd.id', '=', 'pos.dependency_id')
-                ->where('p.status', 'Activo')
-                ->when($data['dependencies'], function ($q, $fill) {
-                    $q->where('d.id', $fill);
+                ->join("companies as c", "c.id", "=", "w.company_id")
+                ->join("positions as pos", "pos.id", "=", "w.position_id")
+                ->join("dependencies as d", "d.id", "=", "pos.dependency_id")
+                ->where("p.status", "Activo")
+                ->when($request->get('dependencies'), function ($q, $fill) {
+                    $q->where("d.id", $fill);
                 })
                 ->get()
         );

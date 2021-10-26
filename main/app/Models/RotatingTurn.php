@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RotatingTurn extends Model
 {
-	// use HasFactory;
+	//
 	protected $fillable = [
 		"name",
 		"entry_tolerance",

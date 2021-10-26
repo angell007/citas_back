@@ -17,13 +17,19 @@ class WorkContractTypeController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            return $this->success(
-                WorkContractType::all(['id as value', 'name as text', 'conclude'])
-            );
-        } catch (\Throwable $th) {
-            return $this->errorResponse([$th->getMessage(), $th->getFile(), $th->getLine()]);
-        }
+        return $this->success(
+            WorkContractType::all(['id as value', 'name as text', 'conclude'])
+        );
+    }
+
+    public function paginate()
+    {
+        return $this->success(
+            WorkContractType::when(Request()->get('name'), function ($q, $fill) {
+                $q->where('name', 'like', '%' . $fill . '%');
+            })
+                ->paginate(Request()->get('pageSize', 10), ['*'], 'page', Request()->get('page', 1))
+        );
     }
 
     /**
@@ -44,7 +50,12 @@ class WorkContractTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $typeContract  = WorkContractType::updateOrCreate(['id' => $request->get('id')], $request->all());
+            return ($typeContract->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
+        } catch (\Throwable $th) {
+            return response()->json([$th->getMessage(), $th->getLine()]);
+        }
     }
 
     /**

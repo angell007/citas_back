@@ -32,5 +32,12 @@ class DependencyController extends Controller
     }
   }
 
-  
+
+  public function dependencies()
+  {
+    return $this->success(
+      Dependency::all(['id as value', 'name as text'])
+    );
+  }
+
 }

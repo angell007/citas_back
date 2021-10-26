@@ -23,7 +23,12 @@ class PositionController extends Controller
         );
     }
 
-
+    public function positions()
+    {
+        return $this->success(
+            Position::all(['id as value', 'name as text'])
+        );
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -33,7 +38,7 @@ class PositionController extends Controller
     public function create(Request $request)
     {
         //
-      
+
     }
 
     /**

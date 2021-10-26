@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class CompensationFund extends Model
 {
-    // use HasFactory;
+    //
 }

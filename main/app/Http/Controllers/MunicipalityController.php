@@ -27,6 +27,12 @@ class MunicipalityController extends Controller
         return $this->success($data);
     }
 
+    public function allMunicipalities()
+    {
+        return $this->success(
+            Municipality::all(['name as text', 'id as value'])
+        );
+    }
     /**
      * Show the form for creating a new resource.
      *

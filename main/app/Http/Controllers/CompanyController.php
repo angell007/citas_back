@@ -29,7 +29,11 @@ class CompanyController extends Controller
     {
 
         $brandShowCompany = 0;
+
         $companies = Company::query();
+
+        if (request()->get('owner')) $brandShowCompany = request()->get('owner');
+        
         $companies->when(request()->get('professional_id'), function ($q) {
             $companies = Person::findOrfail(request()->get('professional_id'))->restriction()->with('companies:id,name,type')->first(['restrictions.id']);
             $q->whereIn('id', $companies->companies->pluck('id'));
@@ -39,6 +43,8 @@ class CompanyController extends Controller
             $typeLocation = TypeLocation::findOrfail($typeLocation);
             $brandShowCompany = $typeLocation->show_company_owners;
         }
+
+
 
         if (gettype($typeLocation) != 'object' && $typeLocation == 3) {
             return CompanyResource::collection($companies->get());
