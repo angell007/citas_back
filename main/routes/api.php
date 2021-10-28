@@ -56,6 +56,13 @@ Route::prefix("auth")->group(
 	}
 );
 
+Route::post('/tester', function(){
+     $infoArchivo = [];
+     $resultados = [];
+     array_push($resultados, $infoArchivo);
+     print_r( stripslashes( json_encode ($resultados)  ));
+});
+
 Route::get('get-pass', [TestController::class, 'getPass']);
 
 Route::group(
