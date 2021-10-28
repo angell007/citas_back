@@ -30,15 +30,10 @@ class PersonController extends Controller
     public function index($company = 0, $speciality = 0)
     {
         // TODO: refactor para solo funcionarios?
-
-
         if (request()->get('type')) {
-
             return response()->success(Person::orderBy('first_name')->whereNull('people_type_id')->get(
                 ["id as value", DB::raw('CONCAT_WS(" ",first_name,first_surname) as text ')]
             ));
-
-            // return response()->success(Person::orderBy('first_name')->where('people_type_id', '<>', request()->get('type'))->get());
         }
 
         $persons = Person::orderBy('first_name')
@@ -102,13 +97,16 @@ class PersonController extends Controller
                 ->leftjoin('companies as c', 'c.id', '=', 'w.company_id')
                 ->leftjoin('positions as pos', 'pos.id', '=', 'w.position_id')
                 ->leftjoin('dependencies as d', 'd.id', '=', 'pos.dependency_id')
-                ->where('people_type_id', 2)
+                // ->where('people_type_id', 2)
                 ->when($data->name, function ($q, $fill) {
                     $q->where('p.identifier', 'like', '%' . $fill . '%')
                         ->orWhere(DB::raw('concat(p.first_name," ",p.first_surname)'), 'LIKE', '%' . $fill . '%');
                 })
                 ->when($data->dependencies, function ($q, $fill) {
                     $q->whereIn('d.id', $fill);
+                })
+                ->when($data->companies, function ($q, $fill) {
+                    $q->whereIn('c.id', $fill);
                 })
                 ->when($data->status, function ($q, $fill) {
                     $q->whereIn('p.status', $fill);
@@ -256,7 +254,7 @@ class PersonController extends Controller
             $salary->update($request->all());
             $salary->date_of_admission = request()->get('date_of_admission');
             $salary->save();
-             return response()->success($salary);
+            return response()->success($salary);
             return response()->json(['message' => 'Se ha actualizado con éxito']);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -354,6 +352,11 @@ class PersonController extends Controller
             }
 
             $person->update($request->all());
+
+            // if (!file_exists($current_path)) {
+            //     mkdir($current_path, 0777, true);
+            // }
+
             return response()->json($person);
         } catch (\Throwable $th) {
             return $this->error([$th->getMessage(), $th->getLine(), $th->getFile()], 500);
@@ -379,8 +382,6 @@ class PersonController extends Controller
 
             $personData["image_blob"]  =  $infoImg['image_blob'];
             $personData["image"]  =  $infoImg['image'];
-
-            // $personData["image"] = URL::to('/') . '/api/image?path=' . saveBase64($personData["image"], 'people/');
 
             $personData["personId"] = null;
 

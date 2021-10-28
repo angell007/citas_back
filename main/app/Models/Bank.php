@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SeveranceFund extends Model
+class Bank extends Model
 {
     protected $fillable = [
         'name',
-        'nit',
+        'code',
         'status'
     ];
+    protected $table = 'banks';
 }

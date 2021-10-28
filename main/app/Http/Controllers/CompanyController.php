@@ -33,8 +33,14 @@ class CompanyController extends Controller
 
         $companies = Company::query();
 
+
         if (request()->get('owner')) $brandShowCompany = request()->get('owner');
-        
+        if (request()->get('owner')) {
+            $companies->where('type', $brandShowCompany);
+            $companies->whereIn('category', ['IPS', 'SERVICIOS']);
+            return response()->success($companies->get(['short_name as text', 'id as value']));
+        }
+
         $companies->when(request()->get('professional_id'), function ($q) {
             $companies = Person::findOrfail(request()->get('professional_id'))->restriction()->with('companies:id,name,type')->first(['restrictions.id']);
             $q->whereIn('id', $companies->companies->pluck('id'));
@@ -54,6 +60,13 @@ class CompanyController extends Controller
         return $this->success(CompanyResource::collection($companies->where('type', $brandShowCompany)->get()));
     }
 
+    public function getBasicData()
+    {
+        return $this->success(
+            Company::with('arl')->with('bank')->first()
+        );
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -64,7 +77,7 @@ class CompanyController extends Controller
         //
     }
 
-     /**
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -74,13 +87,21 @@ class CompanyController extends Controller
     {
         try {
             $work_contract = WorkContract::find($request->get('id'));
-                $work_contract->update($request->all());
-                return response()->json(['message' => 'Se ha actualizado con éxito']);
+            $work_contract->update($request->all());
+            return response()->json(['message' => 'Se ha actualizado con éxito']);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
     }
 
+
+    public function saveCompanyData(Request $request)
+    {
+        return $this->success(
+            $company = Company::findOrFail($request->get('id')),
+            $company->update($request->all())
+        );
+    }
     /**
      * Display the specified resource.
      *

@@ -69,6 +69,11 @@ use App\Http\Controllers\WorkContractController as CoreWorkContractController;
 use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
 use App\Http\Controllers\BonificationsController;
+use App\Http\Controllers\CityController;
+use App\Http\Controllers\HotelController;
+use App\Http\Controllers\LoanController;
+use App\Http\Controllers\SeveranceFundController;
+use App\Http\Controllers\TaxiControlller;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,8 +103,6 @@ Route::prefix("auth")->group(
 		});
 	}
 );
-
-Route::get('get-pass', [TestController::class, 'getPass']);
 
 Route::group(
 	[
@@ -223,7 +226,9 @@ Route::group(
 		Route::get('travel-expense/pdf/{id}', [TravelExpenseController::class, 'pdf']);
 		Route::resource('travel-expense', 'TravelExpenseController');
 		Route::get('paginateDrivingLicences', [DrivingLicenseController::class, 'paginate']);
+
 		Route::get('paginateCountries', [CountryController::class, 'paginate']);
+		Route::resource('countries', 'CountryController');
 
 		Route::get('paginateDepartment', [DepartmentController::class, 'paginate']);
 		Route::get('paginateMunicipality', [MunicipalityController::class, 'paginate']);
@@ -240,6 +245,8 @@ Route::group(
 		Route::resource('taxi-city', 'TaxiCityController');
 		Route::resource('city', 'CityController');
 		Route::resource('hotels', 'HotelController');
+		Route::resource('drivingLicenses', 'DrivingLicenseController');
+
 
 		Route::resource('third-party', 'ThirdPartyController');
 		Route::resource('third-party-person', 'ThirdPartyPersonController');
@@ -256,6 +263,14 @@ Route::group(
 		Route::resource('countable_incomes', 'Countable_incomeController');
 		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
 		Route::resource('bonifications', 'BonificationsController');
+
+		Route::get('companyData', [CompanyController::class, 'getBasicData']);
+		Route::post('saveCompanyData', [CompanyController::class, 'saveCompanyData']);
+
+		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
+
+		Route::resource('payroll-factor', 'PayrollFactorController');
+
 
 		/********************************************************************* */
 
@@ -361,7 +376,7 @@ Route::group(
 
 
 		Route::resource('compensation-funds', CompensationFundController::class);
-		Route::resource('severance-funds', SeveranceFundController::class);
+		Route::resource('severance-funds', 'SeveranceFundController');
 
 
 		Route::resource("type-regimens", "RegimenTypeController");

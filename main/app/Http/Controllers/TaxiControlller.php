@@ -12,7 +12,7 @@ class TaxiControlller extends Controller
 {
 	use ApiResponser;
 	/**
-	 * 
+	 *
 	 * Display a listing of the resource.
 	 *
 	 * @return \Illuminate\Http\Response
@@ -43,8 +43,8 @@ class TaxiControlller extends Controller
 				't.id',
 				't.route',
 				'tc.type',
-				'c.name as city',
-				'c.id as city_id',
+				// 'c.name as city',
+				// 'c.id as city_id',
 				'tc.value',
 				'tc.taxi_id'
 			)
@@ -53,7 +53,7 @@ class TaxiControlller extends Controller
 				$q->where('type','like','%'.$fill.'%');
 			})
 			->join('taxi_cities as tc', 'tc.taxi_id', '=', 't.id')
-			->join('cities as c', 'c.id', '=', 'tc.city_id')
+			// ->join('cities as c', 'c.id',  '=','tc.city_id')
 			->paginate(request()->get('pageSize', 10), ['*'], 'page', request()->get('page', 1))
 		);
 	}
