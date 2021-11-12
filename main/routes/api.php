@@ -37,6 +37,7 @@ use App\Http\Controllers\WaitingListController;
 |
 */
 
+Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
 Route::prefix("auth")->group(
 	function () {
