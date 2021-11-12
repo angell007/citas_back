@@ -35,7 +35,7 @@ class AppointmentController extends Controller
     public function confirmAppointment(AppointmentRepository $repository)
     {
         try {
-            return $this->success($repository::pending());
+            return $this->success($repository::confirm());
         } catch (\Throwable $th) {
             Log::info([$th->getMessage(), $th->getLine()]);
             return $this->error('Ha ocurrido un error' . $th->getMessage(), 400);

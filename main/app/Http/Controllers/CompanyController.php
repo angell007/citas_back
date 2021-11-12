@@ -32,23 +32,24 @@ class CompanyController extends Controller
         $brandShowCompany = 0;
 
         $companies = Company::query();
-
+        // TODO: arregla la peticion de companies
 
         if (request()->get('owner')) $brandShowCompany = request()->get('owner');
         if (request()->get('owner')) {
             $companies->where('type', $brandShowCompany);
             $companies->whereIn('category', ['IPS', 'SERVICIOS']);
-            return response()->success($companies->get(['short_name as text', 'id as value']));
+            return response()->success($companies->orderBy('short_name')->get(['short_name as text', 'id as value']));
         }
 
-        $companies->when(request()->get('professional_id'), function ($q) {
-            $companies = Person::findOrfail(request()->get('professional_id'))->restriction()->with('companies:id,name,type')->first(['restrictions.id']);
-            $q->whereIn('id', $companies->companies->pluck('id'));
-        });
+        // $companies->when(request()->get('professional_id'), function ($q) {
+        //     $companies = Person::findOrfail(request()->get('professional_id'))->restriction()->with('companies:id,name,type')->first(['restrictions.id']);
+        //     $q->whereIn('id', $companies->companies->pluck('id'));
+        // });
 
         if ($typeLocation &&  $typeLocation != 3) {
             $typeLocation = TypeLocation::findOrfail($typeLocation);
-            $brandShowCompany = $typeLocation->show_company_owners;
+            return CompanyResource::collection($companies->get());
+            // $brandShowCompany = $typeLocation->show_company_owners;
         }
 
 

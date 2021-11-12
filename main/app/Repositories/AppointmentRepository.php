@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
 
 class AppointmentRepository
 {
@@ -50,8 +51,10 @@ class AppointmentRepository
 
         $app = Appointment::find($id);
         $app->state = 'Cancelado';
+        $app->date_updated_state = Carbon::now();
+        $app->user_modifier = Auth()->user()->id;
         $app->reason_cancellation = $reason;
-        $app->cancellation_at = now();
+        // $app->cancellation_at = now();
         $app->save();
         $company = Company::find($app->callin->patient->company_id);
 
@@ -67,7 +70,7 @@ class AppointmentRepository
 
         ];;
 
-        $app->globo_response = self::$globoService->updateStatus($app->globo_id, $company->code,  $body);
+        $app->globo_response = self::$globoService->setStatusCancell($app->globo_id, $company->code,  $body);
         $app->save();
     }
 
@@ -122,12 +125,26 @@ class AppointmentRepository
 
     public static function confirm()
     {
-        return Appointment::whereId(request()->get('id'))->update(
-            [
-                'state' => 'Cancelado',
-                'message_confirm' => request()->get('message')
-            ]
-        );
+        
+        
+        $app = Appointment::find(request()->get('id'));
+        $company = Company::find($app->callin->patient->company_id);
+        
+        $bodyByGlobho = [
+
+            'state' =>  'Confirmado',
+            'anotation' => request()->get('message')
+
+        ];
+
+        
+        $app->state = 'Confirmado';
+        $app->date_updated_state = Carbon::now();
+        $app->user_modifier = Auth()->user()->id;
+        $app->message_confirm = request()->get('message');
+        $app->globo_response = self::$globoService->updateStatus($app->globo_id, $company->code,  $bodyByGlobho);
+        return $app->save();
+
     }
 
     public static function recurrent()

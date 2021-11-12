@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AdministratorController;
 use App\Http\Controllers\AgendamientoController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ArlController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
@@ -70,10 +71,16 @@ use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\EpsController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\SeveranceFundController;
 use App\Http\Controllers\TaxiControlller;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\BanksController;
+use App\Http\Controllers\WorkContractController;
+use App\Http\Controllers\BankAccountsController;
+use App\Http\Controllers\ClinicalHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,6 +111,8 @@ Route::prefix("auth")->group(
 	}
 );
 
+
+
 Route::group(
 	[
 		"middleware" => ["api", "cors", 'auth.verify'],
@@ -115,6 +124,9 @@ Route::group(
 		/**
 		 * Rutas de integracion
 		 */
+
+        Route::post("presentianCall", "CallInController@presentialCall");
+
 
 		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
 		Route::resource('work-contract-type', 'WorkContractTypeController');
@@ -169,10 +181,11 @@ Route::group(
 		Route::get('/rrhh-activity-people/{id}',  [RrhhActivityController::class, 'getPeople']);
 		Route::get('/rrhh-activity/cancel/{id}',  [RrhhActivityController::class, 'cancel']);
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
+		Route::resource('rrhh-activity', 'RrhhActivityController');
 		/** end*/
 
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
-		/** Rutas del módulo de llegadas tarde */
+		/** Rutas del m��dulo de llegadas tarde */
 		Route::get('/late_arrivals/data/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'getData'])->where([
 			'fechaInicio' => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
 			'fechaFin'    => '[0-9]{4}-[0-9]{2}-[0-9]{2}',
@@ -257,6 +270,7 @@ Route::group(
 
 		Route::get('all-zones', [ZonesController::class, 'allZones']);
 		Route::get('all-municipalities', [MunicipalityController::class, 'allMunicipalities']);
+		Route::resource('zones', 'ZonesController');
 
 		Route::resource('winnings-list', 'WinningListController');
 
@@ -270,6 +284,14 @@ Route::group(
 		Route::get('proyeccion_pdf/{id}', [LoanController::class, 'loanpdf']);
 
 		Route::resource('payroll-factor', 'PayrollFactorController');
+		
+		
+		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
+		Route::put('liquidate/{id}', [PersonController::class, 'liquidate']);
+		Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
+		
+		Route::get('get-clinical-historial', [ClinicalHistoryController::class, 'index']);
+		Route::get('get-clinical-historial-detail', [ClinicalHistoryController::class, 'show']);
 
 
 		/********************************************************************* */
@@ -283,7 +305,7 @@ Route::group(
 		Route::post("space-cancel", [SpaceController::class, "cancel"]);
 		Route::post("cancel-appointment/{id}", "AppointmentController@cancel");
 		Route::post("another-formality", "AnotherFormality@store");
-		Route::post("presentianCall", "CallInController@presentialCall");
+		
 		Route::post("patientforwaitinglist", "CallInController@patientforwaitinglist");
 		Route::post("imports", [CupController::class, "import"]);
 
@@ -330,7 +352,6 @@ Route::group(
 		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
 
 		Route::resource('dependencies', 'DependencyController');
-		Route::resource('work-contract-type', WorkContractController::class);
 		Route::resource('rotating-turns', RotatingTurnController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('positions', 'PositionController');
@@ -346,9 +367,13 @@ Route::group(
 
 		Route::resource("company", "CompanyController");
 		Route::resource("people-type", "PeopleTypeController");
+		
 		Route::resource("departments", "DepartmentController");
+		
+		Route::resource('municipalities', 'MunicipalityController');
+		
 		Route::resource("contract", "ContractController");
-		Route::resource("contract-for-select", "ContractController@");
+		Route::resource("contract-for-select", "ContractController");
 
 		Route::post("contracts", [ContractController::class, 'store']);
 		Route::get("contracts", [ContractController::class, 'paginate']);
@@ -360,7 +385,9 @@ Route::group(
 		Route::resource("type-documents", "TypeDocumentController");
 		// Eps
 		Route::resource("eps", "AdministratorController");
-		Route::get("paginate-eps", [AdministratorController::class, "paginate"]);
+		Route::post("save-eps", [AdministratorController::class, 'saveEps']);
+		Route::resource("administrators", "AdministratorController");
+		Route::get("paginate-eps", [EpsController::class, "paginate"]);
 		Route::resource("epss", "EpsController");
 		// Cups
 		Route::resource("cups", "CupController");
@@ -389,7 +416,7 @@ Route::group(
 		Route::resource("fees", "FeeController");
 		Route::resource("reasons", "ReasonController");
 		Route::resource("method-pays", "MethodPayController");
-		Route::resource("banks", "BankController");
+		Route::resource("banks", "BanksController");
 
 
 		//Payment Method
@@ -397,6 +424,7 @@ Route::group(
 		Route::get('paginatePaymentMethod', [PaymentMethodController::class, 'paginate']);
 
 		Route::get('type_reportes', [ReporteController::class, 'getReportes']);
+		Route::get('info-grafical-resume', [ReporteController::class, 'getDataByGrafical']);
 
 
 		//Price List
@@ -407,7 +435,7 @@ Route::group(
 		Route::resource('benefits_plans', BenefitsPlanController::class);
 		Route::get('paginateBenefitsPlan', [BenefitsPlanController::class, 'paginate']);
 
-		Route::resource('arl', ArlController::class);
+		Route::resource('arl', 'ArlController');
 		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
 		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
 

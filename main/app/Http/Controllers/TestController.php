@@ -431,7 +431,7 @@ class TestController extends Controller
 
         //foreach ($ids as $temp) {
 
-         $appointment = Appointment::with('space', 'callin')->find(94599);
+         $appointment = Appointment::with('space', 'callin')->find(151226);
 
         //$appointment = Appointment::with('space', 'callin')->find($temp);
         // $appointment = Appointment::with('space', 'callin')->find($temp->id);
@@ -462,10 +462,10 @@ class TestController extends Controller
                 if (gettype($level) == 'object' &&     gettype($regimenType) == 'object' && gettype($location) == 'object' && gettype($contract) == 'object') {
 
                     $body = [
-                        "id" => 0,
+                        "id" => 752494,
                         "startDate" => Carbon::parse($appointment->space->hour_start)->format('Y-m-d H:i'),
                         "endDate" => Carbon::parse($appointment->space->hour_end)->format('Y-m-d H:i'),
-                        "state" => $appointment->state,
+                        "state" => 'Confirmado',
                         "type" => ($appointment->space->agendamiento->typeAppointment->description == 'TELEMEDICINA') ? 4 : 1,
                         "text" => $appointment->observation,
                         "TelehealdthUrl" => 'https://meet.jit.si/' . $company->simbol . date("ymd", strtotime($appointment->space->hour_start)) . str_pad($appointment->id, 7, "0", STR_PAD_LEFT),
@@ -521,8 +521,8 @@ class TestController extends Controller
                     $response = Http::withOptions([
                                                 'verify' => false,
                                             ])
-                        ->post(
-                        'http://mogarsalud.globho.com/api/integration/appointment/'. "?api_key=$company->code",
+                        ->put(
+                        'http://mogarsalud.globho.com/api/integration/appointment/752494'. "?api_key=$company->code",
                         // 'https://mogarsalud.globho.com/api/integration/appointment' . "?api_key=$company->code",
                         $body
                     );

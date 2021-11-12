@@ -162,6 +162,16 @@ class GlobhoService
 
     public function updateStatus($globoid, $code, $body)
     {
+        $response = Http::withOptions(['verify' => false])->put(
+            $this->BASE_URI_GLOBO . "/$globoid/state?api_key=$code",
+            $body
+        );
+
+        return json_encode($response->json());
+    }
+    
+    public function setStatusCancell($globoid, $code, $body)
+     {
         $response = Http::withOptions(['verify' => false])->delete(
             $this->BASE_URI_GLOBO . "/$globoid?api_key=$code",
             $body
@@ -169,4 +179,5 @@ class GlobhoService
 
         return json_encode($response->json());
     }
+    
 }

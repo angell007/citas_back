@@ -38,6 +38,10 @@ class ReporteController extends Controller
             case 'Reporte de estado de agendas':
                 $data =  ['type' => 'AgendasStatus', 'data' => $this->AgendasStatus(request()->all())];
                 break;
+                
+            case 'Reporte citas Futuras':
+                $data =  ['type' => 'AgendasReport', 'data' => $this->futures(request()->all())];
+                break;
             default:
                 break;
         }
@@ -47,6 +51,90 @@ class ReporteController extends Controller
         return Excel::download(new InvoicesExport($data), $data['type'] . '.xlsx');
     }
 
+    public function futures($request)
+    {
+        return DB::table('agendamientos')
+            ->join('spaces', 'agendamientos.id', 'spaces.agendamiento_id')
+            ->join('appointments', 'spaces.id', 'appointments.space_id')
+            ->join('call_ins', 'call_ins.id', 'appointments.call_id')
+            ->join('patients', 'patients.identifier', 'call_ins.Identificacion_Paciente')
+            ->join('type_documents', 'type_documents.id', 'patients.type_document_id')
+            ->join('municipalities', 'municipalities.id', 'patients.municipality_id')
+            ->join('departments', 'departments.id', 'patients.department_id')
+            ->join('administrators', 'administrators.id', 'patients.eps_id')
+            ->join('regimen_types', 'regimen_types.id', 'patients.regimen_id')
+            ->join('locations', 'locations.id', 'agendamientos.location_id')
+            ->join('people As agente', 'agente.identifier', 'call_ins.Identificacion_Agente')
+            ->join('people As doctor', 'doctor.id', 'agendamientos.person_id')
+            ->join('type_appointments', 'type_appointments.id', 'agendamientos.type_agenda_id')
+            ->join('specialities', 'specialities.id', 'agendamientos.speciality_id')
+            ->join('cups', 'cups.id', 'appointments.procedure')
+            ->join('cie10s', 'cie10s.id', 'appointments.diagnostico')
+             ->whereDate('spaces.hour_start', '>' , Carbon::now())
+
+            // ->when(request()->get('daterange') && request()->get('daterange') != 'undefined', function (Builder $q) {
+            //     $dates = explode('-', request()->get('daterange'));
+            //     $dateStart = transformDate($dates[0]);
+            //     $dateEnd = transformDate($dates[1])->addHours(23)->addMinutes(59);
+            //     $q->whereBetween('spaces.hour_start', '>' , Carbon::now() );
+            // })
+
+
+            ->when(request()->get('company_id'),  function (Builder $q) {
+                $q->where('patients.company_id', request()->get('company_id'));
+            })
+
+            ->when(request()->get('speciality_id'),  function (Builder $q) {
+                $q->where('agendamientos.speciality_id', request()->get('speciality_id'));
+            })
+
+            ->when(request()->get('eps_id'),  function (Builder $q) {
+                $q->where('patients.eps_id', request()->get('eps_id'));
+            })
+
+            ->when(request()->get('regimen_id'),  function (Builder $q) {
+                $q->where('patients.regimen_id', request()->get('regimen_id'));
+            })
+
+
+            // ->when(request()->get('company_id'),  function (Builder $q) {
+            //     $q->where('appointments.ips_id', request()->get('company_id'));
+            // })
+
+            // ->when(request()->get('speciality_id'),  function (Builder $q) {
+            //     $q->where('agendamientos.speciality_id', request()->get('speciality_id'));
+            // })
+
+            ->select(
+
+                'appointments.code As consecutivo',
+                'type_documents.code as tipo_documnto',
+                DB::raw('Concat_ws(" ",patients.firstname, patients.surname) As nombre'),
+                'patients.date_of_birth As cumple',
+                'patients.gener As sexo',
+                'patients.phone As telefono',
+                'patients.address As direccion',
+                'municipalities.name As municipio',
+                'departments.name As departamento',
+                'administrators.name As eps',
+                'regimen_types.name As regimen',
+                'locations.name As lugar',
+                'spaces.hour_start As fecha_cita',
+                DB::raw('Concat_ws(" ",agente.first_name, agente.first_surname) As asigna'),
+                'appointments.state As estado',
+                DB::raw('Concat_ws(" ",doctor.first_name, doctor.first_surname) As doctor'),
+                'type_appointments.name As consulta',
+                'specialities.name As especialidad',
+                'cups.code As cup',
+                'cups.description As cup_name',
+                'cie10s.description As diagnostico',
+                'appointments.ips As ips_remisora',
+                'appointments.profesional As professional_remisor',
+                'appointments.speciality As speciality_remisor',
+                'appointments.created_at'
+            )->get();
+    }
+    
     public function AgendasReport($request)
     {
         return DB::table('agendamientos')
@@ -71,7 +159,7 @@ class ReporteController extends Controller
                 $dates = explode('-', request()->get('daterange'));
                 $dateStart = transformDate($dates[0]);
                 $dateEnd = transformDate($dates[1])->addHours(23)->addMinutes(59);
-                $q->whereBetween('spaces.date_start', [$dateStart, $dateEnd]);
+                $q->whereBetween('agendamientos.date_start', [$dateStart, $dateEnd]);
                 // ->whereBetween('date_end', [$dateStart, $dateEnd]);
             })
 
@@ -126,7 +214,8 @@ class ReporteController extends Controller
                 'cie10s.description As diagnostico',
                 'appointments.ips As ips_remisora',
                 'appointments.profesional As professional_remisor',
-                'appointments.speciality As speciality_remisor'
+                'appointments.speciality As speciality_remisor',
+                'appointments.created_at'
             )->get();
     }
 
@@ -204,7 +293,8 @@ class ReporteController extends Controller
                 'cie10s.description As diagnostico',
                 'appointments.ips As ips_remisora',
                 'appointments.profesional As professional_remisor',
-                'appointments.speciality As speciality_remisor'
+                'appointments.speciality As speciality_remisor',
+                'appointments.created_at'
             )->get();
     }
 
@@ -334,4 +424,86 @@ class ReporteController extends Controller
             ->groupBy('agendamientos.id')
             ->get();
     }
+    
+    //              $grouped = $collection->groupBy('country')->map(function ($row) {
+    //                 return $row->count();
+    //              });
+                
+    //              $grouped = $collection->groupBy('country')->map(function ($row) {
+    //                 return $row->sum('amount');
+    //             });
+                
+    public function getDataByGrafical(){
+        
+       $res = DB::table('appointments as app')
+                ->select(
+                    'fm.id',
+                    // DB::raw('IF(pp.department_id <> 18,1,0) as regional_uno'), 
+                    DB::raw('SUM(CASE WHEN pp.department_id   <> 18 THEN 1 ELSE 0 END) as regional_uno'), 
+                    DB::raw('SUM(CASE WHEN pp.department_id =    18 THEN 1 ELSE 0 END) as regional_dos'),
+                    DB::raw('SUM(CASE WHEN ci.Id_Llamada  <> ""       THEN 1 ELSE 0 END) as callcenter'), 
+                    DB::raw('SUM(CASE WHEN ci.Id_Llamada  =  ""       THEN 1 ELSE 0 END) as linea_de_frente')
+                    // DB::raw('IF(pp.department_id = 18,1,0) as regional_dos'),
+                    // DB::raw('IF(ci.Id_Llamada <> "",1,0) as callcenter'),
+                    // DB::raw('IF(ci.Id_Llamada = "",1,0) as linea_de_frente')
+                    )
+                ->join('call_ins as ci', 'ci.id', 'app.call_id')
+                ->join('people as pp', 'pp.identifier', 'ci.Identificacion_Agente')
+                ->join('spaces as sp', 'sp.id', 'app.space_id')
+                ->join('formalities as fm', 'fm.id', 'ci.Tipo_Tramite')
+                ->join('departments as dp', 'dp.id', 'pp.department_id')
+                ->dd();
+                
+
+          return response()->success(
+            [
+                'Cita Primera Vez' =>  $res->where('id', '1')->count(),
+                'Cita Control' =>  $res->where('id', '2')->count(),
+                'Reasignación de Citas' => $res->where('id', '3')->count(),
+                'Cancelación de Citas' => $res->where('id', '4')->count(),
+                'Consulta Información Citas' => $res->where('id', '5')->count(),
+                'Otro' => $res->where('id', '6')->count(),
+                'linea_de_frente' =>$res->sum('linea_de_frente'),
+                'callcenter' =>     $res->sum('callcenter'),
+                'regional_uno' =>   $res->sum('regional_uno'),
+                'regional_dos' =>   $res->sum('regional_dos')
+            ]);                                                
+    }
+    // public function getDataByGrafical(){
+        
+ 
+    //   $res = DB::table('appointments as app')
+    //             ->select('fm.id', 'dp.id',
+    //                 DB::raw('IF(pp.department_id <> 18,1,0) as regional_uno'), 
+    //                 DB::raw('IF(pp.department_id = 18,1,0) as regional_dos'),
+    //                 DB::raw('IF(ci.Id_Llamada <> "",1,0) as callcenter'),
+    //                 DB::raw('IF(ci.Id_Llamada = "",1,0) as linea_de_frente')
+
+    //             )
+    //             ->join('call_ins as ci', 'ci.id', 'app.call_id')
+    //             ->join('people as pp', 'pp.identifier', 'ci.Identificacion_Agente')
+    //             ->join('spaces as sp', 'sp.id', 'app.space_id')
+    //             ->join('formalities as fm', 'fm.id', 'ci.Tipo_Tramite')
+    //             ->join('departments as dp', 'dp.id', 'pp.department_id')
+    //             ->get();
+                
+
+    //       return response()->success(
+    //         [
+    //             'Cita Primera Vez' =>  $res->where('id', '1')->count(),
+    //             'Cita Control' =>  $res->where('id', '2')->count(),
+    //             'Reasignación de Citas' => $res->where('id', '3')->count(),
+    //             'Cancelación de Citas' => $res->where('id', '4')->count(),
+    //             'Consulta Información Citas' => $res->where('id', '5')->count(),
+    //             'Otro' => $res->where('id', '6')->count(),
+    //             'linea_de_frente' =>$res->sum('linea_de_frente'),
+    //             'callcenter' =>     $res->sum('callcenter'),
+    //             'regional_uno' =>   $res->sum('regional_uno'),
+    //             'regional_dos' =>   $res->sum('regional_dos'),
+    //             'by_departments' => $res->groupBy('dp.id')
+    //             ->groupBy(function($row){
+    //                 return $row->sum('id');
+    //             })
+    //         ]);                                                
+    // }
 }
