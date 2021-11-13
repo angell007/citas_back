@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Banks;
+use App\Models\Bank AS Banks;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 
@@ -38,7 +38,7 @@ class BanksController extends Controller
      */
     public function create()
     {
-        //
+
     }
 
     /**
@@ -49,6 +49,7 @@ class BanksController extends Controller
      */
     public function store(Request $request)
     {
+         
         try {
             $banks  = Banks::updateOrCreate( [ 'id'=> $request->get('id') ]  , $request->all() );
             return ($banks->wasRecentlyCreated) ? $this->success('Creado con exito') : $this->success('Actualizado con exito');
@@ -88,7 +89,7 @@ class BanksController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
     }
 
     /**

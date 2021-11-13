@@ -15,6 +15,7 @@
             <th> Regimen </th>
             <th> Lugar </th>
             <th> Fecha Cita </th>
+            <th> Fecha Agendado </th>
             <th> Asigna </th>
             <th> Estado </th>
             <th> Doctor </th>
@@ -45,6 +46,7 @@
             <td> {{ $datum->regimen }} </td>
             <td> {{ $datum->lugar }} </td>
             <td> {{ $datum->fecha_cita }} </td>
+            <td> {{ $datum->created_at }} </td>
             <td> {{ $datum->asigna }} </td>
             <td> {{ $datum->estado }} </td>
             <td> {{ $datum->doctor }} </td>

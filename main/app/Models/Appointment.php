@@ -34,7 +34,9 @@ class Appointment extends Model
         'profesional',
         'link',
         'globo_id',
-        'message_confirm'
+        'message_confirm',
+        'date_updated_state',
+        'user_modifier'
 
     ];
 

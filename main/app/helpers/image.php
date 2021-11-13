@@ -24,3 +24,26 @@ if (!function_exists('saveBase64')) {
         return $file_path;
     }
 }
+
+
+if (!function_exists('saveBase64File')) {
+    function saveBase64File($file, $path, $public = true, $type = ".pdf")
+    {
+        $file = base64_decode(
+            preg_replace(
+                "#^data:application/\w+;base64,#i",
+                "",
+                $file
+            )
+        );
+        $file_path = $path . Str::random(30) . time() . $type;
+        if ($public) {
+            Storage::disk('public')->put($file_path, $file, "public");
+            return $file_path;
+        } 
+            Storage::put($file_path, $file, "public");
+            return $file_path;
+    }
+}
+
+
