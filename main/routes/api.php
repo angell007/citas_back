@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountPlanController;
 use App\Http\Controllers\AdministratorController;
 use App\Http\Controllers\AgendamientoController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ArlController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
@@ -70,6 +71,7 @@ use App\Http\Controllers\WorkContractTypeController;
 use App\Http\Controllers\ZonesController;
 use App\Http\Controllers\BonificationsController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\EpsController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\SeveranceFundController;
@@ -164,11 +166,19 @@ Route::group(
 		Route::resource('pension-funds', 'PensionFundController');
 
 
+		Route::put('liquidateOrActivate/{id}', [PersonController::class, 'liquidateOrActivate']);
+		Route::put('liquidate/{id}', [PersonController::class, 'liquidate']);
+		Route::get('liquidado/{id}', [WorkContractController::class, 'getLiquidated']);
+
+
 		/** Rutas actividades rrhh */
 		Route::resource('rrhh-activity-types', 'RrhhActivityTypeController');
 		Route::get('/rrhh-activity-people/{id}',  [RrhhActivityController::class, 'getPeople']);
 		Route::get('/rrhh-activity/cancel/{id}',  [RrhhActivityController::class, 'cancel']);
 		Route::post('/rrhh-activity-types/set',  [RrhhActivityTypeController::class, 'setState']);
+
+		Route::resource('rrhh-activity', 'RrhhActivityController');
+
 		/** end*/
 
 		Route::get('/late_arrivals/statistics/{fechaInicio}/{fechaFin}', [LateArrivalController::class, 'statistics']);
@@ -330,7 +340,6 @@ Route::group(
 		Route::get("validate-info-patient", [DataInitPersonController::class, "validatePatientByLineFront"]);
 
 		Route::resource('dependencies', 'DependencyController');
-		Route::resource('work-contract-type', WorkContractController::class);
 		Route::resource('rotating-turns', RotatingTurnController::class);
 		Route::resource('group', GroupController::class);
 		Route::resource('positions', 'PositionController');
@@ -360,7 +369,9 @@ Route::group(
 		Route::resource("type-documents", "TypeDocumentController");
 		// Eps
 		Route::resource("eps", "AdministratorController");
-		Route::get("paginate-eps", [AdministratorController::class, "paginate"]);
+		Route::post("save-eps", [AdministratorController::class, 'saveEps']);
+		Route::resource("administrators", "AdministratorController");
+		Route::get("paginate-eps", [EpsController::class, "paginate"]);
 		Route::resource("epss", "EpsController");
 		// Cups
 		Route::resource("cups", "CupController");
@@ -407,7 +418,7 @@ Route::group(
 		Route::resource('benefits_plans', BenefitsPlanController::class);
 		Route::get('paginateBenefitsPlan', [BenefitsPlanController::class, 'paginate']);
 
-		Route::resource('arl', ArlController::class);
+		Route::resource('arl', 'ArlController');
 		Route::get('afiliation/{id}', [PersonController::class, 'afiliation']);
 		Route::post('updateAfiliation/{id}', [PersonController::class, 'updateAfiliation']);
 
