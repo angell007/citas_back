@@ -81,6 +81,8 @@ use App\Http\Controllers\BanksController;
 use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\ClinicalHistoryController;
+use App\Http\Controllers\CountableIncomeController;
+use App\Http\Controllers\PayrollPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +95,7 @@ use App\Http\Controllers\ClinicalHistoryController;
 |
 */
 
+Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
 
 Route::prefix("auth")->group(
 	function () {
@@ -125,7 +128,7 @@ Route::group(
 		 * Rutas de integracion
 		 */
 
-        Route::post("presentianCall", "CallInController@presentialCall");
+		Route::post("presentianCall", "CallInController@presentialCall");
 
 
 		Route::get('paginateContractType', [WorkContractTypeController::class, 'paginate']);
@@ -230,7 +233,9 @@ Route::group(
 		Route::get('/horarios/datos/generales/{semana}', [RotatingTurnHourController::class, 'getDatosGenerales']);
 		Route::resource('alerts', 'AlertController');
 
-		Route::resource('countable_incomes', Countable_incomeController::class);
+		Route::resource('countable_incomes', CountableIncomeController::class);
+		Route::resource('countable_deductions', 'CountableDeductionController');
+
 		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
 		Route::resource('lunch', 'LunchControlller');
 		Route::put('state-change', [LunchControlller::class, 'activateOrInactivate']);
@@ -279,7 +284,10 @@ Route::group(
 
 		Route::resource('winnings-list', 'WinningListController');
 
-		Route::resource('countable_incomes', 'Countable_incomeController');
+		Route::resource('countable_incomes', 'CountableIncomeController');
+		Route::resource('countable-incomes', 'BenefitIncomeController');
+		Route::resource('countable-not-incomes', 'BenefitNotIncomeController');
+
 		Route::get('countable_income', [BonificationsController::class, 'countable_income']);
 		Route::resource('bonifications', 'BonificationsController');
 
@@ -346,6 +354,38 @@ Route::group(
 		Route::get("people-type-custom", [PeopleTypeController::class, "indexCustom"]);
 		Route::get("people-paginate", 'PersonController@indexPaginate');
 		Route::resource('people', 'PersonController');
+
+
+		/* PAYROLL ROUTES */
+		Route::get('nomina/pago/funcionario/{identidad}', [PayrollController::class, 'getFuncionario']);
+		Route::get('nomina/pago/funcionarios/{inicio?}/{fin?}', [PayrollController::class, 'payPeople']);
+		Route::get('nomina/pago/{inicio?}/{fin?}', [PayrollController::class, 'getPayrollPay']);
+
+		Route::get('payroll/overtimes/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getExtrasTotales']);
+
+		Route::get('payroll/salary/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getSalario']);
+		Route::get('payroll/factors/person/{id}/{dateStart}/{dateEnd}', [PayrollController::class, 'getNovedades']);
+		Route::get('payroll/incomes/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getIngresos']);
+		Route::get('payroll/retentions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getRetenciones']);
+		Route::get('payroll/deductions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getDeducciones']);
+		Route::get('payroll/net-pay/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPagoNeto']);
+		/* 	Route::get('payroll/social-security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getPorcentajes']); */
+		Route::get('payroll/social-security/person', [PayrollController::class, 'getPorcentajes']);
+		Route::get('payroll/history/payments', [PayrollPaymentController::class, 'getPagosNomina']);
+
+
+		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
+		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
+		Route::post('payroll/pay', [PayrollController::class, 'store']);
+		Route::post('payroll/report/{id}', [PayrollController::class, 'reportDian']);
+
+
+
+
+		/* END PAYROLL ROUTES */
+		Route::resource('deductions', 'DeductionController');
+
+
 
 		Route::get("get-patient-fill/{id}", "PatientController@getPatientResend");
 		Route::get("type-service/formality/{id}", "TypeServiceController@allByFormality");
