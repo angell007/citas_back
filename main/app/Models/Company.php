@@ -40,4 +40,8 @@ class Company extends Model
     {
         return $this->hasOne(PayConfigurationCompany::class);
     }
+    public function Configuration()
+    {
+        return $this->hasOne(Configuration::class);
+    }
 }

@@ -177,4 +177,9 @@ class Person extends Model
     {
         return $this->belongsToMany(Company::class);
     }
+
+    public function documentType()
+    {
+        return $this->belongsTo(TypeDocument::class,'type_document_id');
+    }
 }

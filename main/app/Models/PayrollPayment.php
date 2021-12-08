@@ -38,4 +38,15 @@ class PayrollPayment extends Model
         return $this->hasMany(SocialSecurityPersonPayrollPayment::class);
     }
 
+    
+    /**
+     * Get the user that owns the PayrollPayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
 }

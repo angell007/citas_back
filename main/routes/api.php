@@ -83,6 +83,7 @@ use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\ClinicalHistoryController;
 use App\Http\Controllers\CountableIncomeController;
 use App\Http\Controllers\PayrollPaymentController;
+use Illuminate\Support\Facades\Hash;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,9 @@ use App\Http\Controllers\PayrollPaymentController;
 */
 
 Route::post('/asistencia/validar', [AsistenciaController::class, 'validar']);
+Route::get('/', function () {
+	dd(Hash::make(12345));
+});
 
 Route::prefix("auth")->group(
 	function () {
@@ -377,7 +381,8 @@ Route::group(
 		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
 		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
 		Route::post('payroll/pay', [PayrollController::class, 'store']);
-		Route::post('payroll/report/{id}', [PayrollController::class, 'reportDian']);
+		Route::post('payroll/report-electronic/{id}', [PayrollController::class, 'reportDian']);
+		Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
 
 

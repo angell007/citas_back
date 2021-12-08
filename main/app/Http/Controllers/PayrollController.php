@@ -13,6 +13,7 @@ use App\Http\Libs\Nomina\Facades\NominaRetenciones;
 use App\Http\Libs\Nomina\Facades\NominaSalario;
 use App\Http\Libs\Nomina\Facades\NominaSeguridad;
 use App\Models\Company;
+use App\Models\Configuration;
 use App\Models\Payroll;
 use App\Models\PayrollOvertime;
 use App\Models\PayrollPayment;
@@ -21,12 +22,16 @@ use App\Models\Person;
 use App\Services\PayrollReport;
 use App\Services\PayrollService;
 use App\Traits\ApiResponser;
+use App\Traits\ElectronicDian;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PayrollController extends Controller
 {
     use ApiResponser;
+    use ElectronicDian;
 
     //
     /**
@@ -37,93 +42,230 @@ class PayrollController extends Controller
 
     public function reportDian($id)
     {
-        $payroll = PayrollPayment::findOrFail($id);
+        $payroll = PayrollPayment::with('company')->with('company.configuration')->with('company.payConfiguration')
+            ->with('personPayrollPayment')
+            ->where('id', $id)->first();
+
+
         $poplePay = $payroll->personPayrollPayment;
 
         $poplePay->each(function ($personPay) use ($payroll) {
-
-
+            $config = Configuration::where('company_id', $payroll->company->id)->first();
+            $configData =  $config->consecutivoLevel1('Nomina', 'Nomina');
 
             $data = collect();
             $data->type_document_id = 7;
             $data->resolution_number = 2;
+            $data->resolution_number = 7;
             $data->date_pay = $payroll->created_at;
             $data->payroll_period = $payroll->payment_frequency;
-            $data->cune_propio = 'cune55582asdasd223';
+            $data->cune_propio = $this->cuneGenerate($data);
+            $data->observation = 'nomina electronica';
+
+            $data->prefix = $configData->prefix;
+            $data->number = $configData->number;
+            $data->code = $configData->code;
+
+            /*      date("H:i:s", strtotime(No));
+             */
             $data->date_start_period = $payroll->start_period;
             $data->date_end_period = $payroll->end_period;
 
-            $people = collect();
+            $data->hour = Carbon::now()->format('H:i:s');
+
+            $person = collect();
 
             $workContract = $personPay->person->contractultimate;
             if (!$workContract->reported_integraition_dian) {
                 $data->integration_date = $workContract->date_of_admission;
-                $people->contractultimate = 1;
+                $person->contractultimate = 1;
                 /* TODO activar */
                 //$workContract->contractultimate->save();
             }
 
-            $people->historic_worked_time = PayrollReport::calculateWorkedDays($workContract->date_of_admission, $payroll->end_period);
-            $people->salary = $workContract->salary;
-            $people->code = "W" . $personPay->person->identifier;
+            $person->historic_worked_time = PayrollReport::calculateWorkedDays($workContract->date_of_admission, $payroll->end_period);
+            $person->salary = $workContract->salary;
+            $person->code =  $personPay->person->identifier;
 
             /* TODO salario integral quemado */
-            $people->salary_integral = true;
-            $people->worker_type = collect();
-            $people->worker_type->code = $workContract->worker_type_dian_code;
+            $person->salary_integral = "true";
+            $person->worker_type = collect();
+            $person->worker_type->code = $workContract->worker_type_dian_code;
+
 
             /* TODO salario subtipo de salario */
-            $people->worker_subtype = collect();
-            $people->worker_subtype->code = "00";
+            $person->worker_subtype = collect();
+            $person->worker_subtype->code = "00";
 
-            $people->work_contract_type = collect();
-            /*   $tipoContrato =  $workContract->work_contract_type;
-          */
-            $people->work_contract_type->code = $workContract->work_contract_type->dian_code;
+            $person->work_contract_type = collect();
+            /*   $tipoContrato =  $workContract->work_contract_type;*/
+            $person->work_contract_type->code = $workContract->work_contract_type->dian_code;
 
 
-            $people->high_risk_pension = false;
-            $people->identifier = $personPay->person->identifier;
-            $people->first_name = $personPay->person->first_name;
-            $people->middle_name = $personPay->person->second_name;
-            $people->last_name = $personPay->person->first_surname;
-            $people->last_names = $personPay->person->second_surname;
 
-            $people->type_document_identification = collect();
-            $people->type_document_identification->code = $personPay->person->documentType->dian_code;
+            $person->high_risk_pension = "false";
+            $person->identifier = $personPay->person->identifier;
+            $person->first_name = $personPay->person->first_name;
+            $person->middle_name = $personPay->person->second_name;
+            $person->last_name = $personPay->person->first_surname;
+            $person->last_names = $personPay->person->second_surname;
 
-            $people->work_place = collect();
-            $people->work_place->country = collect();
-            $people->work_place->country->code = "CO";
+            $person->type_document_identification = collect();
+
+            $person->type_document_identification->code = $personPay->person->documentType->dian_code;
+
+            $person->work_place = collect();
+            $person->work_place->country = collect();
+            $person->work_place->country->code = "CO";
+
+            /*   dd($person); */
 
             /* TODO monicipio quemado */
-            $people->work_place->municipality = collect();
-            $people->work_place->country->code = "CO";
+            $person->work_place->municipality = collect();
+
+            $person->work_place->municipality->department = collect();
+
+            $person->work_place->country->code = "CO";
+
+            $person->work_place->municipality->code = "05001";
+            $person->work_place->municipality->department->code = "05";
+
+            $person->address = $personPay->person->address;
+
+            $data->person = $person;
+
+            $pay = collect();
+            $pay->payroll_pay_formate = collect();
+            $pay->payroll_pay_formate->code = '1';
+
+            $pay->payroll_pay_method = collect();
+            $pay->payroll_pay_method->code = '1';
+
+            $data->pay = $pay;
+
+            $accrued = collect();
+            $accrued->basic = collect();
+            $accrued->basic->worked_days = $personPay->worked_days;
+            $accrued->basic->salary_payroll = $personPay->net_salary;
 
 
 
-            dd($people);
+            if ($payroll->company->payConfiguration->pay_transportation_assistance) {
 
-            /* 
-                "work_place": {
+                $accrued->transport_subsidy = collect();
+                $accrued->salarial = $payroll->company->transportation_assistance;
+            }
 
-                    "municipality": {
-                        "id": 1,
-                        "code": "05001",
-                        "department": {
-                            "code": "05"
-                        }
-                    },
-                    "addres": "prueba"
+            /* Incapacidades */
+
+
+
+            /* TODO guardar consecutivo 
+                $confg->savePrefix();
+            */
+            $factors = DB::table('payroll_factors as p')
+                ->join('disability_leaves as d', 'd.id', 'p.disability_leave_id')
+                ->where('person_id', $personPay->person->id)
+                ->whereDate('p.date_start', '>=', DB::raw("date('$payroll->start_period')"))
+                ->whereDate('p.date_end', '<=', DB::raw("date('$payroll->end_period')"))
+                ->select('p.*', 'd.code_dian', 'd.maternity', 'd.not_paid_license', 'd.paid_license')
+                ->get();
+
+
+
+            $inhabilities = [];
+            $licencess = new Collection();
+            $licencess->mp = [];
+            $licencess->r = [];
+            $licencess->nr = [];
+
+            $factors->each(function ($x) use ($accrued, &$inhabilities, &$licencess, $personPay) {
+
+                $data = new Collection();
+                $data->date_start = $x->date_start;
+                $data->date_end =  $x->date_end;
+                $data->days =  ($x->number_days + 1);
+                $data->type =  $x->code_dian;
+                $data->value = ($personPay->person->contractultimate->salary * ($x->number_days + 1)) / 30;
+
+
+                if ($x->disability_type == 'Incapacidad') {
+                    $inhabilities[] = $data;
                 }
+                if ($x->disability_type == 'Licencia' &&  $x->maternity == 1) {
+                    $licencess->mp[] = $data;
+                }
+                if ($x->disability_type == 'Licencia' &&  $x->not_paid_license == 1) {
+                    $licencess->nr[] = $data;
+                    unset($data->value);
+                }
+                if ($x->disability_type == 'Licencia' &&  $x->paid_license == 1) {
+                    $licencess->r[] = $data;
+                }
+            });
+
+
+            $bonus = [];
+            $assistances = [];
+            $others = [];
+            $commissions = [];
+
+            $countableNotIncomes = DB::table('benefit_not_incomes as n')
+                ->join('countable_income as c', 'c.id', 'n.countable_income_id')
+                ->where('person_id', $personPay->person->id)
+                ->whereDate('n.created_at', '>=', DB::raw("date('$payroll->start_period')"))
+                ->whereDate('n.created_at', '<=', DB::raw("date('$payroll->end_period')"))
+                ->select('n.*', 'c.type',  'c.bonus', 'c.assistence','c.others','c.commission')
+                ->get();
          
-          */
+            $countableIncomes= DB::table('benefit_incomes as n')
+                ->join('countable_income as c', 'c.id', 'n.countable_income_id')
+                ->where('person_id', $personPay->person->id)
+                ->whereDate('n.created_at', '>=', DB::raw("date('$payroll->start_period')"))
+                ->whereDate('n.created_at', '<=', DB::raw("date('$payroll->end_period')"))
+                ->select('n.*', 'c.type',  'c.bonus', 'c.assistence','c.others','c.commission')
+                ->get();
+         
+
+            //dd($countableIncomes);
+
+            $countableNotIncomes->each(function ($x) use (&$bonus, &$assistances, &$others, &$commissions) {
+                if ($x->bonus == 1) {
+                    $bonus[] = ['no_salarial' => $x->value];
+                }
+                if ($x->assistence == 1) {
+                    $assistances[] = ['no_salarial' => $x->value];
+                }
+
+                if ($x->others == 1) {
+                    $others[] = ['no_salarial' => $x->value];
+                }
+                if ($x->commission == 1) {
+                    $commissions[] = ['value' => $x->value];
+                }
+            });
+
+            $countableIncomes->each(function ($x) use (&$bonus, &$assistances, &$others, &$commissions) {
+                if ($x->bonus == 1) {
+                    $bonus[] = ['salarial' => $x->value];
+                }
+
+                if ($x->assistence == 1) {
+                    $assistances[] = ['salarial' => $x->value];
+                }
+                if ($x->others == 1) {
+                    $others[] = ['salarial' => $x->value];
+                }
+                if ($x->commission == 1) {
+                    $commissions[] = ['value' => $x->value];
+                }
 
 
-            dd($people);
-            $data->people = $people;
+            });
+            dd([$inhabilities, $licencess, $commissions]);
+
+            die;
         });
-        return response($poplePay);
     }
 
     /*  public function store(PagosNominaStoreRequest $pagosNominaStoreRequest) */
@@ -266,7 +408,6 @@ class PayrollController extends Controller
         }
 
 
-
         /**
          * Comprobar si ya existe un pago de nómina en el periodo
          */
@@ -292,10 +433,10 @@ class PayrollController extends Controller
             return $query->whereDate('date_of_admission', '<=', $fechaFinPeriodo)
                 ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
                 ->where('liquidated', '0');
-        })->with(['payroll_factors' => $fechasNovedades])->take(1)->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
+        })->with(['payroll_factors' => $fechasNovedades])->get(['id', 'identifier', 'first_name', 'first_surname', 'image']);
         try {
             //code...
-            
+            $funcionariosResponse = [];
             foreach ($funcionarios as $funcionario) {
 
                 $tempSeguridad = $this->getSeguridad($funcionario->id, $fechaInicioPeriodo, $fechaFinPeriodo);
@@ -360,6 +501,7 @@ class PayrollController extends Controller
                 'retenciones' => $totalRetenciones,
                 'costo_total_empresa' => $totalCostoEmpresa,
                 'nomina_paga' => $paga,
+                'nomina' => $nomina,
                 'nomina_paga_id' => $idNominaExistente,
                 'funcionarios' => $funcionariosResponse
             ]);
@@ -410,6 +552,7 @@ class PayrollController extends Controller
                     ->whereDate('date_end', '>=', $fechaInicioPeriodo)->orWhereNull('date_end')
                     ->where('liquidated', '0');
             })->with(['payroll_factors' => $fechasNovedades])->get();
+
             foreach ($funcionarios as $funcionario) {
 
                 $funcionariosResponse[] = $this->success([

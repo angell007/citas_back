@@ -186,8 +186,9 @@ class CompanyController extends Controller
     public function getGlobal()
     {
         return Company::with('payConfiguration')->with('arl')->first([
-            'id', 'arl_id', 'payment_frequency', 'name as social_reason', 'tin as document_number',
+            'id', 'arl_id', 'payment_frequency', 'social_reason', 'tin as document_number',
             'transportation_assistance', 'base_salary', 'law_1607'
         ]);
     }
+    
 }

@@ -12,6 +12,7 @@ use App\Response;
 use App\Traits\ApiResponser;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
@@ -41,7 +42,6 @@ class AuthController extends Controller
             $credentials = $request->only('user', 'password');
             $data['usuario'] = $credentials['user'];
             $data['password'] = $credentials['password'];
-
             if (!$token = JWTAuth::attempt([
                 'usuario' => $data['usuario'],
                 'password' => $data['password']

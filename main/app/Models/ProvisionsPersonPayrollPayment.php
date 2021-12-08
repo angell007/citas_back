@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProvisionsPersonPayrollPayment extends Model
 {
-    use HasFactory;
 
     protected $fillable = [
 	'person_id',
