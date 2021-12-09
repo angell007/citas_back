@@ -215,17 +215,17 @@ class PayrollController extends Controller
                 ->where('person_id', $personPay->person->id)
                 ->whereDate('n.created_at', '>=', DB::raw("date('$payroll->start_period')"))
                 ->whereDate('n.created_at', '<=', DB::raw("date('$payroll->end_period')"))
-                ->select('n.*', 'c.type',  'c.bonus', 'c.assistence','c.others','c.commission')
+                ->select('n.*', 'c.type',  'c.bonus', 'c.assistence', 'c.others', 'c.commission')
                 ->get();
-         
-            $countableIncomes= DB::table('benefit_incomes as n')
+
+            $countableIncomes = DB::table('benefit_incomes as n')
                 ->join('countable_income as c', 'c.id', 'n.countable_income_id')
                 ->where('person_id', $personPay->person->id)
                 ->whereDate('n.created_at', '>=', DB::raw("date('$payroll->start_period')"))
                 ->whereDate('n.created_at', '<=', DB::raw("date('$payroll->end_period')"))
-                ->select('n.*', 'c.type',  'c.bonus', 'c.assistence','c.others','c.commission')
+                ->select('n.*', 'c.type',  'c.bonus', 'c.assistence', 'c.others', 'c.commission')
                 ->get();
-         
+
 
             //dd($countableIncomes);
 
@@ -259,10 +259,41 @@ class PayrollController extends Controller
                 if ($x->commission == 1) {
                     $commissions[] = ['value' => $x->value];
                 }
-
-
             });
-            dd([$inhabilities, $licencess, $commissions]);
+
+
+            /* deductions */
+
+            $deductions = new Collection();
+
+            $deductions->healt =  new Collection();
+            $deductions->pension_funds = new Collection();
+
+            $retDed = $this->getRetenciones($personPay->person->id, $payroll->start_period, $payroll->end_period);
+
+
+            $deductions->healt->deduction = $retDed['total_retenciones']['Salud'];
+            $deductions->healt->percentage = $retDed['porcentajes']['Salud'] * 100;
+
+            $deductions->pension_funds->deduction = $retDed['total_retenciones']['Pensión'];
+            $deductions->pension_funds->percentage = $retDed['porcentajes']['Pensión'] * 100; /**/
+
+
+            $other_deductions = DB::table('deductions as n')
+                ->where('n.person_id', $personPay->person->id)
+                ->whereDate('n.created_at', '>=', DB::raw("date('$payroll->start_period')"))
+                ->whereDate('n.created_at', '<=', DB::raw("date('$payroll->end_period')"))
+                ->select('n.value')
+                ->get();
+
+            dd($other_deductions);
+            
+          
+            $other_deductions->each(function ($x) use (&$deductions) {
+                
+            });
+
+
 
             die;
         });
