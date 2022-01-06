@@ -20,4 +20,14 @@ class PersonPayrollPayment extends Model
     public function person(){
         return $this->belongsTo(Person::class);
     }
+
+    /**
+     * Get the user that owns the PersonPayrollPayment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payrollPayment()
+    {
+        return $this->belongsTo(PayrollPayment::class);
+    }
 }

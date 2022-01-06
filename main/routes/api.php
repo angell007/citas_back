@@ -82,6 +82,8 @@ use App\Http\Controllers\WorkContractController;
 use App\Http\Controllers\BankAccountsController;
 use App\Http\Controllers\ClinicalHistoryController;
 use App\Http\Controllers\CountableIncomeController;
+use App\Http\Controllers\ElectronicPayrollController;
+use App\Http\Controllers\PayrollConfigController;
 use App\Http\Controllers\PayrollPaymentController;
 use Illuminate\Support\Facades\Hash;
 
@@ -144,6 +146,23 @@ Route::group(
 		Route::get('filter-all-positions', [PositionController::class, 'positions']);
 		Route::get('preLiquidado', [CoreWorkContractController::class, 'getPreliquidated']);
 		Route::get('/payroll-factor-people',  [PayrollFactorController::class, 'indexByPeople']);
+
+		Route::get('electronic-payroll/{id}',  [ElectronicPayrollController::class, 'getElectronicPayroll']);
+		Route::get('electronic-payroll-paginate/{id}',  [ElectronicPayrollController::class, 'paginate']);
+		Route::get('electronic-payroll-statistics/{id}',  [ElectronicPayrollController::class, 'statistics']);
+		Route::delete('electronic-payroll/{id}', [ElectronicPayrollController::class, 'deleteElectroincPayroll']);
+
+		/*CONFIG NOMINA*/
+		Route::get('parametrizacion/nomina/extras', [PayrollConfigController::class, 'horasExtrasDatos']);
+		Route::get('parametrizacion/nomina/incapacidades', [PayrollConfigController::class, 'incapacidadesDatos']);
+		Route::get('parametrizacion/nomina/parafiscales', [PayrollConfigController::class, 'parafiscalesDatos']);
+		Route::get('parametrizacion/nomina/riesgos', [PayrollConfigController::class, 'riesgosArlDatos']);
+		Route::get('parametrizacion/nomina/ssocial_empresa', [PayrollConfigController::class, 'sSocialEmpresaDatos']);
+		Route::get('parametrizacion/nomina/ssocial_funcionario', [PayrollConfigController::class, 'sSocialFuncionarioDatos']);
+
+
+		
+		/**/
 
 		Route::get('paginateRetentionType', [RetentionTypeController::class, 'paginate']);
 		Route::resource('retention-type', 'RetentionTypeController');
@@ -381,7 +400,9 @@ Route::group(
 		Route::get('payroll/security/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getSeguridad']);
 		Route::get('payroll/provisions/person/{id}/{fechaInicio}/{fechaFin}', [PayrollController::class, 'getProvisiones']);
 		Route::post('payroll/pay', [PayrollController::class, 'store']);
-		Route::post('payroll/report-electronic/{id}', [PayrollController::class, 'reportDian']);
+		Route::post('payroll/report-electronic/{id}/{idPersonPayroll?}', [PayrollController::class, 'reportDian']);
+
+		
 		Route::get('/company-global', [CompanyController::class, 'getGlobal']);
 
 
@@ -501,6 +522,20 @@ Route::group(
 		Route::post('mycita', function () {
 			return response()->json(request()->all());
 		});
+
+		//se ejecuta al crear
+        Route::resource("subcategory", "SubcategoryController");
+		Route::post("subcategory-variable/{id}", "SubcategoryController@deleteVariable");
+
+        //se ejecuta al crear
+        Route::get("subcategory-field/{id}", "SubcategoryController@getField");
+
+        //se ejecuta al editar
+        Route::get("subcategory-edit/{id?}/{idSubcategoria}", "SubcategoryController@getFieldEdit");
+		Route::resource("subcategory", "SubcategoryController");
+        Route::resource("category", "CategoryController");
+        
+        Route::resource("product", "ProductController");
 	}
 );
 
