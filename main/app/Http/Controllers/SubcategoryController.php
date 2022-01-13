@@ -76,21 +76,22 @@ class SubcategoryController extends Controller
     }
 
     public function getFieldEdit($idproducto=null, $idSubcategoria){
-       
+
         return $this->success(
             DB::select("SELECT SV.label, SV.type, VP.valor, SV.id AS subcategory_variables_id,  VP.id
             FROM subcategoria S
             INNER JOIN subcategory_variables SV  ON S.Id_Subcategoria = SV.subcategory_id
             LEFT JOIN variable_products VP ON VP.product_id = $idproducto and VP.subcategory_variables_id = SV.id
-            where S.Id_Subcategoria = $idSubcategoria")
-        	// DB::table("subcategory_variables as sv")
-        	// 	->select("sv.label","sv.type","sv.id")
-            //     ->join("subcategoria as s", "s.Id_Subcategoria", "sv.subcategory_id")
-            //     ->join("Producto as P", "P.Id_Subcategoria = s.Id_Subcategoria")
-            //     ->leftJoin("variable_products as sv", "sv.product_id = P.Id_Producto and sv.subcategory_variables_id = vp.id")
-        	// 	->where(["P.Id_Producto", $id])
-        	// 	->get()
+            WHERE S.Id_Subcategoria = $idSubcategoria")
         );
+
+        // return $this->success(
+        //     DB::select("SELECT SV.label, SV.type, VP.valor, S.Id_Subcategoria
+        //     FROM subcategoria S
+        //     INNER JOIN subcategory_variables SV  ON S.Id_Subcategoria = SV.subcategory_id
+        //     LEFT JOIN variable_products VP ON VP.product_id = $idproducto and VP.subcategory_variables_id = SV.id
+        //     where S.Id_Subcategoria = $idSubcategoria")
+        // );
     }
 
     public function getField($id)
